@@ -1,0 +1,150 @@
+.model AO3400 VDMOS(Rg=3 Rd=5m Rs=8m Vto=1.0 Kp=40 Cgdmax=300p Cgdmin=40p Cgs=620p Cjo=45p m=0.3 Vj=0.5 Is=5p N=1.3 Rb=10m Ksubthres=0.1)
+.model AO3401A VDMOS(pchannel Rg=3 Rd=10m Rs=10m Vto=-1.0 Kp=25 Cgdmax=400p Cgdmin=80p Cgs=390p Cjo=140p Is=3.0p Rb=20m m=0.5 Vj=0.75 ksubthres=0.1)
+
+* 4 pin mosfets for transmission gates
+.model SST214 PMOS Level=1 CBD=4.65p CBS=5.58p CGBO=20.6n
++ CGDO=2n CGSO=2.4n GAMMA=0.992 IS=3.25E-13 KP=7.15m
++ LAMBDA=22.5m MJ=0.46 PB=0.8 PHI=0.75 RD=12 RS=15 VTO=-1.15
+
+.model SST210 NMOS Level=1 CBD=4.65p CBS=5.58p CGBO=20.6n
++ CGDO=2n CGSO=2.4n GAMMA=0.992 IS=3.25E-13 KP=7.15m
++ LAMBDA=22.5m MJ=0.46 PB=0.8 PHI=0.75 RD=12 RS=15 VTO=1.15
+
+
+* fets: gate is closer to SOURCE!
+* MP: DRAIN GATE SOURCE BULK
+
+.SUBCKT INVERTER IN OUT VDD GND
+M1 OUT IN VDD VDD AO3401A L=0.18u W=4u
+M2 OUT IN GND GND AO3400  L=0.18u W=2u
+.ENDS INVERTER
+
+.SUBCKT NAND a b y VDD GND
+M1 y a VDD VDD AO3401A
+M3 y b VDD VDD AO3401A
+M2 y a N001 N001 AO3400
+M4 N001 b GND GND AO3400
+.ENDS NAND
+
+.SUBCKT NOR a b y VDD GND
+M1 y a N001 N001 AO3401A
+M2 N001 b VDD VDD AO3401A
+M3 y a GND GND AO3400
+M4 y b GND GND AO3400
+.ENDS NOR
+
+.SUBCKT TGMUX in out ctrl ctrlN vdd gnd
+M1 out ctrl in gnd SST210
+M2 out ctrlN in vdd SST214
+.ENDS TGMUX
+
+* Behavioral LTSpice Model for MAX4610 Quad SPST NO Analog Switch
+* Standard pinout for MAX4610EUD (TSSOP-14): Pin 1=IN1, 2=NO1, 3=COM1, 4=IN4, 5=NO4, 6=COM4, 7=GND, 8=COM3, 9=NO3, 10=IN3, 11=COM2, 12=NO2, 13=IN2, 14=VDD
+* Model assumes NO switches (closed when IN high).
+* Parameters: Ron approx 160 Ohm at 3.3V (adjust based on VDD; datasheet typical 80 Ohm at 5V, 160 Ohm at 3V)
+* Vt=1.5V for logic threshold (compatible with 3.3V TTL/CMOS, high >2V, low <0.8V)
+* Add capacitances for realism (Coff ~10-15pF, Con ~25pF from datasheet)
+
+.subckt MAX4610 14 7 1 2 3 13 12 11 4 5 6 10 9 8
+.param Ron=160  ; Adjust for VDD: e.g., 80 for 5V, 160 for 3V
+.param Roff=1G  ; High off-resistance
+.param Vt=1.5   ; Logic threshold voltage
+.param Vh=0.1   ; Hysteresis for sharp transition (small value)
+
+.model AnaSW SW(Ron={Ron} Roff={Roff} Vt={Vt} Vh={Vh})
+
+* Switch 1: IN1 (pin1), NO1 (pin2), COM1 (pin3)
+S1 3 2 1 7 AnaSW
+Ccom1 3 7 15p  ; COM off capacitance
+Cno1 2 7 10p   ; NO off capacitance
+Cin1 1 7 5p    ; Input capacitance
+
+* Switch 2: IN2 (pin13), NO2 (pin12), COM2 (pin11)
+S2 11 12 13 7 AnaSW
+Ccom2 11 7 15p
+Cno2 12 7 10p
+Cin2 13 7 5p
+
+* Switch 3: IN3 (pin10), NO3 (pin9), COM3 (pin8)
+S3 8 9 10 7 AnaSW
+Ccom3 8 7 15p
+Cno3 9 7 10p
+Cin3 10 7 5p
+
+* Switch 4: IN4 (pin4), NO4 (pin5), COM4 (pin6)
+S4 6 5 4 7 AnaSW
+Ccom4 6 7 15p
+Cno4 5 7 10p
+Cin4 4 7 5p
+
+* Power pins: VDD (pin14), GND (pin7) - no current draw modeled (quiescent ~1uA, ignore for basic sim)
+.ends MAX4610
+
+
+* Behavioral LTSpice Model for MAX4612 Quad SPST (2x NO, 2x NC) Analog Switch
+* Pins (TSSOP/SO-14 package order):
+* 1=NO1, 2=COM1, 3=NO2, 4=COM2, 5=IN2, 6=IN3, 7=GND, 8=NC3, 9=COM3, 10=COM4, 11=NC4, 12=IN4, 13=IN1, 14=V+
+* Switch Config:
+*   Switch1 (NO): NO1 (1) - COM1 (2), controlled by IN1 (13) - closed when IN1 > Vt
+*   Switch2 (NO): NO2 (3) - COM2 (4), controlled by IN2 (5) - closed when IN2 > Vt
+*   Switch3 (NC): NC3 (8) - COM3 (9), controlled by IN3 (6) - closed when IN3 < Vt (inverted logic)
+*   Switch4 (NC): NC4 (11) - COM4 (10), controlled by IN4 (12) - closed when IN4 < Vt (inverted logic)
+* Parameters: Ron typ 160 Ohm at 3.3V (adjust based on V+; datasheet max 100 Ohm at 5V, 46 Ohm at 12V)
+* Vt=1.5V logic threshold (high >2V, low <0.8V for 3.3V CMOS/TTL)
+* Capacitances approx from datasheet (Coff ~10-15pF, Con ~25pF)
+
+.subckt MAX4612 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+.param Ron=160  ; Adjust for V+: e.g., 100 for 5V, 46 for 12V, 160 for 3V
+.param Roff=1G  ; High off-resistance
+.param Vt=1.5   ; Logic threshold voltage
+.param Vh=0.1   ; Hysteresis for sharp transition
+
+.model AnaSW SW(Ron={Ron} Roff={Roff} Vt={Vt} Vh={Vh})
+
+* Switch 1 (NO): NO1 (1) - COM1 (2), control IN1 (13)
+S1 2 1 13 7 AnaSW
+Ccom1 2 7 15p  ; COM off capacitance
+Cno1 1 7 10p   ; NO off capacitance
+Cin1 13 7 5p   ; Input capacitance
+
+* Switch 2 (NO): NO2 (3) - COM2 (4), control IN2 (5)
+S2 4 3 5 7 AnaSW
+Ccom2 4 7 15p
+Cno2 3 7 10p
+Cin2 5 7 5p
+
+* Inverter for Switch 3 (NC) control: inv3 = V+ - IN3 (6)
+Einv3 inv3 7 VALUE {V(14) - V(6)}
+* Switch 3 (NC): NC3 (8) - COM3 (9), control inv3 (closed when IN3 low)
+S3 9 8 inv3 7 AnaSW
+Ccom3 9 7 15p
+Cnc3 8 7 10p
+Cin3 6 7 5p
+
+* Inverter for Switch 4 (NC) control: inv4 = V+ - IN4 (12)
+Einv4 inv4 7 VALUE {V(14) - V(12)}
+* Switch 4 (NC): NC4 (11) - COM4 (10), control inv4 (closed when IN4 low)
+S4 10 11 inv4 7 AnaSW
+Ccom4 10 7 15p
+Cnc4 11 7 10p
+Cin4 12 7 5p
+
+* Power pins: V+ (14), GND (7) - no quiescent current modeled (~1uA, negligible)
+.ends MAX4612
+
+
+.SUBCKT XOR1 a b out vdd gnd
+X§X1 a na vdd gnd INVERTER ;§pnba IN)OUT)VDD)GND
+X§X2 b nb vdd gnd INVERTER ;§pnba IN)OUT)VDD)GND
+X§SEL_2 vdd gnd nb a out b na out NC_01 NC_02 NC_03 NC_04 NC_05 NC_06 MAX4610 ;§pnba vdd)gnd)in1)no1)com1)in2)no2)com2)in4)no4)com4)in3)no3)com3
+.ENDS XOR1
+
+.SUBCKT AND1 a b and_out vdd gnd
+X§U1 a b N001 vdd gnd NAND ;§pnba a)b)y)VDD)GND
+X§U2 N001 and_out vdd gnd INVERTER ;§pnba IN)OUT)VDD)GND
+.ENDS AND1
+
+.SUBCKT OR1 a b or1_out vdd gnd
+X§U1 a b N001 vdd 0 NOR ;§pnba a)b)y)VDD)GND
+X§U2 N001 or1_out vdd 0 INVERTER ;§pnba IN)OUT)VDD)GND
+.ENDS OR1
