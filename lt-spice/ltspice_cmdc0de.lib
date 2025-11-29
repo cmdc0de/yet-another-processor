@@ -103,7 +103,7 @@ Cin4 4 7 5p
 
 .model AnaSW SW(Ron={Ron} Roff={Roff} Vt={Vt} Vh={Vh})
 
-* Switch 1 (NO): NO1 (1) - COM1 (2), control IN1 (13)
+* Switch 1 (NO):w) - COM1 (2), control IN1 (13)
 S1 2 1 13 7 AnaSW
 Ccom1 2 7 15p  ; COM off capacitance
 Cno1 1 7 10p   ; NO off capacitance
