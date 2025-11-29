@@ -10,6 +10,8 @@
 + CGDO=2n CGSO=2.4n GAMMA=0.992 IS=3.25E-13 KP=7.15m
 + LAMBDA=22.5m MJ=0.46 PB=0.8 PHI=0.75 RD=12 RS=15 VTO=1.15
 
+.model IRLML6401 VDMOS(pchan Rg=6 Vto=-1 Rd=0.1m Rs=27m Rb=36m Kp=29.64 Lambda=0.263 Cgdmax=400p Cgdmin=31p Cgs=629p Cjo=120p Is=7.85e-13 N=1.5 M=0.899 Vj=5 A=0.1 TT=30n ksubthres=0.128 bex=-2 BV=12.5 NBV=1.5 IBV=250u vtotc=1.7m tksubthres1=3m RDS=15Meg mtriode=1 trs1=3m mfg=Infineon Vds=12 Ron=50m Qg=10n)
+
 
 * fets: gate is closer to SOURCE!
 * MP: DRAIN GATE SOURCE BULK
