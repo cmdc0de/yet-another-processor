@@ -1,6 +1,6 @@
 """m1 behavioral model: 32 GPRs, wired r0–r2, FLAGS, PC+4, SPECIAL ALU ops."""
 
-from compiler.yap_isa.encode import FUNCT, OPCODE_SPECIAL, unpack_r
+from compiler.yap_isa.encode import FUNCT, OPCODE, OPCODE_SPECIAL, sext16, unpack_r
 
 MASK = 0xFFFFFFFF
 WORD_BYTES = 4
@@ -95,6 +95,7 @@ class Cpu:
 
     def _alu_sll(self, rs: int, shamt: int) -> int:
         rs = _u32(rs)
+        shamt &= 31
         if shamt == 0:
             c = 0
             result = rs
@@ -106,10 +107,42 @@ class Cpu:
         self.flags.set_zn(result)
         return result
 
-    def step(self, word: int) -> None:
-        fields = unpack_r(word)
-        if fields["opcode"] != OPCODE_SPECIAL:
-            raise ValueError(f"m1 only executes SPECIAL, opcode={fields['opcode']}")
+    def _alu_srl(self, rs: int, shamt: int) -> int:
+        rs = _u32(rs)
+        shamt &= 31
+        if shamt == 0:
+            c = 0
+            result = rs
+        else:
+            c = (rs >> (shamt - 1)) & 1
+            result = rs >> shamt
+        self.flags.c = c
+        self.flags.v = 0
+        self.flags.set_zn(result)
+        return result
+
+    def _alu_sra(self, rs: int, shamt: int) -> int:
+        rs = _u32(rs)
+        shamt &= 31
+        signed = rs - 0x100000000 if _sign(rs) else rs
+        if shamt == 0:
+            c = 0
+        else:
+            c = (rs >> (shamt - 1)) & 1
+        result = _u32(signed >> shamt)
+        self.flags.c = c
+        self.flags.v = 0
+        self.flags.set_zn(result)
+        return result
+
+    def _alu_mul(self, rs: int, rt: int) -> int:
+        result = _u32(rs * rt)
+        self.flags.c = 0
+        self.flags.v = 0
+        self.flags.set_zn(result)
+        return result
+
+    def _step_special(self, fields: dict) -> None:
         rd, rs_i, rt_i = fields["rd"], fields["rs"], fields["rt"]
         shamt, funct = fields["shamt"], fields["funct"]
         rs, rt = self.read(rs_i), self.read(rt_i)
@@ -128,6 +161,18 @@ class Cpu:
             result = self._alu_logic(~rs)
         elif funct == FUNCT["sll"]:
             result = self._alu_sll(rs, shamt)
+        elif funct == FUNCT["srl"]:
+            result = self._alu_srl(rs, shamt)
+        elif funct == FUNCT["sra"]:
+            result = self._alu_sra(rs, shamt)
+        elif funct == FUNCT["sllv"]:
+            result = self._alu_sll(rs, rt & 31)
+        elif funct == FUNCT["srlv"]:
+            result = self._alu_srl(rs, rt & 31)
+        elif funct == FUNCT["srav"]:
+            result = self._alu_sra(rs, rt & 31)
+        elif funct == FUNCT["mul"]:
+            result = self._alu_mul(rs, rt)
         elif funct == FUNCT["cmp"]:
             self._alu_sub(rs, rt)
             write = False
@@ -144,8 +189,30 @@ class Cpu:
             self.flags.v = 0
             write = False
         else:
-            raise ValueError(f"funct not in m1: {funct:#08b}")
+            raise ValueError(f"funct not implemented: {funct:#08b}")
         if write:
             self.write(rd, result)
+
+    def step(self, word: int) -> None:
+        fields = unpack_r(word)
+        opcode = fields["opcode"]
+        rd, rs_i = fields["rd"], fields["rs"]
+        imm16 = fields["imm16"]
+        if opcode == OPCODE_SPECIAL:
+            self._step_special(fields)
+        elif opcode == OPCODE["addi"]:
+            self.write(rd, self._alu_add(self.read(rs_i), _u32(sext16(imm16))))
+        elif opcode == OPCODE["andi"]:
+            self.write(rd, self._alu_logic(self.read(rs_i) & imm16))
+        elif opcode == OPCODE["ori"]:
+            self.write(rd, self._alu_logic(self.read(rs_i) | imm16))
+        elif opcode == OPCODE["xori"]:
+            self.write(rd, self._alu_logic(self.read(rs_i) ^ imm16))
+        elif opcode == OPCODE["lui"]:
+            self.write(rd, _u32(imm16 << 16))
+        elif opcode == OPCODE["adr"]:
+            self.write(rd, _u32(self.pc + WORD_BYTES + sext16(imm16)))
+        else:
+            raise ValueError(f"opcode not implemented: {opcode:#08b}")
         self._force_wired()
         self.pc = _u32(self.pc + WORD_BYTES)

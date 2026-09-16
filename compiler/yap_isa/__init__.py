@@ -1,9 +1,11 @@
-"""YAP integer ISA (m1: programmer model + register ALU)."""
+"""YAP integer ISA (m1–m2: ALU, shifts, immediates, MUL)."""
 
 from compiler.yap_isa.cpu import Cpu, MASK, WORD_BYTES
 from compiler.yap_isa.encode import (
     FUNCT,
+    OPCODE,
     OPCODE_SPECIAL,
+    pack_i,
     pack_r,
     unpack_r,
     assemble,
@@ -16,7 +18,9 @@ __all__ = [
     "MASK",
     "WORD_BYTES",
     "FUNCT",
+    "OPCODE",
     "OPCODE_SPECIAL",
+    "pack_i",
     "pack_r",
     "unpack_r",
     "assemble",

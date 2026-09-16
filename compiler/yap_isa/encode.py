@@ -1,11 +1,26 @@
-"""R-type pack/unpack for m1 SPECIAL ops. Little-endian 32-bit words."""
+"""R-type and I-type pack/unpack. Little-endian 32-bit words."""
 
 from compiler.yap_isa.regs import parse_reg
 
 OPCODE_SPECIAL = 0b000000
+OPCODE = {
+    "special": OPCODE_SPECIAL,
+    "addi": 0b001000,
+    "adr": 0b001001,
+    "andi": 0b001100,
+    "ori": 0b001101,
+    "xori": 0b001110,
+    "lui": 0b001111,
+}
 
 FUNCT = {
     "sll": 0b000000,
+    "srl": 0b000010,
+    "sra": 0b000011,
+    "sllv": 0b000100,
+    "srlv": 0b000110,
+    "srav": 0b000111,
+    "mul": 0b011000,
     "add": 0b100000,
     "sub": 0b100010,
     "and": 0b100100,
@@ -45,12 +60,37 @@ def unpack_r(word: int) -> dict:
         "rt": (word >> 11) & 0x1F,
         "shamt": (word >> 6) & 0x1F,
         "funct": word & 0x3F,
+        "imm16": word & 0xFFFF,
         "bytes": (word).to_bytes(4, "little"),
     }
 
 
+def pack_i(opcode: int, rd: int, rs: int, imm16: int) -> int:
+    if not (0 <= rd < 32 and 0 <= rs < 32):
+        raise ValueError("register index out of range")
+    if not (0 <= opcode < 64):
+        raise ValueError("opcode out of range")
+    imm16 &= 0xFFFF
+    word = ((opcode & 0x3F) << 26) | ((rd & 0x1F) << 21) | ((rs & 0x1F) << 16) | imm16
+    return word & 0xFFFFFFFF
+
+
+def sext16(imm16: int) -> int:
+    imm16 &= 0xFFFF
+    if imm16 & 0x8000:
+        return imm16 - 0x10000
+    return imm16
+
+
+def parse_imm16(text: str) -> int:
+    value = int(text, 0)
+    if value < -0x8000 or value > 0xFFFF:
+        raise ValueError(f"imm16 out of range: {text}")
+    return value & 0xFFFF
+
+
 def assemble(text: str) -> int:
-    """Assemble one m1 instruction. Mnemonics: add/sub/and/or/xor/not/sll/nop/cmp/test/teq."""
+    """Assemble one m1/m2 instruction."""
     parts = text.replace(",", " ").split()
     if not parts:
         raise ValueError("empty instruction")
@@ -69,17 +109,32 @@ def assemble(text: str) -> int:
             raise ValueError(f"{op} rs, rt")
         rs, rt = parse_reg(parts[1]), parse_reg(parts[2])
         return pack_r(0, rs, rt, 0, FUNCT[op])
-    if op == "sll":
+    if op in ("sll", "srl", "sra"):
         if len(parts) != 4:
-            raise ValueError("sll rd, rs, shamt")
+            raise ValueError(f"{op} rd, rs, shamt")
         rd, rs, shamt = parse_reg(parts[1]), parse_reg(parts[2]), int(parts[3], 0)
-        return pack_r(rd, rs, 0, shamt, FUNCT["sll"])
-    if op in ("add", "sub", "and", "or", "xor"):
+        return pack_r(rd, rs, 0, shamt, FUNCT[op])
+    if op in ("sllv", "srlv", "srav", "add", "sub", "and", "or", "xor", "mul"):
         if len(parts) != 4:
             raise ValueError(f"{op} rd, rs, rt")
         rd, rs, rt = parse_reg(parts[1]), parse_reg(parts[2]), parse_reg(parts[3])
         return pack_r(rd, rs, rt, 0, FUNCT[op])
-    raise ValueError(f"unsupported m1 mnemonic: {op}")
+    if op in ("addi", "andi", "ori", "xori"):
+        if len(parts) != 4:
+            raise ValueError(f"{op} rd, rs, imm")
+        rd, rs, imm = parse_reg(parts[1]), parse_reg(parts[2]), parse_imm16(parts[3])
+        return pack_i(OPCODE[op], rd, rs, imm)
+    if op == "lui":
+        if len(parts) != 3:
+            raise ValueError("lui rd, imm")
+        rd, imm = parse_reg(parts[1]), parse_imm16(parts[2])
+        return pack_i(OPCODE["lui"], rd, 0, imm)
+    if op == "adr":
+        if len(parts) != 3:
+            raise ValueError("adr rd, imm")
+        rd, imm = parse_reg(parts[1]), parse_imm16(parts[2])
+        return pack_i(OPCODE["adr"], rd, 0, imm)
+    raise ValueError(f"unsupported mnemonic: {op}")
 
 
 def nop_word() -> int:
