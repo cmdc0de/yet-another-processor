@@ -1,100 +1,117 @@
 # Project Goals
 
-design a 32-bit computer
+## Project description
 
+Design and implement a full computer system: CPU, GPU, operating system, compiler, and two emulators — one to test the operating system, one to test the CPU.
 
-# System board
+The machine is 32-bit. The board is powered at 5 V. A regulator drops the CPU core to 3.3 V.
 
-Files associated with the system board should go into logic folders under the ./system-board
-The system board should have sub folders for each major component of the computer.
+The CPU is a discrete MOSFET design with a RISC-shaped, load/store programmer model and microcoded control. The ALU, flags register, and 16 of 32 general-purpose registers are CMOS MOSFETs. The other 16 GPRs are ICs. Software sees one 32-register file. If the MOSFET register file is too large to build, more (or all) of those 32 registers move to ICs without changing the ISA.
 
-Folder Structure under docs, if ends with .md its a file if no file extension its a folder. Items inside << >> means use the standard project layout
+ICs are also allowed for microcode storage, instruction cache, data cache, and tristate buffers. Main memory is SRAM.
 
-* docs
-    * components
-      * ... datasheets for components are considering using
-    * project-goals.md
-    * project_plan
-      * milestones
-        * m1-plan.md
-        * m1-testplan.md
-        * ...
-        * m{N}-plan.md
-        * m{n}-testplan.md
-    * computer
-      * system_board.md 
-      * CPU
-        * cpu.md
-        * registers.md
-        * ALU.md
-        * FPU.md
-        * control_logic.md
-        * microcode.md
-        * code_cache.md (L1 cache)
-      * memory_bus.md
-      * memory.md
-      * SRAM.md
-      * GPU (implemented via FPGA)
-        * gpu_memory.md
-        * gpu_design.md
-    * Complier
-      * compiler_design.md
-      * implementation_phases.md
-      * milestones
-        * m1-plan.md
-        * m1-testplan.md
-        * ...
-        * m{N}-plan.md
-        * m{n}-testplan.md
-    * Operating System
-      * os_design_principals.md
-      * ABI.md
-      * system_call_interface.md
-    * emulator
-      * rust
-        * docs
-          * software_emulator_design.md
-        * << standard rust project layout >>
-      * FPGA
-        * docs
-          * design.md
-        * << standard FPGA project layout >>
+The GPU is an FPGA, separate from the CPU-emulator FPGA. The first GPU is a display engine: SPI or HDMI output with a backbuffer. Physical output is chosen at GPU design time. This is not a 3D shader GPU.
 
+The compiler starts as a Python program that translates this CPU’s assembly to machine code. It may later become a Rust compiler. LLVM and GCC backends are not the plan.
 
-# Project anchors / design goals
+The emulator used to write and test the operating system is written in Rust. The emulator used to test the CPU design is a different FPGA.
 
-* CPU - at minium ALU is designed with only mosfets
-  * I'd like to use a 5V power supply but the mosfets making up the CPU should be 3.3 logic level.
-* registers would also like to be make from mosfets as well
-* RAM Memory will be SRAM
-* Memory bus can be a tristate buffer IC
-* GPU  would like to be an FPGA 
-* IO can be handled by a small microcontroller feeding data and signals to the CPU
-* microcode can be a parallel interface memory IC
-* display could be HDMI or SPI but handled by the FPA "GPU"
-* emulator is to test the ISA of the CPU as well as allow me to start writing the operating system before the CPU is actually built
+I/O other than the GPU is a microcontroller bridge (STM32 is the current candidate; the exact part is not a goals decision).
 
-# Operating system
+A floating-point unit is in scope as a coprocessor (IC or FPGA), not MOSFETs. Virtual memory is a later generation: the first CPU and OS use privilege plus simple memory protection, and the ISA reserves encodings and exceptions for translation later.
 
-A design from scratch operating system to make the new CPU and system usable
+## Constraints
 
-## Operating system features
+| Topic | Decision |
+|---|---|
+| Word size | 32-bit |
+| Power | 5 V system rail, 3.3 V CPU via regulator. Prefer 3.3 V for the bus; level-shift only if a part forces 5 V |
+| ISA | Custom, RISC-shaped (load/store), microcoded. Encodings are a later design document |
+| GPRs | 32 architectural. First CPU: 16 MOSFET + 16 IC, one file to software |
+| GPR fallback | More of the 32 may move to ICs; ISA still has 32 |
+| MOSFET (intent) | ALU, flags, 16 GPRs |
+| IC allowed | Other 16 GPRs, microcode, I-cache, D-cache, tristate buffers |
+| Main memory | SRAM |
+| Memory model | User/supervisor + base/limit or MPU on the first CPU. Virtual memory reserved in the ISA. No MMU on v1 hardware |
+| FPU | Coprocessor, IC or FPGA, not MOSFET. Software float until it exists |
+| Integer mul/div | Not specified here; ALU design document |
+| GPU | Separate FPGA, backbuffer, SPI or HDMI |
+| Compiler | Python first, Rust compiler later. Not LLVM/GCC |
+| OS test harness | Rust emulator |
+| CPU test harness | Separate FPGA |
+| I/O | MCU bridge (STM32 candidate) |
 
-* 32 bit real and protected mode
+`r0` wired-to-zero vs a real register, MPU vs a single base/limit, IEEE-754 vs a simpler float format, and cache internals are not goals decisions.
 
-## Compiler
+## Non-goals (this generation)
 
-* initially just a python application that translates assemblier of this CPU to binary code the CPU understands
-* later build a backend for LLVM or gcc
+- 3D / shader GPU
+- MOSFET FPU, MOSFET caches, MOSFET microcode, MOSFET tristate
+- MMU / page tables on the first CPU
+- QEMU target
+- LLVM or GCC backend
+- Custom silicon
 
-## system emulator
+## Honesty
 
-* initially stand alone written in rust 
-  * goal to test operating system
-  * later align with qemu
-* another written for an FPGA 
-  * goal to test CPU
+- Sixteen 32-bit MOSFET registers plus a 32-bit MOSFET ALU is a large SOT-23 board. That is accepted. Further fallback is moving GPRs to ICs, not shrinking the ISA.
+- A split register file means two physical timings and extra muxing. The FPGA CPU should model that split if it is meant to test the physical CPU. The Rust OS emulator only needs 32 register names.
+- Discrete MOSFET logic will be slow (Hz–kHz class until measured). That is not a defect.
+- The first OS is protected, not paged. Virtual memory is an ISA-compatible later generation, not Linux in year one.
+- FPU in scope does not mean MOSFET float and does not mean FP on the first board.
+- “Cache IC” means SRAM plus hit/tag logic somewhere (glue, FPGA, or later). That is a CPU-design detail.
+- Two FPGAs have two jobs (CPU emulator vs GPU) and stay separate projects. The FPU may share the CPU-emulator FPGA for bring-up or be its own IC/FPGA; it does not live on the GPU FPGA.
 
+## Subprojects
 
+| Subproject | Job | Done means |
+|---|---|---|
+| ISA + ABI | Contract for CPU, both emulators, compiler, OS | Frozen encodings, 32 GPRs, flags, privilege, reserved VM traps, coprocessor/FPU space, calling convention |
+| Python compiler (v1) | Assembly → machine code | Builds OS and tests; output runs on the Rust emulator |
+| Rust OS emulator | Write and test the OS before the MOSFET CPU exists | Boots the OS, passes ISA tests |
+| Operating system | Make the machine usable | Kernel, syscalls, simple protection on Rust, then FPGA CPU, then MOSFET CPU |
+| MOSFET cell library | Gates, latches, adder bit | Characterized cells (already started in `lt-spice/`) |
+| CPU microarchitecture | Datapath + microcode that implements the ISA | Spec the FPGA CPU can be written from, including the split register file |
+| FPGA CPU emulator | Test the CPU design | Matches Rust on ISA tests; can run the OS or a subset |
+| Physical CPU | MOSFET ALU, flags, 16 GPRs + IC GPRs, control, caches, bus | Same binaries as the emulators |
+| FPU coprocessor | FP ops off the MOSFET datapath | IC or FPGA the ISA can target; OS save/restore |
+| Memory + bus | SRAM + tristate | Documented protocol at CPU clock |
+| FPGA GPU | Display | Backbuffered SPI or HDMI; OS can blit a framebuffer |
+| MCU I/O | Keyboard, serial, storage | Protocol the OS talks to |
+| Rust compiler (later) | Higher-level language | After the Python compiler is no longer enough |
 
+## Sequencing principles
 
+Project success is the full machine. Work order is contract-first: the MOSFET CPU is not the first place the ISA is tested. Slice the build, not the architecture (32-bit, 32 GPRs, reserved VM, coprocessor FPU in the ISA from day one).
+
+1. This goals document.
+2. ISA + ABI design document.
+3. Python assembler and ISA tests.
+4. Rust OS emulator; OS work starts here (privilege + simple protection, no paging).
+5. MOSFET cell library continues in parallel (already started; does not wait on the ISA).
+6. CPU microarchitecture and microcode; FPGA CPU checked against Rust and the ISA tests.
+7. Physical CPU in slices: 1-bit latch → flags bit → ALU bit → 32-bit ALU → 16 MOSFET GPRs + 16 IC GPRs → microcode, caches, tristate.
+8. System: SRAM, bus, GPU FPGA, MCU, 5 V / 3.3 V power.
+9. Same OS binaries on Rust → FPGA CPU → MOSFET CPU.
+10. FPU coprocessor after integer programs work; software float until then.
+11. Reserved virtual memory only after the protected-mode kernel is real.
+12. Rust compiler when the assembler is no longer enough.
+
+Milestone plans (`docs/project_plan/`) come after the ISA design, not before.
+
+## Repository layout
+
+Implementation does not live under `docs/`.
+
+```
+docs/            goals, ISA, CPU, OS, GPU, plans
+lt-spice/        MOSFET cell simulations (exists)
+hw/              KiCad, CPU PCBs, system board
+emu/rust/        OS / ISA emulator
+emu/fpga-cpu/    CPU-design FPGA
+gpu/             GPU FPGA
+compiler/        Python v1, Rust later
+os/
+```
+
+Datasheets and footprints stay under `docs/` (the existing `docs/componets/` spelling should be fixed when that directory is touched). Existing `lt-spice/` work is the start of the MOSFET cell library.
