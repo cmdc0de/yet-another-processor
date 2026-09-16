@@ -73,7 +73,7 @@ Prefix: `<PREFIX>`   <!-- slug, uppercased: ISA, EMU-RUST, OS -->
 | ISA-001 | 32 GPRs, one architectural file | open | |
 ```
 
-Status is `open`, `claimed`, or `done`. Only a committed milestone plan may set `claimed` and fill Milestone (`m1`, `m2`, …). IDs are `<PREFIX>-NNN`, monotonic, never reused.
+Status is `open`, `claimed`, `implemented`, or `done`. Only a committed milestone plan may set `claimed` and fill Milestone (`m1`, `m2`, …). `/implement-m` sets `implemented` and wraps the Feature text in `~~strikethrough~~` after that milestone’s code is written. `/implement-m close` sets `done` after the user confirms the walkthrough. IDs are `<PREFIX>-NNN`, monotonic, never reused. Never reuse an ID; never remove a row to show completion.
 
 Draft the full list for this sequence. Do not leave “TBD later” holes that block the first milestone. Features that belong to a later generation (v1 non-goals in project-goals) stay out, or sit at the end marked as later-generation so they cannot be pulled into m1.
 
