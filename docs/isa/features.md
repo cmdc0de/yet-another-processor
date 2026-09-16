@@ -8,35 +8,35 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-001 | 32-bit data word and 32-bit addresses | claimed | m1 |
-| ISA-002 | 32 architectural GPR names `r0`–`r31`, one file to software | claimed | m1 |
-| ISA-003 | Program counter is architectural (call/return and PC-relative ops can use it) | claimed | m1 |
-| ISA-054 | `r0` hardwired 0; reads 0; writes discarded; ops targeting `r0` still update flags | claimed | m1 |
-| ISA-055 | `r1` hardwired 1 (`0x00000001`); reads 1; writes discarded | claimed | m1 |
-| ISA-056 | `r2` hardwired all-ones (`0xFFFFFFFF`); reads -1; writes discarded | claimed | m1 |
+| ISA-001 | ~~32-bit data word and 32-bit addresses~~ | implemented | m1 |
+| ISA-002 | ~~32 architectural GPR names `r0`–`r31`, one file to software~~ | implemented | m1 |
+| ISA-003 | ~~Program counter is architectural (call/return and PC-relative ops can use it)~~ | implemented | m1 |
+| ISA-054 | ~~`r0` hardwired 0; reads 0; writes discarded; ops targeting `r0` still update flags~~ | implemented | m1 |
+| ISA-055 | ~~`r1` hardwired 1 (`0x00000001`); reads 1; writes discarded~~ | implemented | m1 |
+| ISA-056 | ~~`r2` hardwired all-ones (`0xFFFFFFFF`); reads -1; writes discarded~~ | implemented | m1 |
 
 ## Flags
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-004 | Flags Z, N, C, V updated by ALU and compare | claimed | m1 |
+| ISA-004 | ~~Flags Z, N, C, V updated by ALU and compare~~ | implemented | m1 |
 
 ## Integer ALU
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-005 | ADD two registers, write `rd`, update flags | claimed | m1 |
-| ISA-006 | SUB two registers, write `rd`, update flags | claimed | m1 |
-| ISA-007 | AND two registers, write `rd` | claimed | m1 |
-| ISA-008 | OR two registers, write `rd` | claimed | m1 |
-| ISA-009 | XOR two registers, write `rd` | claimed | m1 |
-| ISA-010 | Bitwise NOT, write `rd` | claimed | m1 |
-| ISA-011 | Shift left logical | claimed | m1 |
+| ISA-005 | ~~ADD two registers, write `rd`, update flags~~ | implemented | m1 |
+| ISA-006 | ~~SUB two registers, write `rd`, update flags~~ | implemented | m1 |
+| ISA-007 | ~~AND two registers, write `rd`~~ | implemented | m1 |
+| ISA-008 | ~~OR two registers, write `rd`~~ | implemented | m1 |
+| ISA-009 | ~~XOR two registers, write `rd`~~ | implemented | m1 |
+| ISA-010 | ~~Bitwise NOT, write `rd`~~ | implemented | m1 |
+| ISA-011 | ~~Shift left logical~~ | implemented | m1 |
 | ISA-012 | Shift right logical | open | |
 | ISA-013 | Shift right arithmetic | open | |
-| ISA-014 | Compare two registers; set flags; no GPR write | claimed | m1 |
-| ISA-052 | Bitwise AND-compare (`TEST`): AND two registers, update flags (at least Z, N), no GPR write | claimed | m1 |
-| ISA-053 | Bitwise XOR-compare (`TEQ`): XOR two registers, update flags (at least Z), no GPR write | claimed | m1 |
+| ISA-014 | ~~Compare two registers; set flags; no GPR write~~ | implemented | m1 |
+| ISA-052 | ~~Bitwise AND-compare (`TEST`): AND two registers, update flags (at least Z, N), no GPR write~~ | implemented | m1 |
+| ISA-053 | ~~Bitwise XOR-compare (`TEQ`): XOR two registers, update flags (at least Z), no GPR write~~ | implemented | m1 |
 | ISA-015 | ADD/SUB/AND/OR/XOR with immediate | open | |
 | ISA-016 | Integer multiply instruction | open | |
 | ISA-017 | Integer divide instruction | open | |
@@ -68,7 +68,7 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 | ISA-028 | Jump-and-link (call) | open | |
 | ISA-029 | Jump register (return / indirect) | open | |
 | ISA-030 | Conditional branch on flags (EQ, NE, signed and unsigned LT/GE) | open | |
-| ISA-031 | NOP | claimed | m1 |
+| ISA-031 | ~~NOP~~ | implemented | m1 |
 | ISA-032 | HALT | open | |
 
 ## Privilege and protection
@@ -107,7 +107,7 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 | ISA-047 | Stack discipline (growth direction and alignment) | open | |
 | ISA-048 | Argument, return-value, callee-saved, and caller-saved assignment (writable GPRs only) | open | |
 | ISA-049 | Syscall ABI: trap, number, arguments, return, error | open | |
-| ISA-050 | Assembler names: `zero` (`r0`), `one` (`r1`), `ones` (`r2`), plus `sp`, `ra`, `a0`, … | claimed | m1 |
+| ISA-050 | ~~Assembler names: `zero` (`r0`), `one` (`r1`), `ones` (`r2`), plus `sp`, `ra`, `a0`, …~~ | implemented | m1 |
 
 ## Later generation (do not pull into m1)
 
