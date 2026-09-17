@@ -32,13 +32,13 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 | ISA-009 | ~~XOR two registers, write `rd`~~ | done | m1 |
 | ISA-010 | ~~Bitwise NOT, write `rd`~~ | done | m1 |
 | ISA-011 | ~~Shift left logical~~ | done | m1 |
-| ISA-012 | ~~Shift right logical~~ | implemented | m2 |
-| ISA-013 | ~~Shift right arithmetic~~ | implemented | m2 |
+| ISA-012 | ~~Shift right logical~~ | done | m2 |
+| ISA-013 | ~~Shift right arithmetic~~ | done | m2 |
 | ISA-014 | ~~Compare two registers; set flags; no GPR write~~ | done | m1 |
 | ISA-052 | ~~Bitwise AND-compare (`TEST`): AND two registers, update flags (at least Z, N), no GPR write~~ | done | m1 |
 | ISA-053 | ~~Bitwise XOR-compare (`TEQ`): XOR two registers, update flags (at least Z), no GPR write~~ | done | m1 |
-| ISA-015 | ~~ADD/SUB/AND/OR/XOR with immediate~~ | implemented | m2 |
-| ISA-016 | ~~Integer multiply instruction~~ | implemented | m2 |
+| ISA-015 | ~~ADD/SUB/AND/OR/XOR with immediate~~ | done | m2 |
+| ISA-016 | ~~Integer multiply instruction~~ | done | m2 |
 | ISA-017 | Integer divide instruction | open | |
 
 ## Memory
@@ -57,8 +57,8 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-025 | ~~Form a 32-bit constant in a small, fixed number of instructions~~ | implemented | m2 |
-| ISA-026 | ~~PC-relative address formation~~ | implemented | m2 |
+| ISA-025 | ~~Form a 32-bit constant in a small, fixed number of instructions~~ | done | m2 |
+| ISA-026 | ~~PC-relative address formation~~ | done | m2 |
 
 ## Control flow
 
