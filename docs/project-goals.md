@@ -14,7 +14,7 @@ The GPU is an FPGA, separate from the CPU-emulator FPGA. The first GPU is a disp
 
 The compiler starts as a Python program that translates this CPU’s assembly to machine code. It may later become a Rust compiler. LLVM and GCC backends are not the plan.
 
-The emulator used to write and test the operating system is written in Rust. The emulator used to test the CPU design is a different FPGA.
+The emulator used to write and test the operating system is written in Rust. It runs on Linux (x86_64 and aarch64), Windows (x86_64 and aarch64), and macOS aarch64. Intel Mac (macOS x86_64) is out of this generation. The emulator used to test the CPU design is a different FPGA.
 
 I/O other than the GPU is a microcontroller bridge (STM32 is the current candidate; the exact part is not a goals decision).
 
@@ -38,6 +38,7 @@ A floating-point unit is in scope as a coprocessor (IC or FPGA), not MOSFETs. Vi
 | GPU | Separate FPGA, backbuffer, SPI or HDMI |
 | Compiler | Python first, Rust compiler later. Not LLVM/GCC |
 | OS test harness | Rust emulator |
+| OS test harness host | Linux x86_64 and aarch64; Windows x86_64 and aarch64; macOS aarch64. Not macOS x86_64 |
 | CPU test harness | Separate FPGA |
 | I/O | MCU bridge (STM32 candidate) |
 
@@ -51,6 +52,7 @@ A floating-point unit is in scope as a coprocessor (IC or FPGA), not MOSFETs. Vi
 - QEMU target
 - LLVM or GCC backend
 - Custom silicon
+- Intel Mac (macOS x86_64) as a host for the Rust OS emulator
 
 ## Honesty
 
@@ -68,7 +70,7 @@ A floating-point unit is in scope as a coprocessor (IC or FPGA), not MOSFETs. Vi
 |---|---|---|
 | ISA + ABI | Contract for CPU, both emulators, compiler, OS | Frozen encodings, 32 GPRs, flags, privilege, reserved VM traps, coprocessor/FPU space, calling convention |
 | Python compiler (v1) | Assembly → machine code | Builds OS and tests; output runs on the Rust emulator |
-| Rust OS emulator | Write and test the OS before the MOSFET CPU exists | Boots the OS, passes ISA tests |
+| Rust OS emulator | Write and test the OS before the MOSFET CPU exists | Boots the OS, passes ISA tests on Linux (x86_64, aarch64), Windows (x86_64, aarch64), and macOS aarch64 |
 | Operating system | Make the machine usable | Kernel, syscalls, simple protection on Rust, then FPGA CPU, then MOSFET CPU |
 | MOSFET cell library | Gates, latches, adder bit | Characterized cells (already started in `lt-spice/`) |
 | CPU microarchitecture | Datapath + microcode that implements the ISA | Spec the FPGA CPU can be written from, including the split register file |
