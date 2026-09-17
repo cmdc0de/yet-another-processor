@@ -67,9 +67,9 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 | ISA-027 | ~~Unconditional jump~~ | done | m3 |
 | ISA-028 | ~~Jump-and-link (call)~~ | done | m3 |
 | ISA-029 | ~~Jump register (return / indirect)~~ | done | m3 |
-| ISA-030 | ~~Conditional branch on flags (EQ, NE, signed and unsigned LT/GE)~~ | implemented | m4 |
+| ISA-030 | ~~Conditional branch on flags (EQ, NE, signed and unsigned LT/GE)~~ | done | m4 |
 | ISA-031 | ~~NOP~~ | done | m1 |
-| ISA-032 | ~~HALT~~ | implemented | m4 |
+| ISA-032 | ~~HALT~~ | done | m4 |
 
 ## Privilege and protection
 
