@@ -55,6 +55,36 @@ def _parse_org(stmt: str, path, line_no, lc: int) -> int:
     return imm
 
 
+def _split_args(rest: str) -> list:
+    return rest.replace(",", " ").split()
+
+
+def _eval_imm(token: str, equ: dict, path, line_no) -> int:
+    if token in equ:
+        return equ[token]
+    try:
+        return int(token, 0)
+    except ValueError as exc:
+        raise AsmError(path, line_no, f"bad immediate: {token}") from exc
+
+
+def _subst_equ(stmt: str, equ: dict) -> str:
+    names = sorted(equ, key=len, reverse=True)
+    out = stmt
+    for name in names:
+        hexv = hex(equ[name] & 0xFFFFFFFF)
+        rebuilt = []
+        for tok in out.split():
+            if tok == name:
+                rebuilt.append(hexv)
+            elif tok.startswith(name + "("):
+                rebuilt.append(hexv + tok[len(name) :])
+            else:
+                rebuilt.append(tok)
+        out = " ".join(rebuilt)
+    return out
+
+
 def _resolve_targets(stmt: str, symbols: dict, path, line_no) -> str:
     parts = stmt.replace(",", " ").split()
     if not parts:
@@ -69,11 +99,29 @@ def _resolve_targets(stmt: str, symbols: dict, path, line_no) -> str:
     return " ".join(parts)
 
 
+def _align_pad(lc: int, n: int, path, line_no) -> int:
+    if n < 0 or n > 31:
+        raise AsmError(path, line_no, ".align n out of range")
+    align = 1 << n
+    return (align - (lc % align)) % align
+
+
+def _ensure(payload: bytearray, size: int) -> None:
+    if len(payload) < size:
+        payload.extend(b"\x00" * (size - len(payload)))
+
+
+def _emit(payload: bytearray, lc: int, data: bytes) -> None:
+    _ensure(payload, lc + len(data))
+    payload[lc : lc + len(data)] = data
+
+
 def assemble_ex(text: str, path: str = "<src>"):
-    """Return (YAP1 bytes, symbol table). Two-pass: labels/.org then emit."""
+    """Return (YAP1 bytes, symbol table). Two-pass: labels/.org/data then emit."""
     load = 0
     items = []
     symbols = {}
+    equ = {}
     lc = load
     for line_no, raw in enumerate(text.splitlines(), start=1):
         stmt = strip_comment(raw)
@@ -82,15 +130,47 @@ def assemble_ex(text: str, path: str = "<src>"):
         match = _LABEL.match(stmt)
         if match:
             name, rest = match.group(1), match.group(2).strip()
-            if name in symbols:
-                raise AsmError(path, line_no, f"duplicate label: {name}")
+            if name in symbols or name in equ:
+                raise AsmError(path, line_no, f"duplicate symbol: {name}")
             symbols[name] = lc
             stmt = rest
             if not stmt:
                 continue
-        if stmt.split()[0].lower() == ".org":
+        op = stmt.split()[0].lower()
+        if op == ".org":
             lc = _parse_org(stmt, path, line_no, lc)
             items.append(("org", lc, line_no))
+            continue
+        if op == ".equ":
+            parts = _split_args(stmt)
+            if len(parts) != 3:
+                raise AsmError(path, line_no, ".equ name, imm")
+            name = parts[1]
+            if name in symbols or name in equ:
+                raise AsmError(path, line_no, f"duplicate symbol: {name}")
+            equ[name] = _eval_imm(parts[2], equ, path, line_no)
+            continue
+        if op == ".align":
+            parts = stmt.split()
+            if len(parts) != 2:
+                raise AsmError(path, line_no, ".align n")
+            try:
+                n = int(parts[1], 0)
+            except ValueError as exc:
+                raise AsmError(path, line_no, f"bad .align: {parts[1]}") from exc
+            pad = _align_pad(lc, n, path, line_no)
+            items.append(("pad", pad, line_no))
+            lc += pad
+            continue
+        if op in (".byte", ".half", ".word"):
+            width = {".byte": 1, ".half": 2, ".word": 4}[op]
+            args = _split_args(stmt)[1:]
+            if not args:
+                raise AsmError(path, line_no, f"{op} needs at least one value")
+            if lc % width != 0:
+                raise AsmError(path, line_no, f"{op} requires {width}-byte alignment")
+            items.append(("data", (width, args), line_no))
+            lc += width * len(args)
             continue
         items.append(("insn", stmt, line_no))
         lc += 4
@@ -101,18 +181,31 @@ def assemble_ex(text: str, path: str = "<src>"):
         if kind == "org":
             if data < lc:
                 raise AsmError(path, line_no, ".org cannot move the location counter backward")
-            if len(payload) < data:
-                payload.extend(b"\x00" * (data - len(payload)))
+            _ensure(payload, data)
             lc = data
             continue
-        stmt = _resolve_targets(data, symbols, path, line_no)
+        if kind == "pad":
+            _ensure(payload, lc + data)
+            lc += data
+            continue
+        if kind == "data":
+            width, args = data
+            if lc % width != 0:
+                raise AsmError(path, line_no, "unaligned data")
+            blob = bytearray()
+            for tok in args:
+                val = _eval_imm(tok, equ, path, line_no)
+                blob.extend((val & ((1 << (8 * width)) - 1)).to_bytes(width, "little"))
+            _emit(payload, lc, bytes(blob))
+            lc += len(blob)
+            continue
+        stmt = _subst_equ(data, equ)
+        stmt = _resolve_targets(stmt, symbols, path, line_no)
         try:
             word = assemble(stmt, pc=lc)
         except ValueError as exc:
             raise AsmError(path, line_no, str(exc)) from exc
-        if len(payload) < lc + 4:
-            payload.extend(b"\x00" * (lc + 4 - len(payload)))
-        payload[lc : lc + 4] = word.to_bytes(4, "little")
+        _emit(payload, lc, word.to_bytes(4, "little"))
         lc += 4
     return pack(Yap1(load=load, entry=0, payload=bytes(payload))), symbols
 
