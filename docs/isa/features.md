@@ -39,19 +39,19 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 | ISA-053 | ~~Bitwise XOR-compare (`TEQ`): XOR two registers, update flags (at least Z), no GPR write~~ | done | m1 |
 | ISA-015 | ~~ADD/SUB/AND/OR/XOR with immediate~~ | done | m2 |
 | ISA-016 | ~~Integer multiply instruction~~ | done | m2 |
-| ISA-017 | Integer divide instruction | claimed | m3 |
+| ISA-017 | ~~Integer divide instruction~~ | implemented | m3 |
 
 ## Memory
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-018 | Load word | claimed | m3 |
-| ISA-019 | Store word | claimed | m3 |
-| ISA-020 | Load byte | claimed | m3 |
-| ISA-021 | Store byte | claimed | m3 |
-| ISA-022 | Load halfword | claimed | m3 |
-| ISA-023 | Store halfword | claimed | m3 |
-| ISA-024 | Defined endianness for multi-byte memory (LE vs BE is `design.md`) | claimed | m3 |
+| ISA-018 | ~~Load word~~ | implemented | m3 |
+| ISA-019 | ~~Store word~~ | implemented | m3 |
+| ISA-020 | ~~Load byte~~ | implemented | m3 |
+| ISA-021 | ~~Store byte~~ | implemented | m3 |
+| ISA-022 | ~~Load halfword~~ | implemented | m3 |
+| ISA-023 | ~~Store halfword~~ | implemented | m3 |
+| ISA-024 | ~~Defined endianness for multi-byte memory (LE vs BE is `design.md`)~~ | implemented | m3 |
 
 ## Immediates and addressing
 
@@ -64,9 +64,9 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-027 | Unconditional jump | claimed | m3 |
-| ISA-028 | Jump-and-link (call) | claimed | m3 |
-| ISA-029 | Jump register (return / indirect) | claimed | m3 |
+| ISA-027 | ~~Unconditional jump~~ | implemented | m3 |
+| ISA-028 | ~~Jump-and-link (call)~~ | implemented | m3 |
+| ISA-029 | ~~Jump register (return / indirect)~~ | implemented | m3 |
 | ISA-030 | Conditional branch on flags (EQ, NE, signed and unsigned LT/GE) | open | |
 | ISA-031 | ~~NOP~~ | done | m1 |
 | ISA-032 | HALT | open | |

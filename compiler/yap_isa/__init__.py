@@ -1,4 +1,4 @@
-"""YAP integer ISA (m1–m2: ALU, shifts, immediates, MUL)."""
+"""YAP integer ISA (m1–m3: ALU, memory, jumps)."""
 
 from compiler.yap_isa.cpu import Cpu, MASK, WORD_BYTES
 from compiler.yap_isa.encode import (

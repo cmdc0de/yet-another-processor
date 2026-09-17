@@ -1,9 +1,10 @@
-"""m1 behavioral model: 32 GPRs, wired r0–r2, FLAGS, PC+4, SPECIAL ALU ops."""
+"""Behavioral model: GPRs, FLAGS, memory, DIV, load/store, jumps."""
 
 from compiler.yap_isa.encode import FUNCT, OPCODE, OPCODE_SPECIAL, sext16, unpack_r
 
 MASK = 0xFFFFFFFF
 WORD_BYTES = 4
+CAUSE_ALIGN = 8
 
 
 def _u32(x: int) -> int:
@@ -33,10 +34,13 @@ class Flags:
 
 
 class Cpu:
-    def __init__(self):
+    def __init__(self, mem_size: int = 65536):
         self._gprs = [0] * 32
         self.pc = 0
         self.flags = Flags()
+        self.cause = 0
+        self.mem = bytearray(mem_size)
+        self._pc_next = None
         self._force_wired()
 
     def _force_wired(self) -> None:
@@ -142,6 +146,60 @@ class Cpu:
         self.flags.set_zn(result)
         return result
 
+    def _alu_div(self, rs: int, rt: int) -> int:
+        if rt == 0:
+            result = 0
+        else:
+            result = _u32(rs // rt)
+        self.flags.c = 0
+        self.flags.v = 0
+        self.flags.set_zn(result)
+        return result
+
+    def _addr(self, rs_i: int, imm16: int) -> int:
+        return _u32(self.read(rs_i) + sext16(imm16))
+
+    def _check_align(self, addr: int, size: int) -> bool:
+        if addr % size != 0:
+            self.cause = CAUSE_ALIGN
+            return False
+        return True
+
+    def mem_store(self, addr: int, data: bytes) -> None:
+        end = addr + len(data)
+        if addr < 0 or end > len(self.mem):
+            raise ValueError(f"memory store out of range: {addr}")
+        self.mem[addr:end] = data
+
+    def mem_load(self, addr: int, size: int) -> bytes:
+        end = addr + size
+        if addr < 0 or end > len(self.mem):
+            raise ValueError(f"memory load out of range: {addr}")
+        return bytes(self.mem[addr:end])
+
+    def _load(self, rd: int, rs_i: int, imm16: int, size: int, signed: bool) -> None:
+        addr = self._addr(rs_i, imm16)
+        if not self._check_align(addr, size):
+            return
+        raw = int.from_bytes(self.mem_load(addr, size), "little")
+        if signed:
+            sign_bit = 1 << (size * 8 - 1)
+            if raw & sign_bit:
+                raw -= 1 << (size * 8)
+            raw = _u32(raw)
+        self.write(rd, raw)
+
+    def _store(self, rd: int, rs_i: int, imm16: int, size: int) -> None:
+        addr = self._addr(rs_i, imm16)
+        if not self._check_align(addr, size):
+            return
+        value = self.read(rd) & ((1 << (size * 8)) - 1)
+        self.mem_store(addr, value.to_bytes(size, "little"))
+
+    def _jump_abs(self, target26: int) -> None:
+        next_pc = _u32(self.pc + WORD_BYTES)
+        self._pc_next = (next_pc & 0xF0000000) | ((target26 & 0x03FFFFFF) << 2)
+
     def _step_special(self, fields: dict) -> None:
         rd, rs_i, rt_i = fields["rd"], fields["rs"], fields["rt"]
         shamt, funct = fields["shamt"], fields["funct"]
@@ -173,6 +231,17 @@ class Cpu:
             result = self._alu_sra(rs, rt & 31)
         elif funct == FUNCT["mul"]:
             result = self._alu_mul(rs, rt)
+        elif funct == FUNCT["div"]:
+            result = self._alu_div(rs, rt)
+        elif funct == FUNCT["jr"]:
+            self._pc_next = rs
+            write = False
+            result = 0
+        elif funct == FUNCT["jalr"]:
+            self.write(rd, _u32(self.pc + WORD_BYTES))
+            self._pc_next = rs
+            write = False
+            result = 0
         elif funct == FUNCT["cmp"]:
             self._alu_sub(rs, rt)
             write = False
@@ -194,6 +263,7 @@ class Cpu:
             self.write(rd, result)
 
     def step(self, word: int) -> None:
+        self._pc_next = None
         fields = unpack_r(word)
         opcode = fields["opcode"]
         rd, rs_i = fields["rd"], fields["rs"]
@@ -212,7 +282,31 @@ class Cpu:
             self.write(rd, _u32(imm16 << 16))
         elif opcode == OPCODE["adr"]:
             self.write(rd, _u32(self.pc + WORD_BYTES + sext16(imm16)))
+        elif opcode == OPCODE["lb"]:
+            self._load(rd, rs_i, imm16, 1, True)
+        elif opcode == OPCODE["lbu"]:
+            self._load(rd, rs_i, imm16, 1, False)
+        elif opcode == OPCODE["lh"]:
+            self._load(rd, rs_i, imm16, 2, True)
+        elif opcode == OPCODE["lhu"]:
+            self._load(rd, rs_i, imm16, 2, False)
+        elif opcode == OPCODE["lw"]:
+            self._load(rd, rs_i, imm16, 4, False)
+        elif opcode == OPCODE["sb"]:
+            self._store(rd, rs_i, imm16, 1)
+        elif opcode == OPCODE["sh"]:
+            self._store(rd, rs_i, imm16, 2)
+        elif opcode == OPCODE["sw"]:
+            self._store(rd, rs_i, imm16, 4)
+        elif opcode == OPCODE["j"]:
+            self._jump_abs(fields["target26"])
+        elif opcode == OPCODE["jal"]:
+            self.write(3, _u32(self.pc + WORD_BYTES))
+            self._jump_abs(fields["target26"])
         else:
             raise ValueError(f"opcode not implemented: {opcode:#08b}")
         self._force_wired()
-        self.pc = _u32(self.pc + WORD_BYTES)
+        if self._pc_next is not None:
+            self.pc = _u32(self._pc_next)
+        else:
+            self.pc = _u32(self.pc + WORD_BYTES)
