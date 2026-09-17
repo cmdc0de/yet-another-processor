@@ -2,8 +2,8 @@
 
 import re
 
-from compiler.yap_isa.csrs import COP0_MFC0, COP0_MTC0, parse_csr
-from compiler.yap_isa.regs import parse_reg
+from compiler.yap_isa.csrs import COP0_MFC0, COP0_MTC0, COP1_MFC1, COP1_MTC1, parse_csr
+from compiler.yap_isa.regs import parse_freg, parse_reg
 
 MASK_ADDR = 0xFFFFFFFF
 _MEM_OP = re.compile(r"^(-?(?:0x[0-9a-fA-F]+|\d+))\((\w+)\)$")
@@ -22,6 +22,7 @@ OPCODE = {
     "xori": 0b001110,
     "lui": 0b001111,
     "cop0": 0b010000,
+    "cop1": 0b010001,
     "lb": 0b100000,
     "lh": 0b100001,
     "lw": 0b100011,
@@ -182,6 +183,16 @@ def assemble(text: str, pc: int = 0) -> int:
         if len(parts) != 1:
             raise ValueError("eret takes no operands")
         return pack_r(0, 0, 0, 0, FUNCT["eret"])
+    if op == "mfc1":
+        if len(parts) != 3:
+            raise ValueError("mfc1 rd, fs")
+        rd, fs = parse_reg(parts[1]), parse_freg(parts[2])
+        return pack_r(rd, COP1_MFC1, fs, 0, 0, opcode=OPCODE["cop1"])
+    if op == "mtc1":
+        if len(parts) != 3:
+            raise ValueError("mtc1 rt, fs")
+        rt, fs = parse_reg(parts[1]), parse_freg(parts[2])
+        return pack_r(rt, COP1_MTC1, fs, 0, 0, opcode=OPCODE["cop1"])
     if op == "mfc0":
         if len(parts) != 3:
             raise ValueError("mfc0 rd, csr")

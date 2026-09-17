@@ -50,3 +50,12 @@ def parse_reg(name: str) -> int:
     if key not in NAME_TO_NUM:
         raise ValueError(f"unknown or out-of-range register: {name!r}")
     return NAME_TO_NUM[key]
+
+
+def parse_freg(name: str) -> int:
+    key = name.strip().lower()
+    if key.startswith("f") and key[1:].isdigit():
+        idx = int(key[1:])
+        if 0 <= idx < 32:
+            return idx
+    raise ValueError(f"unknown fp register: {name!r}")

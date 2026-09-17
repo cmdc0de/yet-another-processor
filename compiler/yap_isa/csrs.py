@@ -35,6 +35,8 @@ TRAP_VECTOR = 0x80
 
 COP0_MFC0 = 0
 COP0_MTC0 = 4
+COP1_MFC1 = 0
+COP1_MTC1 = 4
 
 
 def parse_csr(name: str) -> int:

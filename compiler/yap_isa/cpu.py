@@ -2,6 +2,7 @@
 
 from compiler.yap_isa.csrs import (
     CAUSE_ALIGN,
+    CAUSE_COP,
     CAUSE_IRQ,
     CAUSE_PAGE_FAULT,
     CAUSE_PRIV,
@@ -10,6 +11,8 @@ from compiler.yap_isa.csrs import (
     CAUSE_TLB_MISS,
     COP0_MFC0,
     COP0_MTC0,
+    COP1_MFC1,
+    COP1_MTC1,
     CSR_CAUSE,
     CSR_EPC,
     CSR_FLAGS,
@@ -69,6 +72,7 @@ class Cpu:
         self.pp = 1
         self.ubase = 0
         self.ulimit = mem_size
+        self.fregs = [0] * 32
         self.mem = bytearray(mem_size)
         self.halted = False
         self._pc_next = None
@@ -443,6 +447,26 @@ class Cpu:
             return
         self._trap(CAUSE_PRIV)
 
+    def read_f(self, idx: int) -> int:
+        if not (0 <= idx < 32):
+            raise ValueError(f"fp register out of range: {idx}")
+        return self.fregs[idx] & MASK
+
+    def write_f(self, idx: int, value: int) -> None:
+        if not (0 <= idx < 32):
+            raise ValueError(f"fp register out of range: {idx}")
+        self.fregs[idx] = value & MASK
+
+    def _step_cop1(self, fields: dict) -> None:
+        rd, rs, fs = fields["rd"], fields["rs"], fields["rt"]
+        if rs == COP1_MFC1:
+            self.write(rd, self.read_f(fs))
+            return
+        if rs == COP1_MTC1:
+            self.write_f(fs, self.read(rd))
+            return
+        self._trap(CAUSE_COP)
+
     def step(self, word: int) -> None:
         if self.halted:
             return
@@ -500,6 +524,8 @@ class Cpu:
             self._trap(CAUSE_SYS, epc=self.pc + WORD_BYTES)
         elif opcode == OPCODE["cop0"]:
             self._step_cop0(fields)
+        elif opcode == OPCODE["cop1"]:
+            self._step_cop1(fields)
         else:
             raise ValueError(f"opcode not implemented: {opcode:#08b}")
         self._force_wired()
