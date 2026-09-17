@@ -1,13 +1,18 @@
-"""Assemble a .s file to YAP1. v1: no labels, no .org. python3 -m compiler.asm in.s -o out.yap"""
+"""Assemble a .s file to YAP1. python3 -m compiler.asm in.s -o out.yap"""
 
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 from compiler.yap1 import Yap1, pack
 from compiler.yap_isa import assemble
+from compiler.yap_isa.encode import BRANCH_MNEMONIC
+
+_LABEL = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$")
+_TARGET_OPS = frozenset({"j", "jal"}) | frozenset(BRANCH_MNEMONIC)
 
 
 class AsmError(Exception):
@@ -27,20 +32,94 @@ def strip_comment(line: str) -> str:
     return line[:cut].strip()
 
 
-def assemble_source(text: str, path: str = "<src>") -> bytes:
-    payload = bytearray()
-    lc = 0
+def _is_number(token: str) -> bool:
+    try:
+        int(token, 0)
+        return True
+    except ValueError:
+        return False
+
+
+def _parse_org(stmt: str, path, line_no, lc: int) -> int:
+    parts = stmt.split()
+    if len(parts) != 2:
+        raise AsmError(path, line_no, ".org takes one immediate")
+    try:
+        imm = int(parts[1], 0)
+    except ValueError as exc:
+        raise AsmError(path, line_no, f"bad .org immediate: {parts[1]}") from exc
+    if imm < 0:
+        raise AsmError(path, line_no, ".org below load address")
+    if imm < lc:
+        raise AsmError(path, line_no, ".org cannot move the location counter backward")
+    return imm
+
+
+def _resolve_targets(stmt: str, symbols: dict, path, line_no) -> str:
+    parts = stmt.replace(",", " ").split()
+    if not parts:
+        return stmt
+    op = parts[0].lower()
+    if op not in _TARGET_OPS or len(parts) != 2 or _is_number(parts[1]):
+        return stmt
+    name = parts[1]
+    if name not in symbols:
+        raise AsmError(path, line_no, f"undefined label: {name}")
+    parts[1] = hex(symbols[name])
+    return " ".join(parts)
+
+
+def assemble_ex(text: str, path: str = "<src>"):
+    """Return (YAP1 bytes, symbol table). Two-pass: labels/.org then emit."""
+    load = 0
+    items = []
+    symbols = {}
+    lc = load
     for line_no, raw in enumerate(text.splitlines(), start=1):
         stmt = strip_comment(raw)
         if not stmt:
             continue
+        match = _LABEL.match(stmt)
+        if match:
+            name, rest = match.group(1), match.group(2).strip()
+            if name in symbols:
+                raise AsmError(path, line_no, f"duplicate label: {name}")
+            symbols[name] = lc
+            stmt = rest
+            if not stmt:
+                continue
+        if stmt.split()[0].lower() == ".org":
+            lc = _parse_org(stmt, path, line_no, lc)
+            items.append(("org", lc, line_no))
+            continue
+        items.append(("insn", stmt, line_no))
+        lc += 4
+
+    payload = bytearray()
+    lc = load
+    for kind, data, line_no in items:
+        if kind == "org":
+            if data < lc:
+                raise AsmError(path, line_no, ".org cannot move the location counter backward")
+            if len(payload) < data:
+                payload.extend(b"\x00" * (data - len(payload)))
+            lc = data
+            continue
+        stmt = _resolve_targets(data, symbols, path, line_no)
         try:
             word = assemble(stmt, pc=lc)
         except ValueError as exc:
             raise AsmError(path, line_no, str(exc)) from exc
-        payload.extend(word.to_bytes(4, "little"))
+        if len(payload) < lc + 4:
+            payload.extend(b"\x00" * (lc + 4 - len(payload)))
+        payload[lc : lc + 4] = word.to_bytes(4, "little")
         lc += 4
-    return pack(Yap1(load=0, entry=0, payload=bytes(payload)))
+    return pack(Yap1(load=load, entry=0, payload=bytes(payload))), symbols
+
+
+def assemble_source(text: str, path: str = "<src>") -> bytes:
+    data, _ = assemble_ex(text, path=path)
+    return data
 
 
 def assemble_file(path: Path) -> bytes:
