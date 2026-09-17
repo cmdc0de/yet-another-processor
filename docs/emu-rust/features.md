@@ -12,17 +12,17 @@ Implementation lives in `emu/rust/`.
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| EMU-RUST-001 | ~~CLI takes a YAP1 path~~ | implemented | m1 |
-| EMU-RUST-002 | ~~Reject short files, bad `YAP1` magic, or `size != file_len - 16`~~ | implemented | m1 |
-| EMU-RUST-003 | ~~Copy payload to SRAM at `load`, set `PC=entry`; do not map the 16-byte header~~ | implemented | m1 |
-| EMU-RUST-004 | ~~Run until `halt` or a max-step cap (default 100000); non-zero exit if it does not halt~~ | implemented | m1 |
+| EMU-RUST-001 | ~~CLI takes a YAP1 path~~ | done | m1 |
+| EMU-RUST-002 | ~~Reject short files, bad `YAP1` magic, or `size != file_len - 16`~~ | done | m1 |
+| EMU-RUST-003 | ~~Copy payload to SRAM at `load`, set `PC=entry`; do not map the 16-byte header~~ | done | m1 |
+| EMU-RUST-004 | ~~Run until `halt` or a max-step cap (default 100000); non-zero exit if it does not halt~~ | done | m1 |
 | EMU-RUST-005 | After the run, print PC, FLAGS, CSRs, and the 32 GPRs | open | |
 
 ## Host platforms
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| EMU-RUST-006 | ~~Builds and runs tests on Linux x86_64~~ | implemented | m1 |
+| EMU-RUST-006 | ~~Builds and runs tests on Linux x86_64~~ | done | m1 |
 | EMU-RUST-007 | Builds and runs tests on Linux aarch64 | open | |
 | EMU-RUST-008 | Builds and runs tests on Windows x86_64 | open | |
 | EMU-RUST-009 | Builds and runs tests on Windows aarch64 | open | |
@@ -32,7 +32,7 @@ Implementation lives in `emu/rust/`.
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| EMU-RUST-011 | ~~32-bit addresses and little-endian SRAM~~ | implemented | m1 |
+| EMU-RUST-011 | ~~32-bit addresses and little-endian SRAM~~ | done | m1 |
 | EMU-RUST-012 | Fetch a 32-bit insn at `PC`; sequential `PC+4`; unaligned fetch traps CAUSE=8 | open | |
 | EMU-RUST-013 | 32 GPRs; `r0=0`, `r1=1`, `r2=0xFFFFFFFF`; writes to `r0`–`r2` discarded; ops targeting `r0` still update flags | open | |
 | EMU-RUST-014 | FLAGS Z, N, C, V per `docs/isa/design.md` | open | |
@@ -49,7 +49,7 @@ Implementation lives in `emu/rust/`.
 | EMU-RUST-020 | Load/store word, half, byte (signed and unsigned loads); unaligned → CAUSE=8 | open | |
 | EMU-RUST-021 | J, JAL, JR, JALR | open | |
 | EMU-RUST-022 | Conditional branches on flags (all `design.md` cond codes); no delay slot | open | |
-| EMU-RUST-023 | ~~HALT sets halted; further steps are no-ops~~ | implemented | m1 |
+| EMU-RUST-023 | ~~HALT sets halted; further steps are no-ops~~ | done | m1 |
 
 ## Privilege, traps, protection
 
