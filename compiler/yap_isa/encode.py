@@ -12,6 +12,7 @@ OPCODE = {
     "special": OPCODE_SPECIAL,
     "j": 0b000010,
     "jal": 0b000011,
+    "bcc": 0b000100,
     "addi": 0b001000,
     "adr": 0b001001,
     "andi": 0b001100,
@@ -48,6 +49,33 @@ FUNCT = {
     "test": 0b101000,
     "teq": 0b101001,
     "cmp": 0b101010,
+    "halt": 0b101100,
+}
+
+COND = {
+    "eq": 0b0000,
+    "ne": 0b0001,
+    "lt": 0b0010,
+    "ge": 0b0011,
+    "lo": 0b0100,
+    "hs": 0b0101,
+    "le": 0b0110,
+    "gt": 0b0111,
+    "mi": 0b1000,
+    "pl": 0b1001,
+}
+
+BRANCH_MNEMONIC = {
+    "beq": "eq",
+    "bne": "ne",
+    "blt": "lt",
+    "bge": "ge",
+    "blo": "lo",
+    "bhs": "hs",
+    "ble": "le",
+    "bgt": "gt",
+    "bmi": "mi",
+    "bpl": "pl",
 }
 
 
@@ -80,6 +108,8 @@ def unpack_r(word: int) -> dict:
         "funct": word & 0x3F,
         "imm16": word & 0xFFFF,
         "target26": word & 0x03FFFFFF,
+        "cond": (word >> 22) & 0xF,
+        "imm22": word & 0x3FFFFF,
         "bytes": (word).to_bytes(4, "little"),
     }
 
@@ -107,6 +137,19 @@ def pack_j(opcode: int, target26: int) -> int:
     return (((opcode & 0x3F) << 26) | (target26 & 0x03FFFFFF)) & 0xFFFFFFFF
 
 
+def pack_b(cond: int, imm22: int, opcode: int = OPCODE["bcc"]) -> int:
+    if not (0 <= cond < 16):
+        raise ValueError("cond out of range")
+    return (((opcode & 0x3F) << 26) | ((cond & 0xF) << 22) | (imm22 & 0x3FFFFF)) & 0xFFFFFFFF
+
+
+def sext22(imm22: int) -> int:
+    imm22 &= 0x3FFFFF
+    if imm22 & 0x200000:
+        return imm22 - 0x400000
+    return imm22
+
+
 def parse_imm16(text: str) -> int:
     value = int(text, 0)
     if value < -0x8000 or value > 0xFFFF:
@@ -121,12 +164,32 @@ def parse_mem_operand(text: str) -> tuple:
     return parse_imm16(match.group(1)), parse_reg(match.group(2))
 
 
-def assemble(text: str) -> int:
-    """Assemble one m1/m2 instruction."""
+def assemble(text: str, pc: int = 0) -> int:
+    """Assemble one instruction. Branches encode a PC-absolute target using `pc`."""
     parts = text.replace(",", " ").split()
     if not parts:
         raise ValueError("empty instruction")
     op = parts[0].lower()
+    if op == "halt":
+        if len(parts) != 1:
+            raise ValueError("halt takes no operands")
+        return pack_r(0, 0, 0, 0, FUNCT["halt"])
+    if op in BRANCH_MNEMONIC:
+        if len(parts) != 2:
+            raise ValueError(f"{op} target")
+        addr = int(parts[1], 0) & MASK_ADDR
+        if addr & 3:
+            raise ValueError(f"{op} target must be word-aligned")
+        next_pc = (pc + 4) & MASK_ADDR
+        delta = (addr - next_pc) & MASK_ADDR
+        if delta >= 0x80000000:
+            delta -= 0x100000000
+        if delta % 4:
+            raise ValueError(f"{op} offset not word-aligned")
+        imm22 = delta >> 2
+        if imm22 < -0x200000 or imm22 > 0x1FFFFF:
+            raise ValueError(f"{op} offset out of range")
+        return pack_b(COND[BRANCH_MNEMONIC[op]], imm22 & 0x3FFFFF)
     if op == "nop":
         if len(parts) != 1:
             raise ValueError("nop takes no operands")

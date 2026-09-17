@@ -1,6 +1,6 @@
 """Behavioral model: GPRs, FLAGS, memory, DIV, load/store, jumps."""
 
-from compiler.yap_isa.encode import FUNCT, OPCODE, OPCODE_SPECIAL, sext16, unpack_r
+from compiler.yap_isa.encode import COND, FUNCT, OPCODE, OPCODE_SPECIAL, sext16, sext22, unpack_r
 
 MASK = 0xFFFFFFFF
 WORD_BYTES = 4
@@ -40,6 +40,7 @@ class Cpu:
         self.flags = Flags()
         self.cause = 0
         self.mem = bytearray(mem_size)
+        self.halted = False
         self._pc_next = None
         self._force_wired()
 
@@ -200,6 +201,31 @@ class Cpu:
         next_pc = _u32(self.pc + WORD_BYTES)
         self._pc_next = (next_pc & 0xF0000000) | ((target26 & 0x03FFFFFF) << 2)
 
+    def _branch_taken(self, cond: int) -> bool:
+        z, n, c, v = self.flags.z, self.flags.n, self.flags.c, self.flags.v
+        nv = n ^ v
+        if cond == COND["eq"]:
+            return bool(z)
+        if cond == COND["ne"]:
+            return not z
+        if cond == COND["lt"]:
+            return bool(nv)
+        if cond == COND["ge"]:
+            return not nv
+        if cond == COND["lo"]:
+            return bool(c)
+        if cond == COND["hs"]:
+            return not c
+        if cond == COND["le"]:
+            return bool(z or nv)
+        if cond == COND["gt"]:
+            return not (z or nv)
+        if cond == COND["mi"]:
+            return bool(n)
+        if cond == COND["pl"]:
+            return not n
+        raise ValueError(f"unknown branch cond: {cond}")
+
     def _step_special(self, fields: dict) -> None:
         rd, rs_i, rt_i = fields["rd"], fields["rs"], fields["rt"]
         shamt, funct = fields["shamt"], fields["funct"]
@@ -257,12 +283,18 @@ class Cpu:
             self.flags.c = 0
             self.flags.v = 0
             write = False
+        elif funct == FUNCT["halt"]:
+            self.halted = True
+            write = False
+            result = 0
         else:
             raise ValueError(f"funct not implemented: {funct:#08b}")
         if write:
             self.write(rd, result)
 
     def step(self, word: int) -> None:
+        if self.halted:
+            return
         self._pc_next = None
         fields = unpack_r(word)
         opcode = fields["opcode"]
@@ -303,6 +335,9 @@ class Cpu:
         elif opcode == OPCODE["jal"]:
             self.write(3, _u32(self.pc + WORD_BYTES))
             self._jump_abs(fields["target26"])
+        elif opcode == OPCODE["bcc"]:
+            if self._branch_taken(fields["cond"]):
+                self._pc_next = _u32(self.pc + WORD_BYTES + (sext22(fields["imm22"]) << 2))
         else:
             raise ValueError(f"opcode not implemented: {opcode:#08b}")
         self._force_wired()

@@ -2,6 +2,7 @@
 
 from compiler.yap_isa.cpu import Cpu, MASK, WORD_BYTES
 from compiler.yap_isa.encode import (
+    COND,
     FUNCT,
     OPCODE,
     OPCODE_SPECIAL,
@@ -17,6 +18,7 @@ __all__ = [
     "Cpu",
     "MASK",
     "WORD_BYTES",
+    "COND",
     "FUNCT",
     "OPCODE",
     "OPCODE_SPECIAL",
