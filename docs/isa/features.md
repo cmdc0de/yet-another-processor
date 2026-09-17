@@ -95,17 +95,17 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-043 | Coprocessor opcode space distinct from integer ISA | open | |
-| ISA-044 | Move to/from coprocessor registers | open | |
-| ISA-045 | Unimplemented coprocessor op traps (software float until FPU exists) | open | |
+| ISA-043 | Coprocessor opcode space distinct from integer ISA | claimed | m6 |
+| ISA-044 | Move to/from coprocessor registers | claimed | m6 |
+| ISA-045 | Unimplemented coprocessor op traps (software float until FPU exists) | claimed | m6 |
 
 ## ABI
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-046 | Designated stack-pointer GPR (not `r0`–`r2`) | open | |
-| ISA-047 | Stack discipline (growth direction and alignment) | open | |
-| ISA-048 | Argument, return-value, callee-saved, and caller-saved assignment (writable GPRs only) | open | |
+| ISA-046 | Designated stack-pointer GPR (not `r0`–`r2`) | claimed | m6 |
+| ISA-047 | Stack discipline (growth direction and alignment) | claimed | m6 |
+| ISA-048 | Argument, return-value, callee-saved, and caller-saved assignment (writable GPRs only) | claimed | m6 |
 | ISA-049 | ~~Syscall ABI: trap, number, arguments, return, error~~ | done | m5 |
 | ISA-050 | ~~Assembler names: `zero` (`r0`), `one` (`r1`), `ones` (`r2`), plus `sp`, `ra`, `a0`, …~~ | done | m1 |
 
