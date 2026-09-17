@@ -39,19 +39,19 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 | ISA-053 | ~~Bitwise XOR-compare (`TEQ`): XOR two registers, update flags (at least Z), no GPR write~~ | done | m1 |
 | ISA-015 | ~~ADD/SUB/AND/OR/XOR with immediate~~ | done | m2 |
 | ISA-016 | ~~Integer multiply instruction~~ | done | m2 |
-| ISA-017 | Integer divide instruction | open | |
+| ISA-017 | Integer divide instruction | claimed | m3 |
 
 ## Memory
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-018 | Load word | open | |
-| ISA-019 | Store word | open | |
-| ISA-020 | Load byte | open | |
-| ISA-021 | Store byte | open | |
-| ISA-022 | Load halfword | open | |
-| ISA-023 | Store halfword | open | |
-| ISA-024 | Defined endianness for multi-byte memory (LE vs BE is `design.md`) | open | |
+| ISA-018 | Load word | claimed | m3 |
+| ISA-019 | Store word | claimed | m3 |
+| ISA-020 | Load byte | claimed | m3 |
+| ISA-021 | Store byte | claimed | m3 |
+| ISA-022 | Load halfword | claimed | m3 |
+| ISA-023 | Store halfword | claimed | m3 |
+| ISA-024 | Defined endianness for multi-byte memory (LE vs BE is `design.md`) | claimed | m3 |
 
 ## Immediates and addressing
 
@@ -64,9 +64,9 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-027 | Unconditional jump | open | |
-| ISA-028 | Jump-and-link (call) | open | |
-| ISA-029 | Jump register (return / indirect) | open | |
+| ISA-027 | Unconditional jump | claimed | m3 |
+| ISA-028 | Jump-and-link (call) | claimed | m3 |
+| ISA-029 | Jump register (return / indirect) | claimed | m3 |
 | ISA-030 | Conditional branch on flags (EQ, NE, signed and unsigned LT/GE) | open | |
 | ISA-031 | ~~NOP~~ | done | m1 |
 | ISA-032 | HALT | open | |
