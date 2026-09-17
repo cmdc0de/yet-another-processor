@@ -34,14 +34,14 @@ Implementation lives in `emu/rust/`.
 |----|---------|--------|-----------|
 | EMU-RUST-011 | ~~32-bit addresses and little-endian SRAM~~ | done | m1 |
 | EMU-RUST-012 | Fetch a 32-bit insn at `PC`; sequential `PC+4`; unaligned fetch traps CAUSE=8 | open | |
-| EMU-RUST-013 | 32 GPRs; `r0=0`, `r1=1`, `r2=0xFFFFFFFF`; writes to `r0`–`r2` discarded; ops targeting `r0` still update flags | open | |
-| EMU-RUST-014 | FLAGS Z, N, C, V per `docs/isa/design.md` | open | |
+| EMU-RUST-013 | 32 GPRs; `r0=0`, `r1=1`, `r2=0xFFFFFFFF`; writes to `r0`–`r2` discarded; ops targeting `r0` still update flags | claimed | m2 |
+| EMU-RUST-014 | FLAGS Z, N, C, V per `docs/isa/design.md` | claimed | m2 |
 
 ## Integer execute
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| EMU-RUST-015 | SPECIAL ALU: ADD, SUB, AND, OR, XOR, NOT, SLL, CMP, TEST, TEQ, NOP; flags as ISA | open | |
+| EMU-RUST-015 | SPECIAL ALU: ADD, SUB, AND, OR, XOR, NOT, SLL, CMP, TEST, TEQ, NOP; flags as ISA | claimed | m2 |
 | EMU-RUST-016 | SRL, SRA, and variable shifts (SLLV, SRLV, SRAV) | open | |
 | EMU-RUST-017 | ADDI (sign-extend), ANDI/ORI/XORI (zero-extend) | open | |
 | EMU-RUST-018 | LUI and ADR | open | |
