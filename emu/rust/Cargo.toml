@@ -1,0 +1,14 @@
+[package]
+name = "yap-emu"
+version = "0.1.0"
+edition = "2021"
+description = "YAP OS / ISA host emulator"
+publish = false
+
+[lib]
+name = "yap_emu"
+path = "src/lib.rs"
+
+[[bin]]
+name = "yap-emu"
+path = "src/main.rs"
