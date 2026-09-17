@@ -42,10 +42,10 @@ Implementation lives in `emu/rust/`.
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
 | EMU-RUST-015 | ~~SPECIAL ALU: ADD, SUB, AND, OR, XOR, NOT, SLL, CMP, TEST, TEQ, NOP; flags as ISA~~ | done | m2 |
-| EMU-RUST-016 | SRL, SRA, and variable shifts (SLLV, SRLV, SRAV) | open | |
-| EMU-RUST-017 | ADDI (sign-extend), ANDI/ORI/XORI (zero-extend) | open | |
-| EMU-RUST-018 | LUI and ADR | open | |
-| EMU-RUST-019 | MUL and DIV (DIV by 0 → result 0, as ISA) | open | |
+| EMU-RUST-016 | SRL, SRA, and variable shifts (SLLV, SRLV, SRAV) | claimed | m3 |
+| EMU-RUST-017 | ADDI (sign-extend), ANDI/ORI/XORI (zero-extend) | claimed | m3 |
+| EMU-RUST-018 | LUI and ADR | claimed | m3 |
+| EMU-RUST-019 | MUL and DIV (DIV by 0 → result 0, as ISA) | claimed | m3 |
 | EMU-RUST-020 | Load/store word, half, byte (signed and unsigned loads); unaligned → CAUSE=8 | open | |
 | EMU-RUST-021 | J, JAL, JR, JALR | open | |
 | EMU-RUST-022 | Conditional branches on flags (all `design.md` cond codes); no delay slot | open | |
