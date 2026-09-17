@@ -35,9 +35,9 @@ Machine image is **YAP1**: 16-byte little-endian header plus a raw payload. Enco
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-012 | `.byte` / `.half` / `.word` emit LE data | open | |
-| COMPILER-013 | `.align n` pads zeros to 2^n | open | |
-| COMPILER-014 | `.equ name, imm` named constants | open | |
+| COMPILER-012 | `.byte` / `.half` / `.word` emit LE data | claimed | m3 |
+| COMPILER-013 | `.align n` pads zeros to 2^n | claimed | m3 |
+| COMPILER-014 | `.equ name, imm` named constants | claimed | m3 |
 
 ## Pseudos
 
