@@ -26,10 +26,10 @@ Machine image is **YAP1**: 16-byte little-endian header plus a raw payload. Enco
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-008 | ~~Label definition `name:`~~ | implemented | m2 |
-| COMPILER-009 | ~~Labels as `j` / `jal` / `bcc` targets~~ | implemented | m2 |
-| COMPILER-010 | ~~Forward references resolved (two-pass or equivalent)~~ | implemented | m2 |
-| COMPILER-011 | ~~`.org imm` sets the location counter (payload address)~~ | implemented | m2 |
+| COMPILER-008 | ~~Label definition `name:`~~ | done | m2 |
+| COMPILER-009 | ~~Labels as `j` / `jal` / `bcc` targets~~ | done | m2 |
+| COMPILER-010 | ~~Forward references resolved (two-pass or equivalent)~~ | done | m2 |
+| COMPILER-011 | ~~`.org imm` sets the location counter (payload address)~~ | done | m2 |
 
 ## Data and layout
 
