@@ -1,4 +1,4 @@
-//! CPU: little-endian SRAM, PC, halt, GPRs, FLAGS, SPECIAL ALU (m1–m2).
+//! CPU: little-endian SRAM, PC, halt, GPRs, FLAGS, integer ALU (m1–m3).
 
 use crate::yap1::Yap1;
 
@@ -7,9 +7,23 @@ pub const DEFAULT_MAX_STEPS: u32 = 100_000;
 pub const HALT_WORD: u32 = 0x0000_002C;
 pub const MASK: u32 = 0xFFFF_FFFF;
 pub const T0: usize = 10;
+pub const T1: usize = 11;
 
 const OPCODE_SPECIAL: u32 = 0;
+const OPCODE_ADDI: u32 = 0b001000;
+const OPCODE_ADR: u32 = 0b001001;
+const OPCODE_ANDI: u32 = 0b001100;
+const OPCODE_ORI: u32 = 0b001101;
+const OPCODE_XORI: u32 = 0b001110;
+const OPCODE_LUI: u32 = 0b001111;
 const FUNCT_SLL: u32 = 0b000000;
+const FUNCT_SRL: u32 = 0b000010;
+const FUNCT_SRA: u32 = 0b000011;
+const FUNCT_SLLV: u32 = 0b000100;
+const FUNCT_SRLV: u32 = 0b000110;
+const FUNCT_SRAV: u32 = 0b000111;
+const FUNCT_MUL: u32 = 0b011000;
+const FUNCT_DIV: u32 = 0b011010;
 const FUNCT_ADD: u32 = 0b100000;
 const FUNCT_SUB: u32 = 0b100010;
 const FUNCT_AND: u32 = 0b100100;
@@ -173,50 +187,138 @@ impl Cpu {
         result
     }
 
+    fn alu_srl(&mut self, rs: u32, shamt: u32) -> u32 {
+        let shamt = shamt & 31;
+        let (c, result) = if shamt == 0 {
+            (0, rs)
+        } else {
+            (((rs >> (shamt - 1)) & 1) as u8, rs >> shamt)
+        };
+        self.flags.c = c;
+        self.flags.v = 0;
+        self.set_zn(result);
+        result
+    }
+
+    fn alu_sra(&mut self, rs: u32, shamt: u32) -> u32 {
+        let shamt = shamt & 31;
+        let c = if shamt == 0 {
+            0
+        } else {
+            ((rs >> (shamt - 1)) & 1) as u8
+        };
+        let result = ((rs as i32) >> shamt) as u32;
+        self.flags.c = c;
+        self.flags.v = 0;
+        self.set_zn(result);
+        result
+    }
+
+    fn alu_mul(&mut self, rs: u32, rt: u32) -> u32 {
+        let result = rs.wrapping_mul(rt);
+        self.flags.c = 0;
+        self.flags.v = 0;
+        self.set_zn(result);
+        result
+    }
+
+    fn alu_div(&mut self, rs: u32, rt: u32) -> u32 {
+        let result = if rt == 0 { 0 } else { rs / rt };
+        self.flags.c = 0;
+        self.flags.v = 0;
+        self.set_zn(result);
+        result
+    }
+
+    fn sext16(imm16: u32) -> u32 {
+        let imm16 = imm16 & 0xFFFF;
+        if imm16 & 0x8000 != 0 {
+            imm16 | 0xFFFF_0000
+        } else {
+            imm16
+        }
+    }
+
     fn execute(&mut self, word: u32) {
         let opcode = (word >> 26) & 0x3F;
-        if opcode != OPCODE_SPECIAL {
-            return;
-        }
         let rd = ((word >> 21) & 0x1F) as usize;
         let rs_i = ((word >> 16) & 0x1F) as usize;
         let rt_i = ((word >> 11) & 0x1F) as usize;
         let shamt = (word >> 6) & 0x1F;
         let funct = word & 0x3F;
+        let imm16 = word & 0xFFFF;
         let rs = self.read(rs_i);
         let rt = self.read(rt_i);
-        let (result, write) = match funct {
-            FUNCT_ADD => (self.alu_add(rs, rt), true),
-            FUNCT_SUB => (self.alu_sub(rs, rt), true),
-            FUNCT_AND => (self.alu_logic(rs & rt), true),
-            FUNCT_OR => (self.alu_logic(rs | rt), true),
-            FUNCT_XOR => (self.alu_logic(rs ^ rt), true),
-            FUNCT_NOT => (self.alu_logic(!rs), true),
-            FUNCT_SLL => (self.alu_sll(rs, shamt), true),
-            FUNCT_CMP => {
-                self.alu_sub(rs, rt);
-                (0, false)
+        if opcode == OPCODE_SPECIAL {
+            let (result, write) = match funct {
+                FUNCT_ADD => (self.alu_add(rs, rt), true),
+                FUNCT_SUB => (self.alu_sub(rs, rt), true),
+                FUNCT_AND => (self.alu_logic(rs & rt), true),
+                FUNCT_OR => (self.alu_logic(rs | rt), true),
+                FUNCT_XOR => (self.alu_logic(rs ^ rt), true),
+                FUNCT_NOT => (self.alu_logic(!rs), true),
+                FUNCT_SLL => (self.alu_sll(rs, shamt), true),
+                FUNCT_SRL => (self.alu_srl(rs, shamt), true),
+                FUNCT_SRA => (self.alu_sra(rs, shamt), true),
+                FUNCT_SLLV => (self.alu_sll(rs, rt & 31), true),
+                FUNCT_SRLV => (self.alu_srl(rs, rt & 31), true),
+                FUNCT_SRAV => (self.alu_sra(rs, rt & 31), true),
+                FUNCT_MUL => (self.alu_mul(rs, rt), true),
+                FUNCT_DIV => (self.alu_div(rs, rt), true),
+                FUNCT_CMP => {
+                    self.alu_sub(rs, rt);
+                    (0, false)
+                }
+                FUNCT_TEST => {
+                    self.alu_logic(rs & rt);
+                    (0, false)
+                }
+                FUNCT_TEQ => {
+                    let result = rs ^ rt;
+                    self.flags.z = u8::from(result == 0);
+                    self.flags.n = 0;
+                    self.flags.c = 0;
+                    self.flags.v = 0;
+                    (0, false)
+                }
+                FUNCT_HALT => {
+                    self.halted = true;
+                    (0, false)
+                }
+                _ => (0, false),
+            };
+            if write {
+                self.write(rd, result);
             }
-            FUNCT_TEST => {
-                self.alu_logic(rs & rt);
-                (0, false)
+            return;
+        }
+        match opcode {
+            OPCODE_ADDI => {
+                let result = self.alu_add(rs, Self::sext16(imm16));
+                self.write(rd, result);
             }
-            FUNCT_TEQ => {
-                let result = rs ^ rt;
-                self.flags.z = u8::from(result == 0);
-                self.flags.n = 0;
-                self.flags.c = 0;
-                self.flags.v = 0;
-                (0, false)
+            OPCODE_ANDI => {
+                let result = self.alu_logic(rs & imm16);
+                self.write(rd, result);
             }
-            FUNCT_HALT => {
-                self.halted = true;
-                (0, false)
+            OPCODE_ORI => {
+                let result = self.alu_logic(rs | imm16);
+                self.write(rd, result);
             }
-            _ => (0, false),
-        };
-        if write {
-            self.write(rd, result);
+            OPCODE_XORI => {
+                let result = self.alu_logic(rs ^ imm16);
+                self.write(rd, result);
+            }
+            OPCODE_LUI => {
+                self.write(rd, imm16 << 16);
+            }
+            OPCODE_ADR => {
+                self.write(
+                    rd,
+                    self.pc.wrapping_add(4).wrapping_add(Self::sext16(imm16)),
+                );
+            }
+            _ => {}
         }
     }
 
@@ -263,6 +365,10 @@ mod tests {
 
     fn pack_r(rd: u32, rs: u32, rt: u32, shamt: u32, funct: u32) -> u32 {
         (rd << 21) | (rs << 16) | (rt << 11) | (shamt << 6) | funct
+    }
+
+    fn pack_i(opcode: u32, rd: u32, rs: u32, imm16: u32) -> u32 {
+        (opcode << 26) | (rd << 21) | (rs << 16) | (imm16 & 0xFFFF)
     }
 
     fn add(rd: u32, rs: u32, rt: u32) -> u32 {
@@ -404,5 +510,71 @@ mod tests {
         cpu.step_word(pack_r(0, T0 as u32, 1, 0, FUNCT_TEQ));
         assert_eq!(cpu.read(T0), 2);
         assert_eq!(cpu.flags.z, 0);
+    }
+
+    #[test]
+    fn test_emu_rust_016() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_r(T0 as u32, 1, 0, 3, FUNCT_SLL));
+        cpu.step_word(pack_r(T0 as u32, T0 as u32, 0, 2, FUNCT_SRL));
+        assert_eq!(cpu.read(T0), 2);
+        cpu.step_word(pack_r(T0 as u32, T0 as u32, 1, 0, FUNCT_SRLV));
+        assert_eq!(cpu.read(T0), 1);
+
+        cpu.step_word(pack_i(OPCODE_LUI, T0 as u32, 0, 0x8000));
+        assert_eq!(cpu.read(T0), 0x8000_0000);
+        cpu.step_word(pack_r(T0 as u32, T0 as u32, 0, 1, FUNCT_SRA));
+        assert_eq!(cpu.read(T0), 0xC000_0000);
+        assert_eq!(cpu.flags.n, 1);
+        cpu.step_word(pack_r(T0 as u32, T0 as u32, 1, 0, FUNCT_SRAV));
+        assert_eq!(cpu.read(T0), 0xE000_0000);
+
+        cpu.write(T1, 3);
+        cpu.step_word(pack_r(T0 as u32, 1, T1 as u32, 0, FUNCT_SLLV));
+        assert_eq!(cpu.read(T0), 8);
+    }
+
+    #[test]
+    fn test_emu_rust_017() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_i(OPCODE_ADDI, T0 as u32, 1, 0xFFFF));
+        assert_eq!(cpu.read(T0), 0);
+        assert_eq!(cpu.flags.z, 1);
+        cpu.step_word(pack_i(OPCODE_ANDI, T0 as u32, 2, 0x00FF));
+        assert_eq!(cpu.read(T0), 0xFF);
+        cpu.step_word(pack_i(OPCODE_ORI, T0 as u32, 0, 1));
+        assert_eq!(cpu.read(T0), 1);
+        cpu.step_word(pack_i(OPCODE_XORI, T0 as u32, 2, 0));
+        assert_eq!(cpu.read(T0), MASK);
+    }
+
+    #[test]
+    fn test_emu_rust_018() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        let flags = cpu.flags;
+        cpu.step_word(pack_i(OPCODE_LUI, T0 as u32, 0, 0x1234));
+        assert_eq!(cpu.read(T0), 0x1234_0000);
+        assert_eq!(cpu.flags, flags);
+        cpu.step_word(pack_i(OPCODE_ORI, T0 as u32, T0 as u32, 0x5678));
+        assert_eq!(cpu.read(T0), 0x1234_5678);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        assert_eq!(cpu.pc, 0);
+        cpu.step_word(pack_i(OPCODE_ADR, T0 as u32, 0, 16));
+        assert_eq!(cpu.read(T0), 20);
+    }
+
+    #[test]
+    fn test_emu_rust_019() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_r(T0 as u32, 1, 2, 0, FUNCT_MUL));
+        assert_eq!(cpu.read(T0), MASK);
+        cpu.step_word(pack_r(T0 as u32, 2, 2, 0, FUNCT_MUL));
+        assert_eq!(cpu.read(T0), 1);
+        cpu.step_word(pack_r(T0 as u32, 2, 1, 0, FUNCT_DIV));
+        assert_eq!(cpu.read(T0), MASK);
+        cpu.step_word(pack_r(T0 as u32, 2, 0, 0, FUNCT_DIV));
+        assert_eq!(cpu.read(T0), 0);
+        assert_eq!(cpu.flags.z, 1);
     }
 }
