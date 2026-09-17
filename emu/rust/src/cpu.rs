@@ -1,4 +1,4 @@
-//! CPU: little-endian SRAM, PC, halt, GPRs, FLAGS, integer ALU (m1–m3).
+//! CPU: little-endian SRAM, PC, halt, GPRs, FLAGS, integer ALU, memory, jumps (m1–m4).
 
 use crate::yap1::Yap1;
 
@@ -8,20 +8,36 @@ pub const HALT_WORD: u32 = 0x0000_002C;
 pub const MASK: u32 = 0xFFFF_FFFF;
 pub const T0: usize = 10;
 pub const T1: usize = 11;
+pub const RA: usize = 3;
+pub const CAUSE_ALIGN: u32 = 8;
+pub const TRAP_VECTOR: u32 = 0x80;
 
 const OPCODE_SPECIAL: u32 = 0;
+const OPCODE_J: u32 = 0b000010;
+const OPCODE_JAL: u32 = 0b000011;
+const OPCODE_BCC: u32 = 0b000100;
 const OPCODE_ADDI: u32 = 0b001000;
 const OPCODE_ADR: u32 = 0b001001;
 const OPCODE_ANDI: u32 = 0b001100;
 const OPCODE_ORI: u32 = 0b001101;
 const OPCODE_XORI: u32 = 0b001110;
 const OPCODE_LUI: u32 = 0b001111;
+const OPCODE_LB: u32 = 0b100000;
+const OPCODE_LH: u32 = 0b100001;
+const OPCODE_LW: u32 = 0b100011;
+const OPCODE_LBU: u32 = 0b100100;
+const OPCODE_LHU: u32 = 0b100101;
+const OPCODE_SB: u32 = 0b101000;
+const OPCODE_SH: u32 = 0b101001;
+const OPCODE_SW: u32 = 0b101011;
 const FUNCT_SLL: u32 = 0b000000;
 const FUNCT_SRL: u32 = 0b000010;
 const FUNCT_SRA: u32 = 0b000011;
 const FUNCT_SLLV: u32 = 0b000100;
 const FUNCT_SRLV: u32 = 0b000110;
 const FUNCT_SRAV: u32 = 0b000111;
+const FUNCT_JR: u32 = 0b001000;
+const FUNCT_JALR: u32 = 0b001001;
 const FUNCT_MUL: u32 = 0b011000;
 const FUNCT_DIV: u32 = 0b011010;
 const FUNCT_ADD: u32 = 0b100000;
@@ -34,6 +50,17 @@ const FUNCT_TEST: u32 = 0b101000;
 const FUNCT_TEQ: u32 = 0b101001;
 const FUNCT_CMP: u32 = 0b101010;
 const FUNCT_HALT: u32 = 0b101100;
+
+const COND_EQ: u32 = 0;
+const COND_NE: u32 = 1;
+const COND_LT: u32 = 2;
+const COND_GE: u32 = 3;
+const COND_LO: u32 = 4;
+const COND_HS: u32 = 5;
+const COND_LE: u32 = 6;
+const COND_GT: u32 = 7;
+const COND_MI: u32 = 8;
+const COND_PL: u32 = 9;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Flags {
@@ -50,6 +77,8 @@ pub struct Cpu {
     pub halted: bool,
     gprs: [u32; 32],
     pub flags: Flags,
+    pub cause: u32,
+    pc_next: Option<u32>,
 }
 
 impl Cpu {
@@ -60,6 +89,8 @@ impl Cpu {
             halted: false,
             gprs: [0; 32],
             flags: Flags::default(),
+            cause: 0,
+            pc_next: None,
         }
     }
 
@@ -89,6 +120,7 @@ impl Cpu {
         }
         self.pc = image.entry;
         self.halted = false;
+        self.pc_next = None;
         Ok(())
     }
 
@@ -118,6 +150,18 @@ impl Cpu {
             return Err("memory load out of range".into());
         }
         Ok(&self.mem[start..end])
+    }
+
+    pub fn mem_store(&mut self, addr: u32, data: &[u8]) -> Result<(), String> {
+        let start = addr as usize;
+        let end = start
+            .checked_add(data.len())
+            .ok_or_else(|| "memory store out of range".to_string())?;
+        if end > self.mem.len() {
+            return Err("memory store out of range".into());
+        }
+        self.mem[start..end].copy_from_slice(data);
+        Ok(())
     }
 
     pub fn fetch_u32(&self, addr: u32) -> Result<u32, String> {
@@ -239,6 +283,89 @@ impl Cpu {
         }
     }
 
+    fn sext22(imm22: u32) -> i32 {
+        let imm22 = imm22 & 0x3F_FFFF;
+        if imm22 & 0x20_0000 != 0 {
+            imm22 as i32 - 0x40_0000
+        } else {
+            imm22 as i32
+        }
+    }
+
+    fn trap_align(&mut self) {
+        self.cause = CAUSE_ALIGN;
+        self.pc_next = Some(TRAP_VECTOR);
+    }
+
+    fn addr(&self, rs: u32, imm16: u32) -> u32 {
+        rs.wrapping_add(Self::sext16(imm16))
+    }
+
+    fn load(&mut self, rd: usize, rs: u32, imm16: u32, size: usize, signed: bool) {
+        let addr = self.addr(rs, imm16);
+        if addr % size as u32 != 0 {
+            self.trap_align();
+            return;
+        }
+        let Ok(bytes) = self.mem_load(addr, size) else {
+            return;
+        };
+        let mut raw = 0u32;
+        for (i, b) in bytes.iter().enumerate() {
+            raw |= u32::from(*b) << (8 * i);
+        }
+        if signed {
+            let bits = size * 8;
+            let sign = 1u32 << (bits - 1);
+            if raw & sign != 0 {
+                raw |= MASK << bits;
+            }
+        }
+        self.write(rd, raw);
+    }
+
+    fn store(&mut self, rd: usize, rs: u32, imm16: u32, size: usize) {
+        let addr = self.addr(rs, imm16);
+        if addr % size as u32 != 0 {
+            self.trap_align();
+            return;
+        }
+        let value = self.read(rd);
+        let mut data = [0u8; 4];
+        for i in 0..size {
+            data[i] = ((value >> (8 * i)) & 0xFF) as u8;
+        }
+        let _ = self.mem_store(addr, &data[..size]);
+    }
+
+    fn jump_abs(&mut self, target26: u32) {
+        let next = self.pc.wrapping_add(4);
+        self.pc_next = Some((next & 0xF000_0000) | ((target26 & 0x03FF_FFFF) << 2));
+    }
+
+    fn branch_taken(&self, cond: u32) -> bool {
+        let (z, n, c, v) = (
+            self.flags.z != 0,
+            self.flags.n != 0,
+            self.flags.c != 0,
+            self.flags.v != 0,
+        );
+        let nv = n ^ v;
+        match cond {
+            COND_EQ => z,
+            COND_NE => !z,
+            COND_LT => nv,
+            COND_GE => !nv,
+            COND_LO => c,
+            COND_HS => !c,
+            COND_LE => z || nv,
+            COND_GT => !(z || nv),
+            COND_MI => n,
+            COND_PL => !n,
+            _ => false,
+        }
+    }
+
     fn execute(&mut self, word: u32) {
         let opcode = (word >> 26) & 0x3F;
         let rd = ((word >> 21) & 0x1F) as usize;
@@ -265,6 +392,15 @@ impl Cpu {
                 FUNCT_SRAV => (self.alu_sra(rs, rt & 31), true),
                 FUNCT_MUL => (self.alu_mul(rs, rt), true),
                 FUNCT_DIV => (self.alu_div(rs, rt), true),
+                FUNCT_JR => {
+                    self.pc_next = Some(rs);
+                    (0, false)
+                }
+                FUNCT_JALR => {
+                    self.write(rd, self.pc.wrapping_add(4));
+                    self.pc_next = Some(rs);
+                    (0, false)
+                }
                 FUNCT_CMP => {
                     self.alu_sub(rs, rt);
                     (0, false)
@@ -318,25 +454,63 @@ impl Cpu {
                     self.pc.wrapping_add(4).wrapping_add(Self::sext16(imm16)),
                 );
             }
+            OPCODE_LB => self.load(rd, rs, imm16, 1, true),
+            OPCODE_LBU => self.load(rd, rs, imm16, 1, false),
+            OPCODE_LH => self.load(rd, rs, imm16, 2, true),
+            OPCODE_LHU => self.load(rd, rs, imm16, 2, false),
+            OPCODE_LW => self.load(rd, rs, imm16, 4, false),
+            OPCODE_SB => self.store(rd, rs, imm16, 1),
+            OPCODE_SH => self.store(rd, rs, imm16, 2),
+            OPCODE_SW => self.store(rd, rs, imm16, 4),
+            OPCODE_J => self.jump_abs(word & 0x03FF_FFFF),
+            OPCODE_JAL => {
+                self.write(RA, self.pc.wrapping_add(4));
+                self.jump_abs(word & 0x03FF_FFFF);
+            }
+            OPCODE_BCC => {
+                let cond = (word >> 22) & 0xF;
+                let imm22 = word & 0x3F_FFFF;
+                if self.branch_taken(cond) {
+                    let off = (Self::sext22(imm22) << 2) as u32;
+                    self.pc_next = Some(self.pc.wrapping_add(4).wrapping_add(off));
+                }
+            }
             _ => {}
         }
+    }
+
+    fn finish_step(&mut self) {
+        self.pc = self.pc_next.unwrap_or(self.pc.wrapping_add(4));
+        self.pc_next = None;
     }
 
     pub fn step_word(&mut self, word: u32) {
         if self.halted {
             return;
         }
+        self.pc_next = None;
+        if self.pc % 4 != 0 {
+            self.trap_align();
+            self.finish_step();
+            return;
+        }
         self.execute(word);
-        self.pc = self.pc.wrapping_add(4);
+        self.finish_step();
     }
 
     pub fn step(&mut self) -> Result<(), String> {
         if self.halted {
             return Ok(());
         }
+        self.pc_next = None;
+        if self.pc % 4 != 0 {
+            self.trap_align();
+            self.finish_step();
+            return Ok(());
+        }
         let word = self.fetch_u32(self.pc)?;
         self.execute(word);
-        self.pc = self.pc.wrapping_add(4);
+        self.finish_step();
         Ok(())
     }
 
@@ -369,6 +543,20 @@ mod tests {
 
     fn pack_i(opcode: u32, rd: u32, rs: u32, imm16: u32) -> u32 {
         (opcode << 26) | (rd << 21) | (rs << 16) | (imm16 & 0xFFFF)
+    }
+
+    fn pack_j(opcode: u32, target26: u32) -> u32 {
+        (opcode << 26) | (target26 & 0x03FF_FFFF)
+    }
+
+    fn pack_b(cond: u32, imm22: u32) -> u32 {
+        (OPCODE_BCC << 26) | ((cond & 0xF) << 22) | (imm22 & 0x3F_FFFF)
+    }
+
+    fn bcc_to(pc: u32, cond: u32, target: u32) -> u32 {
+        let next = pc.wrapping_add(4);
+        let delta = target.wrapping_sub(next) as i32;
+        pack_b(cond, ((delta >> 2) as u32) & 0x3F_FFFF)
     }
 
     fn add(rd: u32, rs: u32, rt: u32) -> u32 {
@@ -576,5 +764,103 @@ mod tests {
         cpu.step_word(pack_r(T0 as u32, 2, 0, 0, FUNCT_DIV));
         assert_eq!(cpu.read(T0), 0);
         assert_eq!(cpu.flags.z, 1);
+    }
+
+    #[test]
+    fn test_emu_rust_012() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(add(T0 as u32, 1, 1));
+        assert_eq!(cpu.pc, 4);
+        cpu.pc = 1;
+        cpu.step_word(add(T0 as u32, 1, 1));
+        assert_eq!(cpu.cause, CAUSE_ALIGN);
+        assert_eq!(cpu.pc, TRAP_VECTOR);
+    }
+
+    #[test]
+    fn test_emu_rust_020() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.mem_store(0, &[0x78, 0x56, 0x34, 0x12]).unwrap();
+        cpu.step_word(pack_i(OPCODE_LW, T0 as u32, 0, 0));
+        assert_eq!(cpu.read(T0), 0x1234_5678);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.write(T0, 0x1234_5678);
+        cpu.step_word(pack_i(OPCODE_SW, T0 as u32, 0, 0));
+        assert_eq!(&cpu.mem[0..4], &[0x78, 0x56, 0x34, 0x12]);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.mem_store(0, &[0xFF]).unwrap();
+        cpu.step_word(pack_i(OPCODE_LB, T0 as u32, 0, 0));
+        assert_eq!(cpu.read(T0), MASK);
+        cpu.step_word(pack_i(OPCODE_LBU, T0 as u32, 0, 0));
+        assert_eq!(cpu.read(T0), 0xFF);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.mem_store(3, &[0xAA, 0xBB, 0xCC]).unwrap();
+        cpu.step_word(pack_i(OPCODE_SB, 1, 0, 4));
+        assert_eq!(cpu.mem[4], 1);
+        assert_eq!(cpu.mem[3], 0xAA);
+        assert_eq!(cpu.mem[5], 0xCC);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.mem_store(8, &[0xFF, 0x80]).unwrap();
+        cpu.step_word(pack_i(OPCODE_LH, T0 as u32, 0, 8));
+        assert_eq!(cpu.read(T0), 0xFFFF_80FF);
+        cpu.step_word(pack_i(OPCODE_LHU, T0 as u32, 0, 8));
+        assert_eq!(cpu.read(T0), 0x80FF);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.write(T0, 0x80FF);
+        cpu.step_word(pack_i(OPCODE_SH, T0 as u32, 0, 8));
+        assert_eq!(&cpu.mem[8..10], &[0xFF, 0x80]);
+
+        cpu.cause = 0;
+        cpu.step_word(pack_i(OPCODE_LW, T0 as u32, 0, 1));
+        assert_eq!(cpu.cause, CAUSE_ALIGN);
+        assert_eq!(cpu.pc, TRAP_VECTOR);
+    }
+
+    #[test]
+    fn test_emu_rust_021() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_j(OPCODE_J, 0x20 >> 2));
+        assert_eq!(cpu.pc, 0x20);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_j(OPCODE_JAL, 0x20 >> 2));
+        assert_eq!(cpu.read(RA), 4);
+        assert_eq!(cpu.pc, 0x20);
+        cpu.step_word(pack_r(0, RA as u32, 0, 0, FUNCT_JR));
+        assert_eq!(cpu.pc, 4);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.write(T1, 0x40);
+        cpu.step_word(pack_r(T0 as u32, T1 as u32, 0, 0, FUNCT_JALR));
+        assert_eq!(cpu.read(T0), 4);
+        assert_eq!(cpu.pc, 0x40);
+    }
+
+    #[test]
+    fn test_emu_rust_022() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_r(0, 1, 1, 0, FUNCT_CMP));
+        cpu.step_word(bcc_to(cpu.pc, COND_EQ, 0x20));
+        assert_eq!(cpu.pc, 0x20);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_r(0, 1, 0, 0, FUNCT_CMP));
+        cpu.step_word(bcc_to(cpu.pc, COND_EQ, 0x20));
+        assert_eq!(cpu.pc, 8);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_r(0, 1, 1, 0, FUNCT_TEST));
+        cpu.step_word(bcc_to(cpu.pc, COND_NE, 0x20));
+        assert_eq!(cpu.pc, 0x20);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_r(0, 0, 1, 0, FUNCT_CMP));
+        cpu.step_word(bcc_to(cpu.pc, COND_LO, 0x20));
+        assert_eq!(cpu.pc, 0x20);
     }
 }

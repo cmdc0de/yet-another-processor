@@ -33,7 +33,7 @@ Implementation lives in `emu/rust/`.
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
 | EMU-RUST-011 | ~~32-bit addresses and little-endian SRAM~~ | done | m1 |
-| EMU-RUST-012 | Fetch a 32-bit insn at `PC`; sequential `PC+4`; unaligned fetch traps CAUSE=8 | claimed | m4 |
+| EMU-RUST-012 | ~~Fetch a 32-bit insn at `PC`; sequential `PC+4`; unaligned fetch traps CAUSE=8~~ | implemented | m4 |
 | EMU-RUST-013 | ~~32 GPRs; `r0=0`, `r1=1`, `r2=0xFFFFFFFF`; writes to `r0`–`r2` discarded; ops targeting `r0` still update flags~~ | done | m2 |
 | EMU-RUST-014 | ~~FLAGS Z, N, C, V per `docs/isa/design.md`~~ | done | m2 |
 
@@ -46,9 +46,9 @@ Implementation lives in `emu/rust/`.
 | EMU-RUST-017 | ~~ADDI (sign-extend), ANDI/ORI/XORI (zero-extend)~~ | done | m3 |
 | EMU-RUST-018 | ~~LUI and ADR~~ | done | m3 |
 | EMU-RUST-019 | ~~MUL and DIV (DIV by 0 → result 0, as ISA)~~ | done | m3 |
-| EMU-RUST-020 | Load/store word, half, byte (signed and unsigned loads); unaligned → CAUSE=8 | claimed | m4 |
-| EMU-RUST-021 | J, JAL, JR, JALR | claimed | m4 |
-| EMU-RUST-022 | Conditional branches on flags (all `design.md` cond codes); no delay slot | claimed | m4 |
+| EMU-RUST-020 | ~~Load/store word, half, byte (signed and unsigned loads); unaligned → CAUSE=8~~ | implemented | m4 |
+| EMU-RUST-021 | ~~J, JAL, JR, JALR~~ | implemented | m4 |
+| EMU-RUST-022 | ~~Conditional branches on flags (all `design.md` cond codes); no delay slot~~ | implemented | m4 |
 | EMU-RUST-023 | ~~HALT sets halted; further steps are no-ops~~ | done | m1 |
 
 ## Privilege, traps, protection
