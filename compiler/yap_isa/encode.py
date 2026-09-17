@@ -2,6 +2,7 @@
 
 import re
 
+from compiler.yap_isa.csrs import COP0_MFC0, COP0_MTC0, parse_csr
 from compiler.yap_isa.regs import parse_reg
 
 MASK_ADDR = 0xFFFFFFFF
@@ -15,10 +16,12 @@ OPCODE = {
     "bcc": 0b000100,
     "addi": 0b001000,
     "adr": 0b001001,
+    "sys": 0b001010,
     "andi": 0b001100,
     "ori": 0b001101,
     "xori": 0b001110,
     "lui": 0b001111,
+    "cop0": 0b010000,
     "lb": 0b100000,
     "lh": 0b100001,
     "lw": 0b100011,
@@ -50,6 +53,7 @@ FUNCT = {
     "teq": 0b101001,
     "cmp": 0b101010,
     "halt": 0b101100,
+    "eret": 0b101101,
 }
 
 COND = {
@@ -170,6 +174,24 @@ def assemble(text: str, pc: int = 0) -> int:
     if not parts:
         raise ValueError("empty instruction")
     op = parts[0].lower()
+    if op == "sys":
+        if len(parts) != 2:
+            raise ValueError("sys imm")
+        return pack_i(OPCODE["sys"], 0, 0, parse_imm16(parts[1]))
+    if op == "eret":
+        if len(parts) != 1:
+            raise ValueError("eret takes no operands")
+        return pack_r(0, 0, 0, 0, FUNCT["eret"])
+    if op == "mfc0":
+        if len(parts) != 3:
+            raise ValueError("mfc0 rd, csr")
+        rd, csr = parse_reg(parts[1]), parse_csr(parts[2])
+        return pack_r(rd, COP0_MFC0, csr, 0, 0, opcode=OPCODE["cop0"])
+    if op == "mtc0":
+        if len(parts) != 3:
+            raise ValueError("mtc0 rd, csr")
+        rd, csr = parse_reg(parts[1]), parse_csr(parts[2])
+        return pack_r(rd, COP0_MTC0, csr, 0, 0, opcode=OPCODE["cop0"])
     if op == "halt":
         if len(parts) != 1:
             raise ValueError("halt takes no operands")

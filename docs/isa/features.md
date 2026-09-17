@@ -75,21 +75,21 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-033 | User and supervisor privilege levels | claimed | m5 |
-| ISA-034 | Supervisor-only instructions (status, protection, privilege) | claimed | m5 |
-| ISA-035 | Trap/exception entry saves enough state to return | claimed | m5 |
-| ISA-036 | Return-from-trap | claimed | m5 |
-| ISA-037 | Simple memory protection (base/limit or MPU; pick in `design.md`) | claimed | m5 |
-| ISA-038 | Protection-violation trap | claimed | m5 |
-| ISA-039 | Supervisor interrupt enable/disable | claimed | m5 |
-| ISA-040 | External interrupt trap | claimed | m5 |
+| ISA-033 | ~~User and supervisor privilege levels~~ | implemented | m5 |
+| ISA-034 | ~~Supervisor-only instructions (status, protection, privilege)~~ | implemented | m5 |
+| ISA-035 | ~~Trap/exception entry saves enough state to return~~ | implemented | m5 |
+| ISA-036 | ~~Return-from-trap~~ | implemented | m5 |
+| ISA-037 | ~~Simple memory protection (base/limit or MPU; pick in `design.md`)~~ | implemented | m5 |
+| ISA-038 | ~~Protection-violation trap~~ | implemented | m5 |
+| ISA-039 | ~~Supervisor interrupt enable/disable~~ | implemented | m5 |
+| ISA-040 | ~~External interrupt trap~~ | implemented | m5 |
 
 ## Reserved VM (ISA contract only; no v1 MMU)
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| ISA-041 | Reserved cause codes for translation miss and page fault | claimed | m5 |
-| ISA-042 | Reserved translation-enable control (ignored or trapped on v1) | claimed | m5 |
+| ISA-041 | ~~Reserved cause codes for translation miss and page fault~~ | implemented | m5 |
+| ISA-042 | ~~Reserved translation-enable control (ignored or trapped on v1)~~ | implemented | m5 |
 
 ## Coprocessor / FPU hook
 
@@ -106,7 +106,7 @@ Three of the 32 GPR names are hardwired (no latches): `r0` = 0, `r1` = 1, `r2` =
 | ISA-046 | Designated stack-pointer GPR (not `r0`–`r2`) | open | |
 | ISA-047 | Stack discipline (growth direction and alignment) | open | |
 | ISA-048 | Argument, return-value, callee-saved, and caller-saved assignment (writable GPRs only) | open | |
-| ISA-049 | Syscall ABI: trap, number, arguments, return, error | claimed | m5 |
+| ISA-049 | ~~Syscall ABI: trap, number, arguments, return, error~~ | implemented | m5 |
 | ISA-050 | ~~Assembler names: `zero` (`r0`), `one` (`r1`), `ones` (`r2`), plus `sp`, `ra`, `a0`, …~~ | done | m1 |
 
 ## Later generation (do not pull into m1)

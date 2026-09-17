@@ -1,10 +1,32 @@
 """Behavioral model: GPRs, FLAGS, memory, DIV, load/store, jumps."""
 
+from compiler.yap_isa.csrs import (
+    CAUSE_ALIGN,
+    CAUSE_IRQ,
+    CAUSE_PAGE_FAULT,
+    CAUSE_PRIV,
+    CAUSE_PROT,
+    CAUSE_SYS,
+    CAUSE_TLB_MISS,
+    COP0_MFC0,
+    COP0_MTC0,
+    CSR_CAUSE,
+    CSR_EPC,
+    CSR_FLAGS,
+    CSR_STATUS,
+    CSR_UBASE,
+    CSR_ULIMIT,
+    STATUS_IE,
+    STATUS_P,
+    STATUS_PIE,
+    STATUS_PP,
+    STATUS_TE,
+    TRAP_VECTOR,
+)
 from compiler.yap_isa.encode import COND, FUNCT, OPCODE, OPCODE_SPECIAL, sext16, sext22, unpack_r
 
 MASK = 0xFFFFFFFF
 WORD_BYTES = 4
-CAUSE_ALIGN = 8
 
 
 def _u32(x: int) -> int:
@@ -39,10 +61,61 @@ class Cpu:
         self.pc = 0
         self.flags = Flags()
         self.cause = 0
+        self.epc = 0
+        self.ie = 0
+        self.p = 1
+        self.te = 0
+        self.pie = 0
+        self.pp = 1
+        self.ubase = 0
+        self.ulimit = mem_size
         self.mem = bytearray(mem_size)
         self.halted = False
         self._pc_next = None
         self._force_wired()
+
+    @property
+    def supervisor(self) -> bool:
+        return self.p == 1
+
+    def status_word(self) -> int:
+        return (
+            (self.ie & 1)
+            | ((self.p & 1) << STATUS_P)
+            | ((self.te & 1) << STATUS_TE)
+            | ((self.pie & 1) << STATUS_PIE)
+            | ((self.pp & 1) << STATUS_PP)
+        )
+
+    def flags_word(self) -> int:
+        f = self.flags
+        return (f.z & 1) | ((f.n & 1) << 1) | ((f.c & 1) << 2) | ((f.v & 1) << 3)
+
+    def _set_flags_word(self, value: int) -> None:
+        self.flags.z = value & 1
+        self.flags.n = (value >> 1) & 1
+        self.flags.c = (value >> 2) & 1
+        self.flags.v = (value >> 3) & 1
+
+    def _in_window(self, addr: int, size: int) -> bool:
+        last = addr + size - 1
+        return self.ubase <= addr and last < self.ulimit
+
+    def _trap(self, code, epc=None) -> None:
+        self.cause = code
+        self.pie = self.ie
+        self.pp = self.p
+        self.p = 1
+        self.ie = 0
+        self.epc = self.pc if epc is None else _u32(epc)
+        self._pc_next = TRAP_VECTOR
+
+    def irq(self) -> None:
+        if self.halted or not self.ie:
+            return
+        self._trap(CAUSE_IRQ, epc=self.pc)
+        self.pc = _u32(self._pc_next)
+        self._pc_next = None
 
     def _force_wired(self) -> None:
         self._gprs[0] = 0
@@ -162,7 +235,13 @@ class Cpu:
 
     def _check_align(self, addr: int, size: int) -> bool:
         if addr % size != 0:
-            self.cause = CAUSE_ALIGN
+            self._trap(CAUSE_ALIGN)
+            return False
+        return True
+
+    def _check_user_addr(self, addr: int, size: int) -> bool:
+        if not self.supervisor and not self._in_window(addr, size):
+            self._trap(CAUSE_PROT)
             return False
         return True
 
@@ -180,6 +259,8 @@ class Cpu:
 
     def _load(self, rd: int, rs_i: int, imm16: int, size: int, signed: bool) -> None:
         addr = self._addr(rs_i, imm16)
+        if not self._check_user_addr(addr, size):
+            return
         if not self._check_align(addr, size):
             return
         raw = int.from_bytes(self.mem_load(addr, size), "little")
@@ -192,6 +273,8 @@ class Cpu:
 
     def _store(self, rd: int, rs_i: int, imm16: int, size: int) -> None:
         addr = self._addr(rs_i, imm16)
+        if not self._check_user_addr(addr, size):
+            return
         if not self._check_align(addr, size):
             return
         value = self.read(rd) & ((1 << (size * 8)) - 1)
@@ -287,15 +370,90 @@ class Cpu:
             self.halted = True
             write = False
             result = 0
+        elif funct == FUNCT["eret"]:
+            write = False
+            result = 0
+            if not self.supervisor:
+                self._trap(CAUSE_PRIV)
+            else:
+                self.ie = self.pie
+                self.p = self.pp
+                self._pc_next = self.epc
         else:
             raise ValueError(f"funct not implemented: {funct:#08b}")
         if write:
             self.write(rd, result)
 
+    def _read_csr(self, index: int) -> int:
+        if index == CSR_STATUS:
+            return self.status_word()
+        if index == CSR_FLAGS:
+            return self.flags_word()
+        if index == CSR_EPC:
+            return _u32(self.epc)
+        if index == CSR_CAUSE:
+            return _u32(self.cause)
+        if index == CSR_UBASE:
+            return _u32(self.ubase)
+        if index == CSR_ULIMIT:
+            return _u32(self.ulimit)
+        return 0
+
+    def _write_csr(self, index: int, value: int) -> None:
+        value = _u32(value)
+        if index == CSR_STATUS:
+            if (value >> STATUS_TE) & 1:
+                self._trap(CAUSE_PRIV)
+                return
+            self.ie = value & 1
+            self.p = (value >> STATUS_P) & 1
+            self.te = 0
+            self.pie = (value >> STATUS_PIE) & 1
+            self.pp = (value >> STATUS_PP) & 1
+            return
+        if index == CSR_FLAGS:
+            self._set_flags_word(value)
+            return
+        if index == CSR_EPC:
+            self.epc = value
+            return
+        if index == CSR_CAUSE:
+            self.cause = value
+            return
+        if index == CSR_UBASE:
+            self.ubase = value
+            return
+        if index == CSR_ULIMIT:
+            self.ulimit = value
+
+    def _step_cop0(self, fields: dict) -> None:
+        rd, rs, csr = fields["rd"], fields["rs"], fields["rt"]
+        user_ok_read = csr in (CSR_STATUS, CSR_FLAGS)
+        if rs == COP0_MFC0:
+            if not self.supervisor and not user_ok_read:
+                self._trap(CAUSE_PRIV)
+                return
+            self.write(rd, self._read_csr(csr))
+            return
+        if rs == COP0_MTC0:
+            if not self.supervisor:
+                self._trap(CAUSE_PRIV)
+                return
+            self._write_csr(csr, self.read(rd))
+            return
+        self._trap(CAUSE_PRIV)
+
     def step(self, word: int) -> None:
         if self.halted:
             return
         self._pc_next = None
+        if self.pc % WORD_BYTES != 0:
+            self._trap(CAUSE_ALIGN)
+        elif not self.supervisor and not self._in_window(self.pc, WORD_BYTES):
+            self._trap(CAUSE_PROT)
+        if self._pc_next is not None:
+            self.pc = _u32(self._pc_next)
+            return
         fields = unpack_r(word)
         opcode = fields["opcode"]
         rd, rs_i = fields["rd"], fields["rs"]
@@ -338,6 +496,10 @@ class Cpu:
         elif opcode == OPCODE["bcc"]:
             if self._branch_taken(fields["cond"]):
                 self._pc_next = _u32(self.pc + WORD_BYTES + (sext22(fields["imm22"]) << 2))
+        elif opcode == OPCODE["sys"]:
+            self._trap(CAUSE_SYS, epc=self.pc + WORD_BYTES)
+        elif opcode == OPCODE["cop0"]:
+            self._step_cop0(fields)
         else:
             raise ValueError(f"opcode not implemented: {opcode:#08b}")
         self._force_wired()
