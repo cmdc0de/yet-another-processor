@@ -43,9 +43,9 @@ Machine image is **YAP1**: 16-byte little-endian header plus a raw payload. Enco
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-015 | `li rd, imm32` → `lui`+`ori` (or `addi` when it fits) | open | |
-| COMPILER-016 | `move rd, rs` → `add rd, rs, zero` | open | |
-| COMPILER-017 | `la rd, label` → `adr` or `lui`+`ori` as needed | open | |
+| COMPILER-015 | `li rd, imm32` → `lui`+`ori` (or `addi` when it fits) | claimed | m4 |
+| COMPILER-016 | `move rd, rs` → `add rd, rs, zero` | claimed | m4 |
+| COMPILER-017 | `la rd, label` → `adr` or `lui`+`ori` as needed | claimed | m4 |
 
 ## Errors and host run
 
@@ -53,7 +53,7 @@ Machine image is **YAP1**: 16-byte little-endian header plus a raw payload. Enco
 |----|---------|--------|-----------|
 | COMPILER-018 | ~~Errors include file and line; no output file on failure~~ | done | m1 |
 | COMPILER-019 | ~~Unknown mnemonic / bad operand is an error~~ | done | m1 |
-| COMPILER-020 | Load a YAP1 image into `yap_isa.Cpu` (skip header, copy payload to `load`, `PC=entry`) and run until `halt` | open | |
+| COMPILER-020 | Load a YAP1 image into `yap_isa.Cpu` (skip header, copy payload to `load`, `PC=entry`) and run until `halt` | claimed | m4 |
 
 ## Later generation (do not pull into m1)
 
