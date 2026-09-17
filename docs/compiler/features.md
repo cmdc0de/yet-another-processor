@@ -8,19 +8,19 @@ Machine image is **YAP1**: 16-byte little-endian header plus a raw payload. Enco
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-001 | Assemble one UTF-8 `.s` file into a YAP1 file (header + little-endian payload) | open | |
-| COMPILER-002 | CLI: input path and `-o` output path | open | |
-| COMPILER-003 | Linear payload: bytes laid out by location counter (no linker) | open | |
-| COMPILER-023 | Write and validate the 16-byte YAP1 header (`magic`, `load`, `size`, `entry`) | open | |
+| COMPILER-001 | Assemble one UTF-8 `.s` file into a YAP1 file (header + little-endian payload) | claimed | m1 |
+| COMPILER-002 | CLI: input path and `-o` output path | claimed | m1 |
+| COMPILER-003 | Linear payload: bytes laid out by location counter (no linker) | claimed | m1 |
+| COMPILER-023 | Write and validate the 16-byte YAP1 header (`magic`, `load`, `size`, `entry`) | claimed | m1 |
 
 ## Source syntax
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-004 | Comments: `;` or `#` through end of line | open | |
-| COMPILER-005 | Mnemonics case-insensitive; uses `yap_isa` for all v1 ops already in `assemble()` | open | |
-| COMPILER-006 | ABI register names (`zero`, `sp`, `ra`, `a0`, `f0`, …) | open | |
-| COMPILER-007 | Memory operands `off(rs)` | open | |
+| COMPILER-004 | Comments: `;` or `#` through end of line | claimed | m1 |
+| COMPILER-005 | Mnemonics case-insensitive; uses `yap_isa` for all v1 ops already in `assemble()` | claimed | m1 |
+| COMPILER-006 | ABI register names (`zero`, `sp`, `ra`, `a0`, `f0`, …) | claimed | m1 |
+| COMPILER-007 | Memory operands `off(rs)` | claimed | m1 |
 
 ## Symbols and control
 
@@ -51,8 +51,8 @@ Machine image is **YAP1**: 16-byte little-endian header plus a raw payload. Enco
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-018 | Errors include file and line; no output file on failure | open | |
-| COMPILER-019 | Unknown mnemonic / bad operand is an error | open | |
+| COMPILER-018 | Errors include file and line; no output file on failure | claimed | m1 |
+| COMPILER-019 | Unknown mnemonic / bad operand is an error | claimed | m1 |
 | COMPILER-020 | Load a YAP1 image into `yap_isa.Cpu` (skip header, copy payload to `load`, `PC=entry`) and run until `halt` | open | |
 
 ## Later generation (do not pull into m1)
