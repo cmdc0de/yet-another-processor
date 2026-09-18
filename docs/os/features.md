@@ -10,9 +10,9 @@ Syscall ABI is `docs/isa/design.md` (`ISA-049`). Memory map and syscall numbers 
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| OS-001 | One YAP1: kernel at reset `PC=0`, trap handler at `0x80` | open | |
-| OS-002 | Image reaches halt (or `SYS_EXIT`) on `yap-emu` | open | |
-| OS-003 | Kernel stack in supervisor SRAM | open | |
+| OS-001 | One YAP1: kernel at reset `PC=0`, trap handler at `0x80` | claimed | m1 |
+| OS-002 | Image reaches halt (or `SYS_EXIT`) on `yap-emu` | claimed | m1 |
+| OS-003 | Kernel stack in supervisor SRAM | claimed | m1 |
 
 ## Protection
 
@@ -52,8 +52,8 @@ Syscall ABI is `docs/isa/design.md` (`ISA-049`). Memory map and syscall numbers 
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| OS-018 | Sources under `os/` assemble with `python3 -m compiler.asm` | open | |
-| OS-019 | Tests assemble a YAP1 and run it on `yap-emu` | open | |
+| OS-018 | Sources under `os/` assemble with `python3 -m compiler.asm` | claimed | m1 |
+| OS-019 | Tests assemble a YAP1 and run it on `yap-emu` | claimed | m1 |
 
 ## Later generation (do not pull into m1)
 
