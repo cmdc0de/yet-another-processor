@@ -23,10 +23,10 @@ Implementation lives in `emu/rust/`.
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
 | EMU-RUST-006 | ~~Builds and runs tests on Linux x86_64~~ | done | m1 |
-| EMU-RUST-007 | ~~Builds and runs tests on Linux aarch64~~ | implemented | m7 |
-| EMU-RUST-008 | ~~Builds and runs tests on Windows x86_64~~ | implemented | m7 |
-| EMU-RUST-009 | ~~Builds and runs tests on Windows aarch64~~ | implemented | m7 |
-| EMU-RUST-010 | ~~Builds and runs tests on macOS aarch64~~ | implemented | m7 |
+| EMU-RUST-007 | ~~Builds and runs tests on Linux aarch64~~ | done | m7 |
+| EMU-RUST-008 | ~~Builds and runs tests on Windows x86_64~~ | done | m7 |
+| EMU-RUST-009 | ~~Builds and runs tests on Windows aarch64~~ | done | m7 |
+| EMU-RUST-010 | ~~Builds and runs tests on macOS aarch64~~ | done | m7 |
 
 ## Machine state
 
