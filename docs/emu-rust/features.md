@@ -16,7 +16,7 @@ Implementation lives in `emu/rust/`.
 | EMU-RUST-002 | ~~Reject short files, bad `YAP1` magic, or `size != file_len - 16`~~ | done | m1 |
 | EMU-RUST-003 | ~~Copy payload to SRAM at `load`, set `PC=entry`; do not map the 16-byte header~~ | done | m1 |
 | EMU-RUST-004 | ~~Run until `halt` or a max-step cap (default 100000); non-zero exit if it does not halt~~ | done | m1 |
-| EMU-RUST-005 | After the run, print PC, FLAGS, CSRs, and the 32 GPRs | claimed | m5 |
+| EMU-RUST-005 | ~~After the run, print PC, FLAGS, CSRs, and the 32 GPRs~~ | implemented | m5 |
 
 ## Host platforms
 
@@ -55,15 +55,15 @@ Implementation lives in `emu/rust/`.
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| EMU-RUST-024 | User and supervisor; reset: supervisor, `IE=0`, `TE=0`, `PC=0` | claimed | m5 |
-| EMU-RUST-025 | MFC0/MTC0; user may read FLAGS and STATUS; other user CSR access → CAUSE=7 | claimed | m5 |
-| EMU-RUST-026 | Trap entry: CAUSE, PIE/PP, `P=1`, `IE=0`, `PC=0x80`; EPC = faulting PC except SYS uses `PC+4` | claimed | m5 |
-| EMU-RUST-027 | ERET is supervisor-only; restores IE/P from PIE/PP, `PC=EPC` | claimed | m5 |
-| EMU-RUST-028 | One user window `[UBASE, ULIMIT)`; user fetch/load/store outside → CAUSE=2 | claimed | m5 |
-| EMU-RUST-029 | `IE` and a host-injected external IRQ → CAUSE=1 | claimed | m5 |
-| EMU-RUST-030 | `sys` → CAUSE=3 | claimed | m5 |
-| EMU-RUST-031 | Setting `TE=1` traps CAUSE=7 and leaves `TE=0` | claimed | m5 |
-| EMU-RUST-032 | CAUSE codes 4 (translation miss) and 5 (page fault) exist; v1 does not generate them | claimed | m5 |
+| EMU-RUST-024 | ~~User and supervisor; reset: supervisor, `IE=0`, `TE=0`, `PC=0`~~ | implemented | m5 |
+| EMU-RUST-025 | ~~MFC0/MTC0; user may read FLAGS and STATUS; other user CSR access → CAUSE=7~~ | implemented | m5 |
+| EMU-RUST-026 | ~~Trap entry: CAUSE, PIE/PP, `P=1`, `IE=0`, `PC=0x80`; EPC = faulting PC except SYS uses `PC+4`~~ | implemented | m5 |
+| EMU-RUST-027 | ~~ERET is supervisor-only; restores IE/P from PIE/PP, `PC=EPC`~~ | implemented | m5 |
+| EMU-RUST-028 | ~~One user window `[UBASE, ULIMIT)`; user fetch/load/store outside → CAUSE=2~~ | implemented | m5 |
+| EMU-RUST-029 | ~~`IE` and a host-injected external IRQ → CAUSE=1~~ | implemented | m5 |
+| EMU-RUST-030 | ~~`sys` → CAUSE=3~~ | implemented | m5 |
+| EMU-RUST-031 | ~~Setting `TE=1` traps CAUSE=7 and leaves `TE=0`~~ | implemented | m5 |
+| EMU-RUST-032 | ~~CAUSE codes 4 (translation miss) and 5 (page fault) exist; v1 does not generate them~~ | implemented | m5 |
 
 ## COP1
 

@@ -9,6 +9,12 @@ pub const MASK: u32 = 0xFFFF_FFFF;
 pub const T0: usize = 10;
 pub const T1: usize = 11;
 pub const RA: usize = 3;
+pub const CAUSE_IRQ: u32 = 1;
+pub const CAUSE_PROT: u32 = 2;
+pub const CAUSE_SYS: u32 = 3;
+pub const CAUSE_TLB_MISS: u32 = 4;
+pub const CAUSE_PAGE_FAULT: u32 = 5;
+pub const CAUSE_PRIV: u32 = 7;
 pub const CAUSE_ALIGN: u32 = 8;
 pub const TRAP_VECTOR: u32 = 0x80;
 
@@ -21,7 +27,9 @@ const OPCODE_ADR: u32 = 0b001001;
 const OPCODE_ANDI: u32 = 0b001100;
 const OPCODE_ORI: u32 = 0b001101;
 const OPCODE_XORI: u32 = 0b001110;
+const OPCODE_SYS: u32 = 0b001010;
 const OPCODE_LUI: u32 = 0b001111;
+const OPCODE_COP0: u32 = 0b010000;
 const OPCODE_LB: u32 = 0b100000;
 const OPCODE_LH: u32 = 0b100001;
 const OPCODE_LW: u32 = 0b100011;
@@ -50,6 +58,20 @@ const FUNCT_TEST: u32 = 0b101000;
 const FUNCT_TEQ: u32 = 0b101001;
 const FUNCT_CMP: u32 = 0b101010;
 const FUNCT_HALT: u32 = 0b101100;
+const FUNCT_ERET: u32 = 0b101101;
+
+const CSR_STATUS: u32 = 0;
+const CSR_FLAGS: u32 = 1;
+const CSR_EPC: u32 = 2;
+const CSR_CAUSE: u32 = 3;
+const CSR_UBASE: u32 = 4;
+const CSR_ULIMIT: u32 = 5;
+const STATUS_P: u32 = 1;
+const STATUS_TE: u32 = 2;
+const STATUS_PIE: u32 = 8;
+const STATUS_PP: u32 = 9;
+const COP0_MFC0: u32 = 0;
+const COP0_MTC0: u32 = 4;
 
 const COND_EQ: u32 = 0;
 const COND_NE: u32 = 1;
@@ -78,6 +100,14 @@ pub struct Cpu {
     gprs: [u32; 32],
     pub flags: Flags,
     pub cause: u32,
+    pub epc: u32,
+    pub ie: u8,
+    pub p: u8,
+    pub te: u8,
+    pub pie: u8,
+    pub pp: u8,
+    pub ubase: u32,
+    pub ulimit: u32,
     pc_next: Option<u32>,
 }
 
@@ -90,6 +120,14 @@ impl Cpu {
             gprs: [0; 32],
             flags: Flags::default(),
             cause: 0,
+            epc: 0,
+            ie: 0,
+            p: 1,
+            te: 0,
+            pie: 0,
+            pp: 1,
+            ubase: 0,
+            ulimit: mem_size as u32,
             pc_next: None,
         }
     }
@@ -139,6 +177,65 @@ impl Cpu {
             return;
         }
         self.gprs[idx] = value;
+    }
+
+    pub fn supervisor(&self) -> bool {
+        self.p == 1
+    }
+
+    pub fn status_word(&self) -> u32 {
+        u32::from(self.ie & 1)
+            | (u32::from(self.p & 1) << STATUS_P)
+            | (u32::from(self.te & 1) << STATUS_TE)
+            | (u32::from(self.pie & 1) << STATUS_PIE)
+            | (u32::from(self.pp & 1) << STATUS_PP)
+    }
+
+    pub fn flags_word(&self) -> u32 {
+        u32::from(self.flags.z & 1)
+            | (u32::from(self.flags.n & 1) << 1)
+            | (u32::from(self.flags.c & 1) << 2)
+            | (u32::from(self.flags.v & 1) << 3)
+    }
+
+    fn in_window(&self, addr: u32, size: usize) -> bool {
+        let last = u64::from(addr) + size as u64 - 1;
+        u64::from(self.ubase) <= u64::from(addr) && last < u64::from(self.ulimit)
+    }
+
+    fn trap(&mut self, code: u32, epc: Option<u32>) {
+        self.cause = code;
+        self.pie = self.ie;
+        self.pp = self.p;
+        self.p = 1;
+        self.ie = 0;
+        self.epc = epc.unwrap_or(self.pc);
+        self.pc_next = Some(TRAP_VECTOR);
+    }
+
+    pub fn irq(&mut self) {
+        if self.halted || self.ie == 0 {
+            return;
+        }
+        self.trap(CAUSE_IRQ, Some(self.pc));
+        self.finish_step();
+    }
+
+    pub fn dump(&self) -> String {
+        let mut out = format!(
+            "pc {:08x}\nflags {:08x}\nstatus {:08x}\ncause {:08x}\nepc {:08x}\nubase {:08x}\nulimit {:08x}\n",
+            self.pc,
+            self.flags_word(),
+            self.status_word(),
+            self.cause,
+            self.epc,
+            self.ubase,
+            self.ulimit
+        );
+        for i in 0..32 {
+            out.push_str(&format!("r{i} {:08x}\n", self.read(i)));
+        }
+        out
     }
 
     pub fn mem_load(&self, addr: u32, size: usize) -> Result<&[u8], String> {
@@ -293,8 +390,7 @@ impl Cpu {
     }
 
     fn trap_align(&mut self) {
-        self.cause = CAUSE_ALIGN;
-        self.pc_next = Some(TRAP_VECTOR);
+        self.trap(CAUSE_ALIGN, None);
     }
 
     fn addr(&self, rs: u32, imm16: u32) -> u32 {
@@ -303,6 +399,10 @@ impl Cpu {
 
     fn load(&mut self, rd: usize, rs: u32, imm16: u32, size: usize, signed: bool) {
         let addr = self.addr(rs, imm16);
+        if !self.supervisor() && !self.in_window(addr, size) {
+            self.trap(CAUSE_PROT, None);
+            return;
+        }
         if addr % size as u32 != 0 {
             self.trap_align();
             return;
@@ -326,6 +426,10 @@ impl Cpu {
 
     fn store(&mut self, rd: usize, rs: u32, imm16: u32, size: usize) {
         let addr = self.addr(rs, imm16);
+        if !self.supervisor() && !self.in_window(addr, size) {
+            self.trap(CAUSE_PROT, None);
+            return;
+        }
         if addr % size as u32 != 0 {
             self.trap_align();
             return;
@@ -364,6 +468,66 @@ impl Cpu {
             COND_PL => !n,
             _ => false,
         }
+    }
+
+    fn read_csr(&self, index: u32) -> u32 {
+        match index {
+            CSR_STATUS => self.status_word(),
+            CSR_FLAGS => self.flags_word(),
+            CSR_EPC => self.epc,
+            CSR_CAUSE => self.cause,
+            CSR_UBASE => self.ubase,
+            CSR_ULIMIT => self.ulimit,
+            _ => 0,
+        }
+    }
+
+    fn write_csr(&mut self, index: u32, value: u32) {
+        match index {
+            CSR_STATUS => {
+                if (value >> STATUS_TE) & 1 != 0 {
+                    self.trap(CAUSE_PRIV, None);
+                    return;
+                }
+                self.ie = (value & 1) as u8;
+                self.p = ((value >> STATUS_P) & 1) as u8;
+                self.te = 0;
+                self.pie = ((value >> STATUS_PIE) & 1) as u8;
+                self.pp = ((value >> STATUS_PP) & 1) as u8;
+            }
+            CSR_FLAGS => {
+                self.flags.z = (value & 1) as u8;
+                self.flags.n = ((value >> 1) & 1) as u8;
+                self.flags.c = ((value >> 2) & 1) as u8;
+                self.flags.v = ((value >> 3) & 1) as u8;
+            }
+            CSR_EPC => self.epc = value,
+            CSR_CAUSE => self.cause = value,
+            CSR_UBASE => self.ubase = value,
+            CSR_ULIMIT => self.ulimit = value,
+            _ => {}
+        }
+    }
+
+    fn step_cop0(&mut self, rd: usize, rs: u32, csr: u32) {
+        let user_ok_read = csr == CSR_STATUS || csr == CSR_FLAGS;
+        if rs == COP0_MFC0 {
+            if !self.supervisor() && !user_ok_read {
+                self.trap(CAUSE_PRIV, None);
+                return;
+            }
+            self.write(rd, self.read_csr(csr));
+            return;
+        }
+        if rs == COP0_MTC0 {
+            if !self.supervisor() {
+                self.trap(CAUSE_PRIV, None);
+                return;
+            }
+            self.write_csr(csr, self.read(rd));
+            return;
+        }
+        self.trap(CAUSE_PRIV, None);
     }
 
     fn execute(&mut self, word: u32) {
@@ -421,6 +585,16 @@ impl Cpu {
                     self.halted = true;
                     (0, false)
                 }
+                FUNCT_ERET => {
+                    if !self.supervisor() {
+                        self.trap(CAUSE_PRIV, None);
+                    } else {
+                        self.ie = self.pie;
+                        self.p = self.pp;
+                        self.pc_next = Some(self.epc);
+                    }
+                    (0, false)
+                }
                 _ => (0, false),
             };
             if write {
@@ -475,6 +649,8 @@ impl Cpu {
                     self.pc_next = Some(self.pc.wrapping_add(4).wrapping_add(off));
                 }
             }
+            OPCODE_SYS => self.trap(CAUSE_SYS, Some(self.pc.wrapping_add(4))),
+            OPCODE_COP0 => self.step_cop0(rd, rs_i as u32, rt_i as u32),
             _ => {}
         }
     }
@@ -494,6 +670,11 @@ impl Cpu {
             self.finish_step();
             return;
         }
+        if !self.supervisor() && !self.in_window(self.pc, 4) {
+            self.trap(CAUSE_PROT, None);
+            self.finish_step();
+            return;
+        }
         self.execute(word);
         self.finish_step();
     }
@@ -505,6 +686,11 @@ impl Cpu {
         self.pc_next = None;
         if self.pc % 4 != 0 {
             self.trap_align();
+            self.finish_step();
+            return Ok(());
+        }
+        if !self.supervisor() && !self.in_window(self.pc, 4) {
+            self.trap(CAUSE_PROT, None);
             self.finish_step();
             return Ok(());
         }
@@ -551,6 +737,10 @@ mod tests {
 
     fn pack_b(cond: u32, imm22: u32) -> u32 {
         (OPCODE_BCC << 26) | ((cond & 0xF) << 22) | (imm22 & 0x3F_FFFF)
+    }
+
+    fn pack_cop0(rd: u32, rs: u32, csr: u32) -> u32 {
+        (OPCODE_COP0 << 26) | (rd << 21) | (rs << 16) | (csr << 11)
     }
 
     fn bcc_to(pc: u32, cond: u32, target: u32) -> u32 {
@@ -862,5 +1052,114 @@ mod tests {
         cpu.step_word(pack_r(0, 0, 1, 0, FUNCT_CMP));
         cpu.step_word(bcc_to(cpu.pc, COND_LO, 0x20));
         assert_eq!(cpu.pc, 0x20);
+    }
+
+    #[test]
+    fn test_emu_rust_024() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        assert_eq!(cpu.p, 1);
+        assert_eq!(cpu.ie, 0);
+        assert_eq!(cpu.te, 0);
+        assert_eq!(cpu.pc, 0);
+        cpu.step_word(pack_cop0(0, COP0_MTC0, CSR_STATUS));
+        assert_eq!(cpu.p, 0);
+    }
+
+    #[test]
+    fn test_emu_rust_025() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_cop0(0, COP0_MTC0, CSR_STATUS));
+        cpu.step_word(pack_cop0(T0 as u32, COP0_MTC0, CSR_UBASE));
+        assert_eq!(cpu.cause, CAUSE_PRIV);
+        assert_eq!(cpu.pc, TRAP_VECTOR);
+        assert_eq!(cpu.p, 1);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_i(OPCODE_ADDI, T0 as u32, 0, 0x100));
+        cpu.step_word(pack_cop0(T0 as u32, COP0_MTC0, CSR_UBASE));
+        assert_eq!(cpu.ubase, 0x100);
+        assert_eq!(cpu.p, 1);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_cop0(0, COP0_MTC0, CSR_STATUS));
+        cpu.step_word(pack_cop0(T0 as u32, COP0_MFC0, CSR_FLAGS));
+        assert_ne!(cpu.cause, CAUSE_PRIV);
+        assert_ne!(cpu.pc, TRAP_VECTOR);
+    }
+
+    #[test]
+    fn test_emu_rust_026() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_i(OPCODE_SYS, 0, 0, 1));
+        assert_eq!(cpu.cause, CAUSE_SYS);
+        assert_eq!(cpu.epc, 4);
+        assert_eq!(cpu.p, 1);
+        assert_eq!(cpu.ie, 0);
+        assert_eq!(cpu.pc, TRAP_VECTOR);
+    }
+
+    #[test]
+    fn test_emu_rust_027() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_i(OPCODE_SYS, 0, 0, 1));
+        cpu.step_word(pack_r(0, 0, 0, 0, FUNCT_ERET));
+        assert_eq!(cpu.pc, 4);
+        assert_eq!(cpu.p, 1);
+    }
+
+    #[test]
+    fn test_emu_rust_028() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_i(OPCODE_ADDI, T0 as u32, 0, 0x100));
+        cpu.step_word(pack_cop0(T0 as u32, COP0_MTC0, CSR_UBASE));
+        cpu.step_word(pack_i(OPCODE_ADDI, T0 as u32, 0, 0x200));
+        cpu.step_word(pack_cop0(T0 as u32, COP0_MTC0, CSR_ULIMIT));
+        cpu.step_word(pack_i(OPCODE_LW, T0 as u32, 0, 0));
+        assert_eq!(cpu.p, 1);
+        cpu.step_word(pack_cop0(0, COP0_MTC0, CSR_STATUS));
+        cpu.pc = 0x100;
+        cpu.step_word(pack_i(OPCODE_LW, T0 as u32, 0, 0));
+        assert_eq!(cpu.cause, CAUSE_PROT);
+        assert_eq!(cpu.pc, TRAP_VECTOR);
+    }
+
+    #[test]
+    fn test_emu_rust_029() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.irq();
+        assert_eq!(cpu.pc, 0);
+        cpu.ie = 1;
+        cpu.irq();
+        assert_eq!(cpu.pc, TRAP_VECTOR);
+        assert_eq!(cpu.cause, CAUSE_IRQ);
+    }
+
+    #[test]
+    fn test_emu_rust_030() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_i(OPCODE_SYS, 0, 0, 0x12));
+        assert_eq!(cpu.cause, CAUSE_SYS);
+    }
+
+    #[test]
+    fn test_emu_rust_031() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_i(OPCODE_ADDI, T0 as u32, 0, 4));
+        cpu.step_word(pack_cop0(T0 as u32, COP0_MTC0, CSR_STATUS));
+        assert_eq!(cpu.cause, CAUSE_PRIV);
+        assert_eq!(cpu.te, 0);
+        assert_eq!(cpu.pc, TRAP_VECTOR);
+    }
+
+    #[test]
+    fn test_emu_rust_032() {
+        assert_eq!(CAUSE_TLB_MISS, 4);
+        assert_eq!(CAUSE_PAGE_FAULT, 5);
+        assert_ne!(CAUSE_TLB_MISS, CAUSE_PROT);
+        assert_ne!(CAUSE_PAGE_FAULT, CAUSE_SYS);
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(add(T0 as u32, 1, 1));
+        assert_ne!(cpu.cause, CAUSE_TLB_MISS);
+        assert_ne!(cpu.cause, CAUSE_PAGE_FAULT);
     }
 }

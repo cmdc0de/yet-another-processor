@@ -72,7 +72,9 @@ pub fn run_file(path: &Path, max_steps: u32) -> i32 {
             return 1;
         }
     };
-    if cpu.run(max_steps) {
+    let halted = cpu.run(max_steps);
+    print!("{}", cpu.dump());
+    if halted {
         0
     } else {
         1

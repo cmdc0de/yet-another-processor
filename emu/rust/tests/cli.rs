@@ -80,6 +80,18 @@ fn test_emu_rust_004() {
     assert_ne!(r.status.code(), Some(0));
 }
 
+#[test]
+fn test_emu_rust_005() {
+    let path = tmp_yap("halt-dump.yap", &halt_image());
+    let r = Command::new(bin()).arg(&path).output().unwrap();
+    assert_eq!(r.status.code(), Some(0));
+    let out = String::from_utf8_lossy(&r.stdout).to_lowercase();
+    assert!(out.contains("pc"), "{out}");
+    assert!(out.contains("flags"), "{out}");
+    assert!(out.contains("cause"), "{out}");
+    assert!(out.contains("r10"), "{out}");
+}
+
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 #[test]
 fn test_emu_rust_006() {
