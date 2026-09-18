@@ -98,3 +98,31 @@ fn test_emu_rust_006() {
     assert_eq!(std::env::consts::OS, "linux");
     assert_eq!(std::env::consts::ARCH, "x86_64");
 }
+
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
+#[test]
+fn test_emu_rust_007() {
+    assert_eq!(std::env::consts::OS, "linux");
+    assert_eq!(std::env::consts::ARCH, "aarch64");
+}
+
+#[cfg(all(target_os = "windows", target_arch = "x86_64"))]
+#[test]
+fn test_emu_rust_008() {
+    assert_eq!(std::env::consts::OS, "windows");
+    assert_eq!(std::env::consts::ARCH, "x86_64");
+}
+
+#[cfg(all(target_os = "windows", target_arch = "aarch64"))]
+#[test]
+fn test_emu_rust_009() {
+    assert_eq!(std::env::consts::OS, "windows");
+    assert_eq!(std::env::consts::ARCH, "aarch64");
+}
+
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+#[test]
+fn test_emu_rust_010() {
+    assert_eq!(std::env::consts::OS, "macos");
+    assert_eq!(std::env::consts::ARCH, "aarch64");
+}

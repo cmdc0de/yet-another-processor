@@ -1,0 +1,4 @@
+# Used when cross-compiling from Linux. Native `cargo test` on a host ignores
+# unused target tables.
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
