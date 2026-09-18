@@ -1,4 +1,4 @@
-//! CPU: little-endian SRAM, PC, halt, GPRs, FLAGS, integer ALU, memory, jumps (m1–m4).
+//! CPU: little-endian SRAM, PC, halt, GPRs, FLAGS, integer ALU, memory, jumps, COP1 (m1–m6).
 
 use crate::yap1::Yap1;
 
@@ -14,6 +14,7 @@ pub const CAUSE_PROT: u32 = 2;
 pub const CAUSE_SYS: u32 = 3;
 pub const CAUSE_TLB_MISS: u32 = 4;
 pub const CAUSE_PAGE_FAULT: u32 = 5;
+pub const CAUSE_COP: u32 = 6;
 pub const CAUSE_PRIV: u32 = 7;
 pub const CAUSE_ALIGN: u32 = 8;
 pub const TRAP_VECTOR: u32 = 0x80;
@@ -30,6 +31,7 @@ const OPCODE_XORI: u32 = 0b001110;
 const OPCODE_SYS: u32 = 0b001010;
 const OPCODE_LUI: u32 = 0b001111;
 const OPCODE_COP0: u32 = 0b010000;
+const OPCODE_COP1: u32 = 0b010001;
 const OPCODE_LB: u32 = 0b100000;
 const OPCODE_LH: u32 = 0b100001;
 const OPCODE_LW: u32 = 0b100011;
@@ -72,6 +74,8 @@ const STATUS_PIE: u32 = 8;
 const STATUS_PP: u32 = 9;
 const COP0_MFC0: u32 = 0;
 const COP0_MTC0: u32 = 4;
+const COP1_MFC1: u32 = 0;
+const COP1_MTC1: u32 = 4;
 
 const COND_EQ: u32 = 0;
 const COND_NE: u32 = 1;
@@ -108,6 +112,7 @@ pub struct Cpu {
     pub pp: u8,
     pub ubase: u32,
     pub ulimit: u32,
+    fregs: [u32; 32],
     pc_next: Option<u32>,
 }
 
@@ -128,6 +133,7 @@ impl Cpu {
             pp: 1,
             ubase: 0,
             ulimit: mem_size as u32,
+            fregs: [0; 32],
             pc_next: None,
         }
     }
@@ -530,6 +536,26 @@ impl Cpu {
         self.trap(CAUSE_PRIV, None);
     }
 
+    pub fn read_f(&self, idx: usize) -> u32 {
+        self.fregs[idx]
+    }
+
+    pub fn write_f(&mut self, idx: usize, value: u32) {
+        self.fregs[idx] = value;
+    }
+
+    fn step_cop1(&mut self, rd: usize, rs: u32, fs: usize) {
+        if rs == COP1_MFC1 {
+            self.write(rd, self.read_f(fs));
+            return;
+        }
+        if rs == COP1_MTC1 {
+            self.write_f(fs, self.read(rd));
+            return;
+        }
+        self.trap(CAUSE_COP, None);
+    }
+
     fn execute(&mut self, word: u32) {
         let opcode = (word >> 26) & 0x3F;
         let rd = ((word >> 21) & 0x1F) as usize;
@@ -651,6 +677,7 @@ impl Cpu {
             }
             OPCODE_SYS => self.trap(CAUSE_SYS, Some(self.pc.wrapping_add(4))),
             OPCODE_COP0 => self.step_cop0(rd, rs_i as u32, rt_i as u32),
+            OPCODE_COP1 => self.step_cop1(rd, rs_i as u32, rt_i),
             _ => {}
         }
     }
@@ -741,6 +768,18 @@ mod tests {
 
     fn pack_cop0(rd: u32, rs: u32, csr: u32) -> u32 {
         (OPCODE_COP0 << 26) | (rd << 21) | (rs << 16) | (csr << 11)
+    }
+
+    fn pack_cop1(rd: u32, rs: u32, fs: u32) -> u32 {
+        (OPCODE_COP1 << 26) | (rd << 21) | (rs << 16) | (fs << 11)
+    }
+
+    fn gprs(cpu: &Cpu) -> [u32; 32] {
+        let mut out = [0u32; 32];
+        for i in 0..32 {
+            out[i] = cpu.read(i);
+        }
+        out
     }
 
     fn bcc_to(pc: u32, cond: u32, target: u32) -> u32 {
@@ -1161,5 +1200,35 @@ mod tests {
         cpu.step_word(add(T0 as u32, 1, 1));
         assert_ne!(cpu.cause, CAUSE_TLB_MISS);
         assert_ne!(cpu.cause, CAUSE_PAGE_FAULT);
+    }
+
+    #[test]
+    fn test_emu_rust_033() {
+        let word = pack_cop1(T0 as u32, COP1_MFC1, 0);
+        assert_eq!((word >> 26) & 0x3F, OPCODE_COP1);
+        assert_eq!(OPCODE_COP1, 0b010001);
+        assert_ne!(OPCODE_COP1, OPCODE_SPECIAL);
+        assert_ne!(OPCODE_COP1, OPCODE_COP0);
+
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.write(T0, 0xA5A5_A5A5);
+        let before = gprs(&cpu);
+        cpu.step_word(pack_cop1(T0 as u32, COP1_MTC1, 0));
+        assert_eq!(cpu.read_f(0), 0xA5A5_A5A5);
+        assert_eq!(gprs(&cpu), before);
+        cpu.write(T1, 0);
+        cpu.step_word(pack_cop1(T1 as u32, COP1_MFC1, 0));
+        assert_eq!(cpu.read(T1), 0xA5A5_A5A5);
+        let mut after = before;
+        after[T1] = 0xA5A5_A5A5;
+        assert_eq!(gprs(&cpu), after);
+    }
+
+    #[test]
+    fn test_emu_rust_034() {
+        let mut cpu = Cpu::new(DEFAULT_MEM);
+        cpu.step_word(pack_cop1(0, 1, 0));
+        assert_eq!(cpu.cause, CAUSE_COP);
+        assert_eq!(cpu.pc, TRAP_VECTOR);
     }
 }
