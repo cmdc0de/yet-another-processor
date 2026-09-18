@@ -69,8 +69,8 @@ Implementation lives in `emu/rust/`.
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| EMU-RUST-033 | 32 FPU registers; MFC1/MTC1 | open | |
-| EMU-RUST-034 | Unimplemented COP1 ops trap CAUSE=6 | open | |
+| EMU-RUST-033 | 32 FPU registers; MFC1/MTC1 | claimed | m6 |
+| EMU-RUST-034 | Unimplemented COP1 ops trap CAUSE=6 | claimed | m6 |
 
 ## Later generation (do not pull into m1)
 
