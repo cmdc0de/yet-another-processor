@@ -56,11 +56,11 @@ No delay slot: a taken jump/branch replaces the usual `PC+4` (`docs/isa/design.m
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| CPU-039 | Unconditional jump `j`: `PC ← (PC+4)[31:28] \|\| target26 \|\| 00` | claimed | m5 |
-| CPU-040 | Jump-and-link `jal`: `ra ← PC+4`, then same target as `j` | claimed | m5 |
-| CPU-041 | Jump register `jr`: `PC ← rs` | claimed | m5 |
-| CPU-042 | Jump-and-link register `jalr`: `rd ← PC+4`, `PC ← rs` | claimed | m5 |
-| CPU-043 | Conditional branch `bcc` on FLAGS (EQ, NE, signed and unsigned LT/GE and the rest of the ISA conds) | claimed | m5 |
+| CPU-039 | ~~Unconditional jump `j`: `PC ← (PC+4)[31:28] \|\| target26 \|\| 00`~~ | implemented | m5 |
+| CPU-040 | ~~Jump-and-link `jal`: `ra ← PC+4`, then same target as `j`~~ | implemented | m5 |
+| CPU-041 | ~~Jump register `jr`: `PC ← rs`~~ | implemented | m5 |
+| CPU-042 | ~~Jump-and-link register `jalr`: `rd ← PC+4`, `PC ← rs`~~ | implemented | m5 |
+| CPU-043 | ~~Conditional branch `bcc` on FLAGS (EQ, NE, signed and unsigned LT/GE and the rest of the ISA conds)~~ | implemented | m5 |
 
 ## Later generation (do not pull into m1)
 

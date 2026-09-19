@@ -85,7 +85,7 @@ from compiler.yap_isa.csrs import (
     STATUS_TE,
     TRAP_VECTOR,
 )
-from compiler.yap_isa.encode import OPCODE, sext16, sext22, unpack_r
+from compiler.yap_isa.encode import COND, OPCODE, sext16, sext22, unpack_r
 
 MASK = 0xFFFFFFFF
 LAT_WIRED = 0
@@ -471,8 +471,36 @@ class Cpu:
             self.p = self.pp
             self.pc = _u32(self.epc)
             self.upc = U_FETCH
-        elif seq in (SEQ_SKIP_IF, SEQ_SKIP_UNLESS):
-            self.upc = (self.upc + 1) & 0xFF
+        elif seq == SEQ_SKIP_IF:
+            self.upc = (self.upc + (2 if self._branch_taken() else 1)) & 0xFF
+        elif seq == SEQ_SKIP_UNLESS:
+            self.upc = (self.upc + (1 if self._branch_taken() else 2)) & 0xFF
+
+    def _branch_taken(self) -> bool:
+        cond = unpack_r(self.ir)["cond"]
+        z, n, c, v = self.flags.z, self.flags.n, self.flags.c, self.flags.v
+        nv = n ^ v
+        if cond == COND["eq"]:
+            return bool(z)
+        if cond == COND["ne"]:
+            return not z
+        if cond == COND["lt"]:
+            return bool(nv)
+        if cond == COND["ge"]:
+            return not nv
+        if cond == COND["lo"]:
+            return bool(c)
+        if cond == COND["hs"]:
+            return not c
+        if cond == COND["le"]:
+            return bool(z or nv)
+        if cond == COND["gt"]:
+            return not (z or nv)
+        if cond == COND["mi"]:
+            return bool(n)
+        if cond == COND["pl"]:
+            return not n
+        return False
 
     def _in_window(self, addr: int, size: int) -> bool:
         last = addr + size - 1
@@ -549,7 +577,8 @@ class Cpu:
             self.ir = _u32(self.mdr)
 
         if cw.we_rf:
-            rd = unpack_r(self.ir)["rd"]
+            fields = unpack_r(self.ir)
+            rd = 3 if fields["opcode"] == OPCODE["jal"] else fields["rd"]
             cop_rs, cop_fs = self._ir_cop1()
             val = self.fregs[cop_fs] if cop_rs == COP1_MFC1 else self.aluout
             if rd <= 2:

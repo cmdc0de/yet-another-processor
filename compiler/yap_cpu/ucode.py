@@ -2,6 +2,7 @@
 
 from compiler.yap_cpu.control import (
     A_CSR,
+    A_JTARGET,
     A_MDR,
     A_PC,
     A_RF,
@@ -19,6 +20,7 @@ from compiler.yap_cpu.control import (
     ALU_SRL,
     ALU_SUB,
     ALU_XOR,
+    B_BROFF,
     B_FOUR,
     B_IMM_SE,
     B_IMM_ZE,
@@ -44,6 +46,7 @@ from compiler.yap_cpu.control import (
     SEQ_GOTO,
     SEQ_HALT,
     SEQ_NEXT,
+    SEQ_SKIP_IF,
     SEQ_TRAP,
     pack_cw,
 )
@@ -99,6 +102,11 @@ U_MTC1 = 0x98
 U_SYS = 0x9C
 U_ERET = 0xA0
 U_COP_UNIMP = 0xA4
+U_J = 0xA8
+U_JAL = 0xAC
+U_JR = 0xB0
+U_JALR = 0xB4
+U_BCC = 0xB8
 ROM_SIZE = 256
 
 _SPECIAL = {
@@ -121,6 +129,8 @@ _SPECIAL = {
     FUNCT["teq"]: U_TEQ,
     FUNCT["halt"]: U_HALT,
     FUNCT["eret"]: U_ERET,
+    FUNCT["jr"]: U_JR,
+    FUNCT["jalr"]: U_JALR,
 }
 
 _OPCODE = {
@@ -138,6 +148,9 @@ _OPCODE = {
     OPCODE["sw"]: U_SW,
     OPCODE["sh"]: U_SH,
     OPCODE["sb"]: U_SB,
+    OPCODE["j"]: U_J,
+    OPCODE["jal"]: U_JAL,
+    OPCODE["bcc"]: U_BCC,
 }
 
 
@@ -338,6 +351,35 @@ def build_rom() -> list:
         U_SYS: [pack_cw(seq=SEQ_TRAP, uimm=CAUSE_SYS)],
         U_ERET: [pack_cw(seq=SEQ_ERET)],
         U_COP_UNIMP: [pack_cw(seq=SEQ_TRAP, uimm=CAUSE_COP)],
+        U_J: [
+            pack_cw(seq=SEQ_GOTO, uimm=U_FETCH, alu_op=ALU_PASS_A, a_sel=A_JTARGET, we_pc=1),
+        ],
+        U_JAL: [
+            pack_cw(seq=SEQ_NEXT, alu_op=ALU_ADD, a_sel=A_PC, b_sel=B_FOUR, we_rf=1),
+            pack_cw(seq=SEQ_GOTO, uimm=U_FETCH, alu_op=ALU_PASS_A, a_sel=A_JTARGET, we_pc=1),
+        ],
+        U_JR: [
+            pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RS),
+            pack_cw(seq=SEQ_GOTO, uimm=U_FETCH, alu_op=ALU_PASS_A, a_sel=A_RF, we_pc=1),
+        ],
+        U_JALR: [
+            pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RS),
+            pack_cw(seq=SEQ_NEXT, alu_op=ALU_ADD, a_sel=A_PC, b_sel=B_FOUR, we_rf=1),
+            pack_cw(seq=SEQ_GOTO, uimm=U_FETCH, alu_op=ALU_PASS_A, a_sel=A_RF, we_pc=1),
+        ],
+        U_BCC: [
+            pack_cw(seq=SEQ_SKIP_IF),
+            pack_cw(seq=SEQ_GOTO, uimm=U_FETCH, alu_op=ALU_ADD, a_sel=A_PC, b_sel=B_FOUR, we_pc=1),
+            pack_cw(seq=SEQ_NEXT, alu_op=ALU_ADD, a_sel=A_PC, b_sel=B_FOUR, dst=DST_MDR),
+            pack_cw(
+                seq=SEQ_GOTO,
+                uimm=U_FETCH,
+                alu_op=ALU_ADD,
+                a_sel=A_MDR,
+                b_sel=B_BROFF,
+                we_pc=1,
+            ),
+        ],
     }
     for addr, words in slots.items():
         for i, word in enumerate(words):
