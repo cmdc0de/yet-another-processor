@@ -50,6 +50,18 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 | CPU-031 | ~~Unimplemented COP1 op → CAUSE=6~~ | done | m4 |
 | CPU-032 | ~~MOSFET bank and IC bank may take different cycle counts; the model exposes the split~~ | done | m2 |
 
+## Control flow
+
+No delay slot: a taken jump/branch replaces the usual `PC+4` (`docs/isa/design.md`).
+
+| ID | Feature | Status | Milestone |
+|----|---------|--------|-----------|
+| CPU-039 | Unconditional jump `j`: `PC ← (PC+4)[31:28] \|\| target26 \|\| 00` | open | |
+| CPU-040 | Jump-and-link `jal`: `ra ← PC+4`, then same target as `j` | open | |
+| CPU-041 | Jump register `jr`: `PC ← rs` | open | |
+| CPU-042 | Jump-and-link register `jalr`: `rd ← PC+4`, `PC ← rs` | open | |
+| CPU-043 | Conditional branch `bcc` on FLAGS (EQ, NE, signed and unsigned LT/GE and the rest of the ISA conds) | open | |
+
 ## Later generation (do not pull into m1)
 
 | ID | Feature | Status | Milestone |
