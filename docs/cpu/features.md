@@ -12,13 +12,13 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| CPU-001 | 32-bit datapath and 32-bit addresses | claimed | m1 |
-| CPU-002 | PC is a datapath register; sequential fetch is `PC+4` | claimed | m1 |
-| CPU-003 | Instruction register holds the current 32-bit instruction | claimed | m1 |
-| CPU-004 | Split GPR file: `r0`–`r2` wired, `r3`–`r15` MOSFET bank, `r16`–`r31` IC bank; one file to software | claimed | m1 |
-| CPU-005 | Writes to `r0`–`r2` discarded; ALU ops targeting them still update flags | claimed | m1 |
-| CPU-006 | Discrete FLAGS (`Z N C V`), not a GPR | claimed | m1 |
-| CPU-007 | ALU add/sub with ISA flag rules (add: C=carry; sub/cmp: C=borrow; V=signed overflow) | claimed | m1 |
+| CPU-001 | ~~32-bit datapath and 32-bit addresses~~ | implemented | m1 |
+| CPU-002 | ~~PC is a datapath register; sequential fetch is `PC+4`~~ | implemented | m1 |
+| CPU-003 | ~~Instruction register holds the current 32-bit instruction~~ | implemented | m1 |
+| CPU-004 | ~~Split GPR file: `r0`–`r2` wired, `r3`–`r15` MOSFET bank, `r16`–`r31` IC bank; one file to software~~ | implemented | m1 |
+| CPU-005 | ~~Writes to `r0`–`r2` discarded; ALU ops targeting them still update flags~~ | implemented | m1 |
+| CPU-006 | ~~Discrete FLAGS (`Z N C V`), not a GPR~~ | implemented | m1 |
+| CPU-007 | ~~ALU add/sub with ISA flag rules (add: C=carry; sub/cmp: C=borrow; V=signed overflow)~~ | implemented | m1 |
 | CPU-008 | ALU and/or/xor/not; `Z N`; `C=V=0` | open | |
 | CPU-009 | Shifter sll/srl/sra; C=last bit shifted out; `V=0` | open | |
 | CPU-010 | Flags-only compare paths (`CMP`, `TEST`, `TEQ`) | open | |
@@ -34,12 +34,12 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| CPU-018 | Microcode store and sequencer: each ISA insn is one or more cycles | claimed | m1 |
-| CPU-019 | Opcode / funct / Bcc cond dispatch to a microcode entry | claimed | m1 |
+| CPU-018 | ~~Microcode store and sequencer: each ISA insn is one or more cycles~~ | implemented | m1 |
+| CPU-019 | ~~Opcode / funct / Bcc cond dispatch to a microcode entry~~ | implemented | m1 |
 | CPU-020 | Control word steers RF, ALU, shifter, PC, FLAGS, CSRs, memory | open | |
-| CPU-021 | Fetch: aligned load into IR; unaligned fetch → CAUSE=8 | claimed | m1 |
-| CPU-022 | HALT stops the sequencer | claimed | m1 |
-| CPU-023 | Trap sequence: CAUSE, `PIE/PP←IE/P`, `P=1`, `IE=0`, EPC, `PC=0x80` | claimed | m1 |
+| CPU-021 | ~~Fetch: aligned load into IR; unaligned fetch → CAUSE=8~~ | implemented | m1 |
+| CPU-022 | ~~HALT stops the sequencer~~ | implemented | m1 |
+| CPU-023 | ~~Trap sequence: CAUSE, `PIE/PP←IE/P`, `P=1`, `IE=0`, EPC, `PC=0x80`~~ | implemented | m1 |
 | CPU-024 | SYS sets `EPC=PC+4`; other traps set EPC to the faulting PC | open | |
 | CPU-025 | ERET sequence: `IE/P←PIE/PP`, `PC←EPC` | open | |
 | CPU-026 | User window check on fetch/load/store; fail → CAUSE=2 | open | |
