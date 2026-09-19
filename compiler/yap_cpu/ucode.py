@@ -1,16 +1,36 @@
-"""v1 microcode ROM: fetch, SPECIAL add/sub/halt, illegal → trap 7."""
+"""v1 microcode ROM: fetch, integer ALU/shifts/immediates, halt, illegal → trap 7."""
 
 from compiler.yap_cpu.control import (
+    A_MDR,
     A_PC,
     A_RF,
     ALU_ADD,
+    ALU_AND,
+    ALU_DIV,
+    ALU_LUI,
+    ALU_MUL,
+    ALU_NOT,
+    ALU_OR,
     ALU_PASS_A,
+    ALU_SLL,
+    ALU_SRA,
+    ALU_SRL,
     ALU_SUB,
+    ALU_XOR,
     B_FOUR,
+    B_IMM_SE,
+    B_IMM_ZE,
     B_RF,
+    B_SHAMT,
     DST_MAR,
+    DST_MDR,
     FLAG_ADD,
+    FLAG_LOGIC,
+    FLAG_MULDIV,
+    FLAG_SHIFT,
     FLAG_SUB,
+    FLAG_TEQ,
+    FLAG_TEST,
     IDX_RS,
     IDX_RT,
     MEM_WORD,
@@ -21,31 +41,81 @@ from compiler.yap_cpu.control import (
     SEQ_TRAP,
     pack_cw,
 )
-from compiler.yap_isa.encode import FUNCT, OPCODE_SPECIAL, unpack_r
+from compiler.yap_isa.encode import FUNCT, OPCODE, OPCODE_SPECIAL, unpack_r
 from compiler.yap_isa.csrs import CAUSE_PRIV
 
 U_FETCH = 0x00
-U_ADD = 0x10
-U_SUB = 0x18
-U_HALT = 0x20
-U_ILLEGAL = 0x28
+U_ADD = 0x08
+U_SUB = 0x0C
+U_AND = 0x10
+U_OR = 0x14
+U_XOR = 0x18
+U_NOT = 0x1C
+U_SLL = 0x20
+U_SRL = 0x24
+U_SRA = 0x28
+U_SLLV = 0x2C
+U_SRLV = 0x30
+U_SRAV = 0x34
+U_MUL = 0x38
+U_DIV = 0x3C
+U_CMP = 0x40
+U_TEST = 0x44
+U_TEQ = 0x48
+U_ADDI = 0x4C
+U_ANDI = 0x50
+U_ORI = 0x54
+U_XORI = 0x58
+U_LUI = 0x5C
+U_ADR = 0x60
+U_HALT = 0x64
+U_ILLEGAL = 0x68
 ROM_SIZE = 256
+
+_SPECIAL = {
+    FUNCT["add"]: U_ADD,
+    FUNCT["sub"]: U_SUB,
+    FUNCT["and"]: U_AND,
+    FUNCT["or"]: U_OR,
+    FUNCT["xor"]: U_XOR,
+    FUNCT["not"]: U_NOT,
+    FUNCT["sll"]: U_SLL,
+    FUNCT["srl"]: U_SRL,
+    FUNCT["sra"]: U_SRA,
+    FUNCT["sllv"]: U_SLLV,
+    FUNCT["srlv"]: U_SRLV,
+    FUNCT["srav"]: U_SRAV,
+    FUNCT["mul"]: U_MUL,
+    FUNCT["div"]: U_DIV,
+    FUNCT["cmp"]: U_CMP,
+    FUNCT["test"]: U_TEST,
+    FUNCT["teq"]: U_TEQ,
+    FUNCT["halt"]: U_HALT,
+}
+
+_OPCODE = {
+    OPCODE["addi"]: U_ADDI,
+    OPCODE["andi"]: U_ANDI,
+    OPCODE["ori"]: U_ORI,
+    OPCODE["xori"]: U_XORI,
+    OPCODE["lui"]: U_LUI,
+    OPCODE["adr"]: U_ADR,
+}
 
 
 def dispatch(ir: int) -> int:
     fields = unpack_r(ir)
-    if fields["opcode"] == OPCODE_SPECIAL:
-        funct = fields["funct"]
-        if funct == FUNCT["add"]:
-            return U_ADD
-        if funct == FUNCT["sub"]:
-            return U_SUB
-        if funct == FUNCT["halt"]:
-            return U_HALT
-    return U_ILLEGAL
+    op = fields["opcode"]
+    if op == OPCODE_SPECIAL:
+        return _SPECIAL.get(fields["funct"], U_ILLEGAL)
+    return _OPCODE.get(op, U_ILLEGAL)
 
 
-def _alu_r(alu_op: int, flag_mode: int) -> list:
+def _pc4():
+    return pack_cw(seq=SEQ_GOTO, uimm=U_FETCH, alu_op=ALU_ADD, a_sel=A_PC, b_sel=B_FOUR, we_pc=1)
+
+
+def _r_rr(alu_op: int, flag_mode: int, we_rf: int = 1) -> list:
     return [
         pack_cw(seq=SEQ_NEXT, re_a=1, re_b=1, idx_a=IDX_RS, idx_b=IDX_RT),
         pack_cw(
@@ -53,11 +123,58 @@ def _alu_r(alu_op: int, flag_mode: int) -> list:
             alu_op=alu_op,
             a_sel=A_RF,
             b_sel=B_RF,
+            we_rf=we_rf,
+            we_flags=1,
+            flag_mode=flag_mode,
+        ),
+        _pc4(),
+    ]
+
+
+def _r_rs(alu_op: int, flag_mode: int) -> list:
+    return [
+        pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RS),
+        pack_cw(
+            seq=SEQ_NEXT,
+            alu_op=alu_op,
+            a_sel=A_RF,
             we_rf=1,
             we_flags=1,
             flag_mode=flag_mode,
         ),
-        pack_cw(seq=SEQ_GOTO, uimm=U_FETCH, alu_op=ALU_ADD, a_sel=A_PC, b_sel=B_FOUR, we_pc=1),
+        _pc4(),
+    ]
+
+
+def _shift_imm(alu_op: int) -> list:
+    return [
+        pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RS),
+        pack_cw(
+            seq=SEQ_NEXT,
+            alu_op=alu_op,
+            a_sel=A_RF,
+            b_sel=B_SHAMT,
+            we_rf=1,
+            we_flags=1,
+            flag_mode=FLAG_SHIFT,
+        ),
+        _pc4(),
+    ]
+
+
+def _i_alu(alu_op: int, b_sel: int, flag_mode: int) -> list:
+    return [
+        pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RS),
+        pack_cw(
+            seq=SEQ_NEXT,
+            alu_op=alu_op,
+            a_sel=A_RF,
+            b_sel=b_sel,
+            we_rf=1,
+            we_flags=1,
+            flag_mode=flag_mode,
+        ),
+        _pc4(),
     ]
 
 
@@ -73,10 +190,41 @@ def build_rom() -> list:
         irq_chk=1,
     )
     rom[U_FETCH + 1] = pack_cw(seq=SEQ_DISPATCH, we_ir=1)
-    for i, word in enumerate(_alu_r(ALU_ADD, FLAG_ADD)):
-        rom[U_ADD + i] = word
-    for i, word in enumerate(_alu_r(ALU_SUB, FLAG_SUB)):
-        rom[U_SUB + i] = word
+    slots = {
+        U_ADD: _r_rr(ALU_ADD, FLAG_ADD),
+        U_SUB: _r_rr(ALU_SUB, FLAG_SUB),
+        U_AND: _r_rr(ALU_AND, FLAG_LOGIC),
+        U_OR: _r_rr(ALU_OR, FLAG_LOGIC),
+        U_XOR: _r_rr(ALU_XOR, FLAG_LOGIC),
+        U_NOT: _r_rs(ALU_NOT, FLAG_LOGIC),
+        U_SLL: _shift_imm(ALU_SLL),
+        U_SRL: _shift_imm(ALU_SRL),
+        U_SRA: _shift_imm(ALU_SRA),
+        U_SLLV: _r_rr(ALU_SLL, FLAG_SHIFT),
+        U_SRLV: _r_rr(ALU_SRL, FLAG_SHIFT),
+        U_SRAV: _r_rr(ALU_SRA, FLAG_SHIFT),
+        U_MUL: _r_rr(ALU_MUL, FLAG_MULDIV),
+        U_DIV: _r_rr(ALU_DIV, FLAG_MULDIV),
+        U_CMP: _r_rr(ALU_SUB, FLAG_SUB, we_rf=0),
+        U_TEST: _r_rr(ALU_AND, FLAG_TEST, we_rf=0),
+        U_TEQ: _r_rr(ALU_XOR, FLAG_TEQ, we_rf=0),
+        U_ADDI: _i_alu(ALU_ADD, B_IMM_SE, FLAG_ADD),
+        U_ANDI: _i_alu(ALU_AND, B_IMM_ZE, FLAG_LOGIC),
+        U_ORI: _i_alu(ALU_OR, B_IMM_ZE, FLAG_LOGIC),
+        U_XORI: _i_alu(ALU_XOR, B_IMM_ZE, FLAG_LOGIC),
+        U_LUI: [
+            pack_cw(seq=SEQ_NEXT, alu_op=ALU_LUI, we_rf=1),
+            _pc4(),
+        ],
+        U_ADR: [
+            pack_cw(seq=SEQ_NEXT, alu_op=ALU_ADD, a_sel=A_PC, b_sel=B_FOUR, dst=DST_MDR),
+            pack_cw(seq=SEQ_NEXT, alu_op=ALU_ADD, a_sel=A_MDR, b_sel=B_IMM_SE, we_rf=1),
+            _pc4(),
+        ],
+    }
+    for addr, words in slots.items():
+        for i, word in enumerate(words):
+            rom[addr + i] = word
     rom[U_HALT] = pack_cw(seq=SEQ_HALT)
     rom[U_ILLEGAL] = pack_cw(seq=SEQ_TRAP, uimm=CAUSE_PRIV)
     return rom

@@ -127,6 +127,7 @@ class Cpu:
         self._w_val = 0
         self._pending_seq = None
         self._irq = False
+        self._alu_c = 0
 
     @property
     def supervisor(self) -> bool:
@@ -269,12 +270,26 @@ class Cpu:
         if op == ALU_NOT:
             return _u32(~a)
         if op == ALU_SLL:
-            return _u32(a << (b & 31))
+            sh = b & 31
+            if sh == 0:
+                self._alu_c = 0
+                return a
+            self._alu_c = (a >> (32 - sh)) & 1
+            return _u32(a << sh)
         if op == ALU_SRL:
-            return _u32(a >> (b & 31))
+            sh = b & 31
+            if sh == 0:
+                self._alu_c = 0
+                return a
+            self._alu_c = (a >> (sh - 1)) & 1
+            return a >> sh
         if op == ALU_SRA:
             sh = b & 31
             signed = a - 0x100000000 if _sign(a) else a
+            if sh == 0:
+                self._alu_c = 0
+            else:
+                self._alu_c = (a >> (sh - 1)) & 1
             return _u32(signed >> sh)
         if op == ALU_MUL:
             return _u32(a * b)
@@ -306,6 +321,7 @@ class Cpu:
             self.flags.set_zn(result)
             return
         if mode == FLAG_SHIFT:
+            self.flags.c = self._alu_c
             self.flags.v = 0
             self.flags.set_zn(result)
             return
