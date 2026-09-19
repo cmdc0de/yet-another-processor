@@ -19,12 +19,12 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 | CPU-005 | ~~Writes to `r0`–`r2` discarded; ALU ops targeting them still update flags~~ | done | m1 |
 | CPU-006 | ~~Discrete FLAGS (`Z N C V`), not a GPR~~ | done | m1 |
 | CPU-007 | ~~ALU add/sub with ISA flag rules (add: C=carry; sub/cmp: C=borrow; V=signed overflow)~~ | done | m1 |
-| CPU-008 | ALU and/or/xor/not; `Z N`; `C=V=0` | open | |
-| CPU-009 | Shifter sll/srl/sra; C=last bit shifted out; `V=0` | open | |
-| CPU-010 | Flags-only compare paths (`CMP`, `TEST`, `TEQ`) | open | |
-| CPU-011 | MUL low 32; DIV with ÷0 → `rd=0`, `Z=1` | open | |
-| CPU-012 | imm16 sign-extend, zero-extend, and LUI (`<<16`) onto the datapath | open | |
-| CPU-013 | PC-relative address adder (`ADR`) | open | |
+| CPU-008 | ALU and/or/xor/not; `Z N`; `C=V=0` | claimed | m2 |
+| CPU-009 | Shifter sll/srl/sra; C=last bit shifted out; `V=0` | claimed | m2 |
+| CPU-010 | Flags-only compare paths (`CMP`, `TEST`, `TEQ`) | claimed | m2 |
+| CPU-011 | MUL low 32; DIV with ÷0 → `rd=0`, `Z=1` | claimed | m2 |
+| CPU-012 | imm16 sign-extend, zero-extend, and LUI (`<<16`) onto the datapath | claimed | m2 |
+| CPU-013 | PC-relative address adder (`ADR`) | claimed | m2 |
 | CPU-014 | Load/store effective address `rs+sext(imm16)`; little-endian word/half/byte | open | |
 | CPU-015 | Memory port: address, data, size, read/write (wire protocol is Memory + bus) | open | |
 | CPU-016 | CSR file: STATUS, FLAGS, EPC, CAUSE, UBASE, ULIMIT | open | |
@@ -48,7 +48,7 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 | CPU-029 | Setting TE=1 → CAUSE=7; TE stays 0 | open | |
 | CPU-030 | When IE=1, external IRQ → CAUSE=1 | open | |
 | CPU-031 | Unimplemented COP1 op → CAUSE=6 | open | |
-| CPU-032 | MOSFET bank and IC bank may take different cycle counts; the model exposes the split | open | |
+| CPU-032 | MOSFET bank and IC bank may take different cycle counts; the model exposes the split | claimed | m2 |
 
 ## Later generation (do not pull into m1)
 
