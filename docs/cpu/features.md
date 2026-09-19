@@ -25,8 +25,8 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 | CPU-011 | ~~MUL low 32; DIV with ÷0 → `rd=0`, `Z=1`~~ | done | m2 |
 | CPU-012 | ~~imm16 sign-extend, zero-extend, and LUI (`<<16`) onto the datapath~~ | done | m2 |
 | CPU-013 | ~~PC-relative address adder (`ADR`)~~ | done | m2 |
-| CPU-014 | Load/store effective address `rs+sext(imm16)`; little-endian word/half/byte | claimed | m3 |
-| CPU-015 | Memory port: address, data, size, read/write (wire protocol is Memory + bus) | claimed | m3 |
+| CPU-014 | ~~Load/store effective address `rs+sext(imm16)`; little-endian word/half/byte~~ | implemented | m3 |
+| CPU-015 | ~~Memory port: address, data, size, read/write (wire protocol is Memory + bus)~~ | implemented | m3 |
 | CPU-016 | CSR file: STATUS, FLAGS, EPC, CAUSE, UBASE, ULIMIT | open | |
 | CPU-017 | COP1 register file; v1 execute is MFC1/MTC1 only | open | |
 
@@ -42,8 +42,8 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 | CPU-023 | ~~Trap sequence: CAUSE, `PIE/PP←IE/P`, `P=1`, `IE=0`, EPC, `PC=0x80`~~ | done | m1 |
 | CPU-024 | SYS sets `EPC=PC+4`; other traps set EPC to the faulting PC | open | |
 | CPU-025 | ERET sequence: `IE/P←PIE/PP`, `PC←EPC` | open | |
-| CPU-026 | User window check on fetch/load/store; fail → CAUSE=2 | claimed | m3 |
-| CPU-027 | Alignment check on load/store; fail → CAUSE=8 | claimed | m3 |
+| CPU-026 | ~~User window check on fetch/load/store; fail → CAUSE=2~~ | implemented | m3 |
+| CPU-027 | ~~Alignment check on load/store; fail → CAUSE=8~~ | implemented | m3 |
 | CPU-028 | User CSR write and supervisor-only ops → CAUSE=7 | open | |
 | CPU-029 | Setting TE=1 → CAUSE=7; TE stays 0 | open | |
 | CPU-030 | When IE=1, external IRQ → CAUSE=1 | open | |

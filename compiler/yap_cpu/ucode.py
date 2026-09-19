@@ -12,6 +12,7 @@ from compiler.yap_cpu.control import (
     ALU_NOT,
     ALU_OR,
     ALU_PASS_A,
+    ALU_PASS_B,
     ALU_SLL,
     ALU_SRA,
     ALU_SRL,
@@ -31,8 +32,11 @@ from compiler.yap_cpu.control import (
     FLAG_SUB,
     FLAG_TEQ,
     FLAG_TEST,
+    IDX_RD,
     IDX_RS,
     IDX_RT,
+    MEM_BYTE,
+    MEM_HALF,
     MEM_WORD,
     SEQ_DISPATCH,
     SEQ_GOTO,
@@ -70,6 +74,14 @@ U_LUI = 0x5C
 U_ADR = 0x60
 U_HALT = 0x64
 U_ILLEGAL = 0x68
+U_LW = 0x6C
+U_LH = 0x70
+U_LB = 0x74
+U_LBU = 0x78
+U_LHU = 0x7C
+U_SW = 0x80
+U_SH = 0x84
+U_SB = 0x88
 ROM_SIZE = 256
 
 _SPECIAL = {
@@ -100,6 +112,14 @@ _OPCODE = {
     OPCODE["xori"]: U_XORI,
     OPCODE["lui"]: U_LUI,
     OPCODE["adr"]: U_ADR,
+    OPCODE["lw"]: U_LW,
+    OPCODE["lh"]: U_LH,
+    OPCODE["lb"]: U_LB,
+    OPCODE["lbu"]: U_LBU,
+    OPCODE["lhu"]: U_LHU,
+    OPCODE["sw"]: U_SW,
+    OPCODE["sh"]: U_SH,
+    OPCODE["sb"]: U_SB,
 }
 
 
@@ -157,6 +177,40 @@ def _shift_imm(alu_op: int) -> list:
             we_rf=1,
             we_flags=1,
             flag_mode=FLAG_SHIFT,
+        ),
+        _pc4(),
+    ]
+
+
+def _load(mem_sz: int, load_sext: int) -> list:
+    return [
+        pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RS),
+        pack_cw(
+            seq=SEQ_NEXT,
+            alu_op=ALU_ADD,
+            a_sel=A_RF,
+            b_sel=B_IMM_SE,
+            dst=DST_MAR,
+            mem_re=1,
+            mem_sz=mem_sz,
+            load_sext=load_sext,
+        ),
+        pack_cw(seq=SEQ_NEXT, alu_op=ALU_PASS_A, a_sel=A_MDR, we_rf=1),
+        _pc4(),
+    ]
+
+
+def _store(mem_sz: int) -> list:
+    return [
+        pack_cw(seq=SEQ_NEXT, re_a=1, re_b=1, idx_a=IDX_RS, idx_b=IDX_RD),
+        pack_cw(seq=SEQ_NEXT, alu_op=ALU_ADD, a_sel=A_RF, b_sel=B_IMM_SE, dst=DST_MAR),
+        pack_cw(
+            seq=SEQ_NEXT,
+            alu_op=ALU_PASS_B,
+            b_sel=B_RF,
+            dst=DST_MDR,
+            mem_we=1,
+            mem_sz=mem_sz,
         ),
         _pc4(),
     ]
@@ -221,6 +275,14 @@ def build_rom() -> list:
             pack_cw(seq=SEQ_NEXT, alu_op=ALU_ADD, a_sel=A_MDR, b_sel=B_IMM_SE, we_rf=1),
             _pc4(),
         ],
+        U_LW: _load(MEM_WORD, 0),
+        U_LH: _load(MEM_HALF, 1),
+        U_LB: _load(MEM_BYTE, 1),
+        U_LBU: _load(MEM_BYTE, 0),
+        U_LHU: _load(MEM_HALF, 0),
+        U_SW: _store(MEM_WORD),
+        U_SH: _store(MEM_HALF),
+        U_SB: _store(MEM_BYTE),
     }
     for addr, words in slots.items():
         for i, word in enumerate(words):

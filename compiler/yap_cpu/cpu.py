@@ -121,6 +121,8 @@ class Cpu:
         self._w_wait = 0
         self._mem_wait = 0
         self._mem_size = 4
+        self._mem_write = False
+        self._mem_sext = False
         self._a_data = 0
         self._b_data = 0
         self._w_idx = 0
@@ -198,7 +200,16 @@ class Cpu:
             if self._mem_wait == 0:
                 size = self._mem_size
                 addr = self.mar
-                self.mdr = int.from_bytes(self.mem[addr : addr + size], "little")
+                if self._mem_write:
+                    val = self.mdr & ((1 << (8 * size)) - 1)
+                    self.mem[addr : addr + size] = val.to_bytes(size, "little")
+                else:
+                    raw = int.from_bytes(self.mem[addr : addr + size], "little")
+                    if self._mem_sext:
+                        sign_bit = 1 << (8 * size - 1)
+                        if raw & sign_bit:
+                            raw -= 1 << (8 * size)
+                    self.mdr = _u32(raw)
 
     def _do_trap(self, code: int) -> None:
         self.cause = code
@@ -364,6 +375,15 @@ class Cpu:
         last = addr + size - 1
         return self.ubase <= addr and last < self.ulimit
 
+    def _mem_ok(self, addr: int, size: int) -> bool:
+        if size > 1 and addr % size != 0:
+            self._do_trap(CAUSE_ALIGN)
+            return False
+        if not self.supervisor and not self._in_window(addr, size):
+            self._do_trap(CAUSE_PROT)
+            return False
+        return True
+
     def _execute_cw(self, cw) -> None:
         if cw.irq_chk and self.ie and self._irq:
             self._do_trap(CAUSE_IRQ)
@@ -431,10 +451,14 @@ class Cpu:
                 else:
                     self._w_wait = lat
 
-        if cw.mem_re:
+        if cw.mem_re or cw.mem_we:
             size = {MEM_BYTE: 1, MEM_HALF: 2, MEM_WORD: 4}.get(cw.mem_sz, 4)
+            if not self._mem_ok(self.mar, size):
+                return
             self._mem_wait = LAT_MEM
             self._mem_size = size
+            self._mem_write = bool(cw.mem_we)
+            self._mem_sext = bool(cw.load_sext)
 
         if cw.seq == SEQ_HALT:
             self.halted = True
