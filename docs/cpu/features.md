@@ -27,8 +27,8 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 | CPU-013 | ~~PC-relative address adder (`ADR`)~~ | done | m2 |
 | CPU-014 | ~~Load/store effective address `rs+sext(imm16)`; little-endian word/half/byte~~ | done | m3 |
 | CPU-015 | ~~Memory port: address, data, size, read/write (wire protocol is Memory + bus)~~ | done | m3 |
-| CPU-016 | ~~CSR file: STATUS, FLAGS, EPC, CAUSE, UBASE, ULIMIT~~ | implemented | m4 |
-| CPU-017 | ~~COP1 register file; v1 execute is MFC1/MTC1 only~~ | implemented | m4 |
+| CPU-016 | ~~CSR file: STATUS, FLAGS, EPC, CAUSE, UBASE, ULIMIT~~ | done | m4 |
+| CPU-017 | ~~COP1 register file; v1 execute is MFC1/MTC1 only~~ | done | m4 |
 
 ## Control
 
@@ -36,18 +36,18 @@ Control-word layout, port counts, and multi-cycle vs pipeline are `design.md`, n
 |----|---------|--------|-----------|
 | CPU-018 | ~~Microcode store and sequencer: each ISA insn is one or more cycles~~ | done | m1 |
 | CPU-019 | ~~Opcode / funct / Bcc cond dispatch to a microcode entry~~ | done | m1 |
-| CPU-020 | ~~Control word steers RF, ALU, shifter, PC, FLAGS, CSRs, memory~~ | implemented | m4 |
+| CPU-020 | ~~Control word steers RF, ALU, shifter, PC, FLAGS, CSRs, memory~~ | done | m4 |
 | CPU-021 | ~~Fetch: aligned load into IR; unaligned fetch → CAUSE=8~~ | done | m1 |
 | CPU-022 | ~~HALT stops the sequencer~~ | done | m1 |
 | CPU-023 | ~~Trap sequence: CAUSE, `PIE/PP←IE/P`, `P=1`, `IE=0`, EPC, `PC=0x80`~~ | done | m1 |
-| CPU-024 | ~~SYS sets `EPC=PC+4`; other traps set EPC to the faulting PC~~ | implemented | m4 |
-| CPU-025 | ~~ERET sequence: `IE/P←PIE/PP`, `PC←EPC`~~ | implemented | m4 |
+| CPU-024 | ~~SYS sets `EPC=PC+4`; other traps set EPC to the faulting PC~~ | done | m4 |
+| CPU-025 | ~~ERET sequence: `IE/P←PIE/PP`, `PC←EPC`~~ | done | m4 |
 | CPU-026 | ~~User window check on fetch/load/store; fail → CAUSE=2~~ | done | m3 |
 | CPU-027 | ~~Alignment check on load/store; fail → CAUSE=8~~ | done | m3 |
-| CPU-028 | ~~User CSR write and supervisor-only ops → CAUSE=7~~ | implemented | m4 |
-| CPU-029 | ~~Setting TE=1 → CAUSE=7; TE stays 0~~ | implemented | m4 |
-| CPU-030 | ~~When IE=1, external IRQ → CAUSE=1~~ | implemented | m4 |
-| CPU-031 | ~~Unimplemented COP1 op → CAUSE=6~~ | implemented | m4 |
+| CPU-028 | ~~User CSR write and supervisor-only ops → CAUSE=7~~ | done | m4 |
+| CPU-029 | ~~Setting TE=1 → CAUSE=7; TE stays 0~~ | done | m4 |
+| CPU-030 | ~~When IE=1, external IRQ → CAUSE=1~~ | done | m4 |
+| CPU-031 | ~~Unimplemented COP1 op → CAUSE=6~~ | done | m4 |
 | CPU-032 | ~~MOSFET bank and IC bank may take different cycle counts; the model exposes the split~~ | done | m2 |
 
 ## Later generation (do not pull into m1)
