@@ -20,7 +20,7 @@ Syscall ABI is `docs/isa/design.md` (`ISA-049`). Memory map and syscall numbers 
 |----|---------|--------|-----------|
 | OS-004 | ~~Kernel programs `UBASE`/`ULIMIT` before entering user~~ | done | m2 |
 | OS-005 | ~~User fetch/load/store only inside that window~~ | done | m2 |
-| OS-006 | ~~User protection fault (CAUSE=2) is handled by the kernel~~ | implemented | m3 |
+| OS-006 | ~~User protection fault (CAUSE=2) is handled by the kernel~~ | done | m3 |
 
 ## User entry
 
@@ -35,8 +35,8 @@ Syscall ABI is `docs/isa/design.md` (`ISA-049`). Memory map and syscall numbers 
 |----|---------|--------|-----------|
 | OS-009 | ~~Trap handler saves enough user GPRs to resume (at least `a0`–`a4`, `ra`, `sp`)~~ | done | m2 |
 | OS-010 | ~~`sys` (CAUSE=3) dispatches on `imm16`~~ | done | m2 |
-| OS-011 | ~~Align fault (CAUSE=8) is handled (exit or errno)~~ | implemented | m3 |
-| OS-012 | ~~Unknown CAUSE: kernel panic path (halt, distinguishable dump)~~ | implemented | m3 |
+| OS-011 | ~~Align fault (CAUSE=8) is handled (exit or errno)~~ | done | m3 |
+| OS-012 | ~~Unknown CAUSE: kernel panic path (halt, distinguishable dump)~~ | done | m3 |
 
 ## Syscalls
 
@@ -44,9 +44,9 @@ Syscall ABI is `docs/isa/design.md` (`ISA-049`). Memory map and syscall numbers 
 |----|---------|--------|-----------|
 | OS-013 | ~~Syscall ABI as ISA-049 (`a0`–`a3` in, `a0` return, `a4` errno)~~ | done | m2 |
 | OS-014 | ~~`SYS_EXIT`: machine halts; `a4=0`~~ | done | m2 |
-| OS-015 | ~~`SYS_WRITE`: copy user buffer to a kernel log in SRAM (tests read it after halt)~~ | implemented | m3 |
-| OS-016 | ~~Bad syscall number: `a4 ≠ 0`, user resumes~~ | implemented | m3 |
-| OS-017 | ~~`SYS_WRITE` pointer outside the user window: errno, kernel memory intact~~ | implemented | m3 |
+| OS-015 | ~~`SYS_WRITE`: copy user buffer to a kernel log in SRAM (tests read it after halt)~~ | done | m3 |
+| OS-016 | ~~Bad syscall number: `a4 ≠ 0`, user resumes~~ | done | m3 |
+| OS-017 | ~~`SYS_WRITE` pointer outside the user window: errno, kernel memory intact~~ | done | m3 |
 
 ## Build
 
