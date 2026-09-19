@@ -1,6 +1,7 @@
 """v1 microcode ROM: fetch, integer ALU/shifts/immediates, halt, illegal → trap 7."""
 
 from compiler.yap_cpu.control import (
+    A_CSR,
     A_MDR,
     A_PC,
     A_RF,
@@ -39,6 +40,7 @@ from compiler.yap_cpu.control import (
     MEM_HALF,
     MEM_WORD,
     SEQ_DISPATCH,
+    SEQ_ERET,
     SEQ_GOTO,
     SEQ_HALT,
     SEQ_NEXT,
@@ -46,7 +48,15 @@ from compiler.yap_cpu.control import (
     pack_cw,
 )
 from compiler.yap_isa.encode import FUNCT, OPCODE, OPCODE_SPECIAL, unpack_r
-from compiler.yap_isa.csrs import CAUSE_PRIV
+from compiler.yap_isa.csrs import (
+    CAUSE_COP,
+    CAUSE_PRIV,
+    CAUSE_SYS,
+    COP0_MFC0,
+    COP0_MTC0,
+    COP1_MFC1,
+    COP1_MTC1,
+)
 
 U_FETCH = 0x00
 U_ADD = 0x08
@@ -82,6 +92,13 @@ U_LHU = 0x7C
 U_SW = 0x80
 U_SH = 0x84
 U_SB = 0x88
+U_MFC0 = 0x8C
+U_MTC0 = 0x90
+U_MFC1 = 0x94
+U_MTC1 = 0x98
+U_SYS = 0x9C
+U_ERET = 0xA0
+U_COP_UNIMP = 0xA4
 ROM_SIZE = 256
 
 _SPECIAL = {
@@ -103,6 +120,7 @@ _SPECIAL = {
     FUNCT["test"]: U_TEST,
     FUNCT["teq"]: U_TEQ,
     FUNCT["halt"]: U_HALT,
+    FUNCT["eret"]: U_ERET,
 }
 
 _OPCODE = {
@@ -128,6 +146,22 @@ def dispatch(ir: int) -> int:
     op = fields["opcode"]
     if op == OPCODE_SPECIAL:
         return _SPECIAL.get(fields["funct"], U_ILLEGAL)
+    if op == OPCODE["sys"]:
+        return U_SYS
+    if op == OPCODE["cop0"]:
+        rs = fields["rs"]
+        if rs == COP0_MFC0:
+            return U_MFC0
+        if rs == COP0_MTC0:
+            return U_MTC0
+        return U_ILLEGAL
+    if op == OPCODE["cop1"]:
+        rs = fields["rs"]
+        if rs == COP1_MFC1:
+            return U_MFC1
+        if rs == COP1_MTC1:
+            return U_MTC1
+        return U_COP_UNIMP
     return _OPCODE.get(op, U_ILLEGAL)
 
 
@@ -283,6 +317,27 @@ def build_rom() -> list:
         U_SW: _store(MEM_WORD),
         U_SH: _store(MEM_HALF),
         U_SB: _store(MEM_BYTE),
+        U_MFC0: [
+            pack_cw(seq=SEQ_NEXT, re_csr=1, csr_idx=0, alu_op=ALU_PASS_A, a_sel=A_CSR, we_rf=1),
+            _pc4(),
+        ],
+        U_MTC0: [
+            pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RD),
+            pack_cw(seq=SEQ_NEXT, alu_op=ALU_PASS_A, a_sel=A_RF, we_csr=1, csr_idx=0),
+            _pc4(),
+        ],
+        U_MFC1: [
+            pack_cw(seq=SEQ_NEXT, we_rf=1),
+            _pc4(),
+        ],
+        U_MTC1: [
+            pack_cw(seq=SEQ_NEXT, re_a=1, idx_a=IDX_RD),
+            pack_cw(seq=SEQ_NEXT, we_csr=1),
+            _pc4(),
+        ],
+        U_SYS: [pack_cw(seq=SEQ_TRAP, uimm=CAUSE_SYS)],
+        U_ERET: [pack_cw(seq=SEQ_ERET)],
+        U_COP_UNIMP: [pack_cw(seq=SEQ_TRAP, uimm=CAUSE_COP)],
     }
     for addr, words in slots.items():
         for i, word in enumerate(words):

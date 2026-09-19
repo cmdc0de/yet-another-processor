@@ -64,8 +64,28 @@ from compiler.yap_cpu.control import (
 )
 from compiler.yap_cpu.ucode import U_FETCH, build_rom, dispatch
 from compiler.yap_isa.cpu import Flags
-from compiler.yap_isa.csrs import CAUSE_ALIGN, CAUSE_IRQ, CAUSE_PROT, CAUSE_SYS, TRAP_VECTOR
-from compiler.yap_isa.encode import sext16, sext22, unpack_r
+from compiler.yap_isa.csrs import (
+    CAUSE_ALIGN,
+    CAUSE_IRQ,
+    CAUSE_PRIV,
+    CAUSE_PROT,
+    CAUSE_SYS,
+    COP1_MFC1,
+    COP1_MTC1,
+    CSR_CAUSE,
+    CSR_EPC,
+    CSR_FLAGS,
+    CSR_STATUS,
+    CSR_UBASE,
+    CSR_ULIMIT,
+    STATUS_IE,
+    STATUS_P,
+    STATUS_PIE,
+    STATUS_PP,
+    STATUS_TE,
+    TRAP_VECTOR,
+)
+from compiler.yap_isa.encode import OPCODE, sext16, sext22, unpack_r
 
 MASK = 0xFFFFFFFF
 LAT_WIRED = 0
@@ -130,6 +150,8 @@ class Cpu:
         self._pending_seq = None
         self._irq = False
         self._alu_c = 0
+        self._csr_data = 0
+        self.fregs = [0] * 32
 
     @property
     def supervisor(self) -> bool:
@@ -137,6 +159,87 @@ class Cpu:
 
     def irq(self) -> None:
         self._irq = True
+
+    def status_word(self) -> int:
+        return (
+            (self.ie & 1)
+            | ((self.p & 1) << STATUS_P)
+            | ((self.te & 1) << STATUS_TE)
+            | ((self.pie & 1) << STATUS_PIE)
+            | ((self.pp & 1) << STATUS_PP)
+        )
+
+    def flags_word(self) -> int:
+        f = self.flags
+        return (f.z & 1) | ((f.n & 1) << 1) | ((f.c & 1) << 2) | ((f.v & 1) << 3)
+
+    def _set_flags_word(self, value: int) -> None:
+        self.flags.z = value & 1
+        self.flags.n = (value >> 1) & 1
+        self.flags.c = (value >> 2) & 1
+        self.flags.v = (value >> 3) & 1
+
+    def _csr_index(self, cw) -> int:
+        if cw.csr_idx == 0:
+            return unpack_r(self.ir)["rt"]
+        return {
+            1: CSR_STATUS,
+            2: CSR_FLAGS,
+            3: CSR_EPC,
+            4: CSR_CAUSE,
+            5: CSR_UBASE,
+            6: CSR_ULIMIT,
+        }.get(cw.csr_idx, CSR_STATUS)
+
+    def _read_csr(self, idx: int) -> int:
+        if idx == CSR_STATUS:
+            return self.status_word()
+        if idx == CSR_FLAGS:
+            return self.flags_word()
+        if idx == CSR_EPC:
+            return _u32(self.epc)
+        if idx == CSR_CAUSE:
+            return _u32(self.cause)
+        if idx == CSR_UBASE:
+            return _u32(self.ubase)
+        if idx == CSR_ULIMIT:
+            return _u32(self.ulimit)
+        return 0
+
+    def _write_csr(self, idx: int, value: int) -> bool:
+        value = _u32(value)
+        if idx == CSR_STATUS:
+            if (value >> STATUS_TE) & 1:
+                self._do_trap(CAUSE_PRIV)
+                return True
+            self.ie = value & 1
+            self.p = (value >> STATUS_P) & 1
+            self.te = 0
+            self.pie = (value >> STATUS_PIE) & 1
+            self.pp = (value >> STATUS_PP) & 1
+            return False
+        if idx == CSR_FLAGS:
+            self._set_flags_word(value)
+            return False
+        if idx == CSR_EPC:
+            self.epc = value
+            return False
+        if idx == CSR_CAUSE:
+            self.cause = value
+            return False
+        if idx == CSR_UBASE:
+            self.ubase = value
+            return False
+        if idx == CSR_ULIMIT:
+            self.ulimit = value
+            return False
+        return False
+
+    def _ir_cop1(self):
+        fields = unpack_r(self.ir)
+        if fields["opcode"] != OPCODE["cop1"]:
+            return None, 0
+        return fields["rs"], fields["rt"]
 
     def read(self, idx: int) -> int:
         if not (0 <= idx < 32):
@@ -236,7 +339,7 @@ class Cpu:
         if sel == A_MDR:
             return _u32(self.mdr)
         if sel == A_CSR:
-            return 0
+            return _u32(self._csr_data)
         if sel == A_ZERO:
             return 0
         if sel == A_FOUR:
@@ -396,6 +499,13 @@ class Cpu:
                 self._do_trap(CAUSE_PROT)
                 return
 
+        if cw.re_csr:
+            idx = self._csr_index(cw)
+            if not self.supervisor and idx not in (CSR_STATUS, CSR_FLAGS):
+                self._do_trap(CAUSE_PRIV)
+                return
+            self._csr_data = self._read_csr(idx)
+
         if cw.re_a:
             idx = self._ir_idx(cw.idx_a)
             self._a_data = self.read(idx)
@@ -440,16 +550,29 @@ class Cpu:
 
         if cw.we_rf:
             rd = unpack_r(self.ir)["rd"]
+            cop_rs, cop_fs = self._ir_cop1()
+            val = self.fregs[cop_fs] if cop_rs == COP1_MFC1 else self.aluout
             if rd <= 2:
                 pass
             else:
                 lat = _bank_lat(rd)
                 self._w_idx = rd
-                self._w_val = self.aluout
+                self._w_val = _u32(val)
                 if lat == 0:
-                    self.write(rd, self.aluout)
+                    self.write(rd, val)
                 else:
                     self._w_wait = lat
+
+        if cw.we_csr:
+            cop_rs, cop_fs = self._ir_cop1()
+            if cop_rs == COP1_MTC1:
+                self.fregs[cop_fs] = _u32(self.A)
+            else:
+                if not self.supervisor:
+                    self._do_trap(CAUSE_PRIV)
+                    return
+                if self._write_csr(self._csr_index(cw), self.aluout):
+                    return
 
         if cw.mem_re or cw.mem_we:
             size = {MEM_BYTE: 1, MEM_HALF: 2, MEM_WORD: 4}.get(cw.mem_sz, 4)
@@ -465,6 +588,12 @@ class Cpu:
             return
         if cw.seq == SEQ_TRAP:
             self._do_trap(cw.uimm)
+            return
+        if cw.seq == SEQ_ERET:
+            if not self.supervisor:
+                self._do_trap(CAUSE_PRIV)
+                return
+            self._apply_seq(SEQ_ERET, 0)
             return
         if self._busy():
             self._pending_seq = (cw.seq, cw.uimm)
