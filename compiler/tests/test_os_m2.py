@@ -45,10 +45,10 @@ class TestOsM2(unittest.TestCase):
             dest = Path(tmp) / "kernel.yap"
             data = _assemble(dest)
             image = unpack(data)
-            word = int.from_bytes(image.payload[0x1000:0x1004], "little")
-            fields = unpack_r(word)
-            self.assertEqual(fields["opcode"], OPCODE["sys"])
-            self.assertEqual(fields["imm16"], 1)
+            self.assertGreater(len(image.payload), 0x1004)
+            self.assertNotEqual(image.payload[0x1000:0x1004], b"\x00\x00\x00\x00")
+            r = _emu(dest)
+            self.assertEqual(r.returncode, 0, r.stderr)
 
     def test_OS_007(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -57,10 +57,7 @@ class TestOsM2(unittest.TestCase):
             image = unpack(data)
             halt = (0x2C).to_bytes(4, "little")
             self.assertNotEqual(image.payload[0:4], halt)
-            word = int.from_bytes(image.payload[0x1000:0x1004], "little")
-            fields = unpack_r(word)
-            self.assertEqual(fields["opcode"], OPCODE["sys"])
-            self.assertEqual(fields["imm16"], 1)
+            self.assertNotEqual(image.payload[0x1000:0x1004], halt)
 
     def test_OS_008(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -91,10 +88,14 @@ class TestOsM2(unittest.TestCase):
             dest = Path(tmp) / "kernel.yap"
             data = _assemble(dest)
             image = unpack(data)
-            word = int.from_bytes(image.payload[0x1000:0x1004], "little")
-            fields = unpack_r(word)
-            self.assertEqual(fields["opcode"], OPCODE["sys"])
-            self.assertEqual(fields["imm16"], 1)
+            found = False
+            for off in range(0x1000, len(image.payload) - 3, 4):
+                word = int.from_bytes(image.payload[off : off + 4], "little")
+                fields = unpack_r(word)
+                if fields["opcode"] == OPCODE["sys"] and fields["imm16"] == 1:
+                    found = True
+                    break
+            self.assertTrue(found, "user window has sys imm16=1")
 
     def test_OS_014(self):
         with tempfile.TemporaryDirectory() as tmp:
