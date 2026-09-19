@@ -29,7 +29,7 @@ Expected: exit `0`.
 
 ## OS-003 — kernel `sp`
 
-Same run as OS-002. Dump includes `r4 00001000` (`sp`).
+Same run as OS-002. After m2 the image enters user then `SYS_EXIT`; dump `r4` is `00008000` (user `sp`). Kernel still uses `0x1000` as its stack base before `ERET`.
 
 ```bash
 python3 -m unittest compiler.tests.test_os_m1.TestOsM1.test_OS_003

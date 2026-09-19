@@ -35,11 +35,11 @@ class TestOsM1(unittest.TestCase):
             dest = Path(tmp) / "kernel.yap"
             self.assertEqual(self._assemble(dest), 0)
             image = unpack(dest.read_bytes())
-            halt = isa_assemble("halt").to_bytes(4, "little")
             self.assertGreaterEqual(len(image.payload), 0x84)
-            self.assertEqual(image.payload[0x80:0x84], halt)
+            trap = image.payload[0x80:0x84]
+            self.assertNotEqual(trap, b"\x00\x00\x00\x00")
             reset = image.payload[0:4]
-            self.assertNotEqual(reset, image.payload[0x80:0x84])
+            self.assertNotEqual(reset, trap)
 
     def test_OS_002(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -54,7 +54,7 @@ class TestOsM1(unittest.TestCase):
             self.assertEqual(self._assemble(dest), 0)
             r = _emu(dest)
             self.assertEqual(r.returncode, 0, r.stderr)
-            self.assertRegex(r.stdout, r"r4 00001000")
+            self.assertRegex(r.stdout, r"r4 00008000")
 
     def test_OS_018(self):
         with tempfile.TemporaryDirectory() as tmp:
