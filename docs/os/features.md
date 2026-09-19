@@ -18,23 +18,23 @@ Syscall ABI is `docs/isa/design.md` (`ISA-049`). Memory map and syscall numbers 
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| OS-004 | ~~Kernel programs `UBASE`/`ULIMIT` before entering user~~ | implemented | m2 |
-| OS-005 | ~~User fetch/load/store only inside that window~~ | implemented | m2 |
+| OS-004 | ~~Kernel programs `UBASE`/`ULIMIT` before entering user~~ | done | m2 |
+| OS-005 | ~~User fetch/load/store only inside that window~~ | done | m2 |
 | OS-006 | User protection fault (CAUSE=2) is handled by the kernel | open | |
 
 ## User entry
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| OS-007 | ~~Kernel `ERET` to user entry with `P=0`~~ | implemented | m2 |
-| OS-008 | ~~User `sp` set inside the user window~~ | implemented | m2 |
+| OS-007 | ~~Kernel `ERET` to user entry with `P=0`~~ | done | m2 |
+| OS-008 | ~~User `sp` set inside the user window~~ | done | m2 |
 
 ## Traps
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| OS-009 | ~~Trap handler saves enough user GPRs to resume (at least `a0`–`a4`, `ra`, `sp`)~~ | implemented | m2 |
-| OS-010 | ~~`sys` (CAUSE=3) dispatches on `imm16`~~ | implemented | m2 |
+| OS-009 | ~~Trap handler saves enough user GPRs to resume (at least `a0`–`a4`, `ra`, `sp`)~~ | done | m2 |
+| OS-010 | ~~`sys` (CAUSE=3) dispatches on `imm16`~~ | done | m2 |
 | OS-011 | Align fault (CAUSE=8) is handled (exit or errno) | open | |
 | OS-012 | Unknown CAUSE: kernel panic path (halt, distinguishable dump) | open | |
 
@@ -42,8 +42,8 @@ Syscall ABI is `docs/isa/design.md` (`ISA-049`). Memory map and syscall numbers 
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| OS-013 | ~~Syscall ABI as ISA-049 (`a0`–`a3` in, `a0` return, `a4` errno)~~ | implemented | m2 |
-| OS-014 | ~~`SYS_EXIT`: machine halts; `a4=0`~~ | implemented | m2 |
+| OS-013 | ~~Syscall ABI as ISA-049 (`a0`–`a3` in, `a0` return, `a4` errno)~~ | done | m2 |
+| OS-014 | ~~`SYS_EXIT`: machine halts; `a4=0`~~ | done | m2 |
 | OS-015 | `SYS_WRITE`: copy user buffer to a kernel log in SRAM (tests read it after halt) | open | |
 | OS-016 | Bad syscall number: `a4 ≠ 0`, user resumes | open | |
 | OS-017 | `SYS_WRITE` pointer outside the user window: errno, kernel memory intact | open | |
