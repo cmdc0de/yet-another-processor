@@ -1,0 +1,177 @@
+YAP 32-bit ripple adder PHYSICAL-CPU-008
+.include ../../lt-spice/yap_cells.lib
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Vcin cin 0 DC 0
+Va0 a0 0 DC 0
+Vb0 b0 0 DC 0
+Va1 a1 0 DC 0
+Vb1 b1 0 DC 0
+Va2 a2 0 DC 0
+Vb2 b2 0 DC 0
+Va3 a3 0 DC 0
+Vb3 b3 0 DC 0
+Va4 a4 0 DC 0
+Vb4 b4 0 DC 0
+Va5 a5 0 DC 0
+Vb5 b5 0 DC 0
+Va6 a6 0 DC 0
+Vb6 b6 0 DC 0
+Va7 a7 0 DC 0
+Vb7 b7 0 DC 0
+Va8 a8 0 DC 0
+Vb8 b8 0 DC 0
+Va9 a9 0 DC 0
+Vb9 b9 0 DC 0
+Va10 a10 0 DC 0
+Vb10 b10 0 DC 0
+Va11 a11 0 DC 0
+Vb11 b11 0 DC 0
+Va12 a12 0 DC 0
+Vb12 b12 0 DC 0
+Va13 a13 0 DC 0
+Vb13 b13 0 DC 0
+Va14 a14 0 DC 0
+Vb14 b14 0 DC 0
+Va15 a15 0 DC 0
+Vb15 b15 0 DC 0
+Va16 a16 0 DC 0
+Vb16 b16 0 DC 0
+Va17 a17 0 DC 0
+Vb17 b17 0 DC 0
+Va18 a18 0 DC 0
+Vb18 b18 0 DC 0
+Va19 a19 0 DC 0
+Vb19 b19 0 DC 0
+Va20 a20 0 DC 0
+Vb20 b20 0 DC 0
+Va21 a21 0 DC 0
+Vb21 b21 0 DC 0
+Va22 a22 0 DC 0
+Vb22 b22 0 DC 0
+Va23 a23 0 DC 0
+Vb23 b23 0 DC 0
+Va24 a24 0 DC 0
+Vb24 b24 0 DC 0
+Va25 a25 0 DC 0
+Vb25 b25 0 DC 0
+Va26 a26 0 DC 0
+Vb26 b26 0 DC 0
+Va27 a27 0 DC 0
+Vb27 b27 0 DC 0
+Va28 a28 0 DC 0
+Vb28 b28 0 DC 0
+Va29 a29 0 DC 0
+Vb29 b29 0 DC 0
+Va30 a30 0 DC 0
+Vb30 b30 0 DC 0
+Va31 a31 0 DC 0
+Vb31 b31 0 DC 0
+X0 a0 b0 cin sum0 c0 VDD VSS ADDER
+X1 a1 b1 c0 sum1 c1 VDD VSS ADDER
+X2 a2 b2 c1 sum2 c2 VDD VSS ADDER
+X3 a3 b3 c2 sum3 c3 VDD VSS ADDER
+X4 a4 b4 c3 sum4 c4 VDD VSS ADDER
+X5 a5 b5 c4 sum5 c5 VDD VSS ADDER
+X6 a6 b6 c5 sum6 c6 VDD VSS ADDER
+X7 a7 b7 c6 sum7 c7 VDD VSS ADDER
+X8 a8 b8 c7 sum8 c8 VDD VSS ADDER
+X9 a9 b9 c8 sum9 c9 VDD VSS ADDER
+X10 a10 b10 c9 sum10 c10 VDD VSS ADDER
+X11 a11 b11 c10 sum11 c11 VDD VSS ADDER
+X12 a12 b12 c11 sum12 c12 VDD VSS ADDER
+X13 a13 b13 c12 sum13 c13 VDD VSS ADDER
+X14 a14 b14 c13 sum14 c14 VDD VSS ADDER
+X15 a15 b15 c14 sum15 c15 VDD VSS ADDER
+X16 a16 b16 c15 sum16 c16 VDD VSS ADDER
+X17 a17 b17 c16 sum17 c17 VDD VSS ADDER
+X18 a18 b18 c17 sum18 c18 VDD VSS ADDER
+X19 a19 b19 c18 sum19 c19 VDD VSS ADDER
+X20 a20 b20 c19 sum20 c20 VDD VSS ADDER
+X21 a21 b21 c20 sum21 c21 VDD VSS ADDER
+X22 a22 b22 c21 sum22 c22 VDD VSS ADDER
+X23 a23 b23 c22 sum23 c23 VDD VSS ADDER
+X24 a24 b24 c23 sum24 c24 VDD VSS ADDER
+X25 a25 b25 c24 sum25 c25 VDD VSS ADDER
+X26 a26 b26 c25 sum26 c26 VDD VSS ADDER
+X27 a27 b27 c26 sum27 c27 VDD VSS ADDER
+X28 a28 b28 c27 sum28 c28 VDD VSS ADDER
+X29 a29 b29 c28 sum29 c29 VDD VSS ADDER
+X30 a30 b30 c29 sum30 c30 VDD VSS ADDER
+X31 a31 b31 c30 sum31 cout VDD VSS ADDER
+CLs0 sum0 0 5p
+CLs1 sum1 0 5p
+CLs2 sum2 0 5p
+CLs3 sum3 0 5p
+CLs4 sum4 0 5p
+CLs5 sum5 0 5p
+CLs6 sum6 0 5p
+CLs7 sum7 0 5p
+CLs8 sum8 0 5p
+CLs9 sum9 0 5p
+CLs10 sum10 0 5p
+CLs11 sum11 0 5p
+CLs12 sum12 0 5p
+CLs13 sum13 0 5p
+CLs14 sum14 0 5p
+CLs15 sum15 0 5p
+CLs16 sum16 0 5p
+CLs17 sum17 0 5p
+CLs18 sum18 0 5p
+CLs19 sum19 0 5p
+CLs20 sum20 0 5p
+CLs21 sum21 0 5p
+CLs22 sum22 0 5p
+CLs23 sum23 0 5p
+CLs24 sum24 0 5p
+CLs25 sum25 0 5p
+CLs26 sum26 0 5p
+CLs27 sum27 0 5p
+CLs28 sum28 0 5p
+CLs29 sum29 0 5p
+CLs30 sum30 0 5p
+CLs31 sum31 0 5p
+CLc cout 0 5p
+.control
+set filetype=ascii
+* vector 1: a=b=cin=0
+op
+print v(sum0) v(sum1) v(sum2) v(sum3) v(sum4) v(sum5) v(sum6) v(sum7) v(sum8) v(sum9) v(sum10) v(sum11) v(sum12) v(sum13) v(sum14) v(sum15) v(sum16) v(sum17) v(sum18) v(sum19) v(sum20) v(sum21) v(sum22) v(sum23) v(sum24) v(sum25) v(sum26) v(sum27) v(sum28) v(sum29) v(sum30) v(sum31) v(cout)
+* vector 2: a=all-ones, b=0, cin=1
+alter Va0 = 3.3
+alter Va1 = 3.3
+alter Va2 = 3.3
+alter Va3 = 3.3
+alter Va4 = 3.3
+alter Va5 = 3.3
+alter Va6 = 3.3
+alter Va7 = 3.3
+alter Va8 = 3.3
+alter Va9 = 3.3
+alter Va10 = 3.3
+alter Va11 = 3.3
+alter Va12 = 3.3
+alter Va13 = 3.3
+alter Va14 = 3.3
+alter Va15 = 3.3
+alter Va16 = 3.3
+alter Va17 = 3.3
+alter Va18 = 3.3
+alter Va19 = 3.3
+alter Va20 = 3.3
+alter Va21 = 3.3
+alter Va22 = 3.3
+alter Va23 = 3.3
+alter Va24 = 3.3
+alter Va25 = 3.3
+alter Va26 = 3.3
+alter Va27 = 3.3
+alter Va28 = 3.3
+alter Va29 = 3.3
+alter Va30 = 3.3
+alter Va31 = 3.3
+alter Vcin = 3.3
+op
+print v(sum0) v(sum1) v(sum2) v(sum3) v(sum4) v(sum5) v(sum6) v(sum7) v(sum8) v(sum9) v(sum10) v(sum11) v(sum12) v(sum13) v(sum14) v(sum15) v(sum16) v(sum17) v(sum18) v(sum19) v(sum20) v(sum21) v(sum22) v(sum23) v(sum24) v(sum25) v(sum26) v(sum27) v(sum28) v(sum29) v(sum30) v(sum31) v(cout)
+.endc
+.end
