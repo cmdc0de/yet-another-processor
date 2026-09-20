@@ -12,15 +12,15 @@ v1 is schematic + ngspice of each slice so features are testable before fab. Con
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| PHYSICAL-CPU-001 | KiCad sources under `hw/` | open | |
+| PHYSICAL-CPU-001 | KiCad sources under `hw/` | claimed | m1 |
 
 ## 1-bit slices
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| PHYSICAL-CPU-002 | 1-bit static latch schematic (CELL latch: EN high = load) | open | |
-| PHYSICAL-CPU-003 | Latch ports: D, EN, Q, VDD, VSS | open | |
-| PHYSICAL-CPU-004 | Latch netlist in ngspice: EN=1 Q follows D; EN=0 Q holds | open | |
+| PHYSICAL-CPU-002 | 1-bit static latch schematic (CELL latch: EN high = load) | claimed | m1 |
+| PHYSICAL-CPU-003 | Latch ports: D, EN, Q, VDD, VSS | claimed | m1 |
+| PHYSICAL-CPU-004 | Latch netlist in ngspice: EN=1 Q follows D; EN=0 Q holds | claimed | m1 |
 | PHYSICAL-CPU-005 | 1-bit FLAGS latch schematic (Z/N/C/V bit; WE from control) | open | |
 | PHYSICAL-CPU-006 | 1-bit full adder schematic: `a`, `b`, `cin`, `sum`, `cout` | open | |
 | PHYSICAL-CPU-007 | Adder netlist matches CELL-012 truth table at VOL/VOH | open | |
