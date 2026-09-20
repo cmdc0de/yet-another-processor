@@ -41,7 +41,7 @@ v1 is schematic + ngspice of each slice so features are testable before fab. Con
 |----|---------|--------|-----------|
 | PHYSICAL-CPU-013 | ~~Microcode ROM 256×64 and `uPC` sequencer (ICs allowed)~~ | done | m8 |
 | PHYSICAL-CPU-014 | ~~CPU memory port: addr, data, size, re, we (`docs/cpu/design.md`)~~ | done | m9 |
-| PHYSICAL-CPU-015 | ~~Integer ALU ops on the MOSFET datapath (add/sub/logic; shifts/mul/div may be IC)~~ | implemented | m10 |
+| PHYSICAL-CPU-015 | ~~Integer ALU ops on the MOSFET datapath (add/sub/logic; shifts/mul/div may be IC)~~ | done | m10 |
 
 ## Later generation (do not pull into m1)
 
