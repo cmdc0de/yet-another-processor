@@ -1,0 +1,55 @@
+YAP 1-bit MOSFET ALU PHYSICAL-CPU-015
+.include ../../lt-spice/yap_cells.lib
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Va a 0 DC 3.3
+Vb b 0 DC 0
+Vcin cin 0 DC 0
+Vop0 op0 0 DC 0
+Vop1 op1 0 DC 0
+Vop2 op2 0 DC 0
+Xnop0 op0 nop0 VDD VSS INVERTER
+Xnop1 op1 nop1 VDD VSS INVERTER
+Xnop2 op2 nop2 VDD VSS INVERTER
+* is_sub = op0 & ~op1 & ~op2
+Xsub1 op0 nop1 tsub VDD VSS AND
+Xsub2 tsub nop2 is_sub VDD VSS AND
+* is_and = ~op0 & op1 & ~op2
+Xand1 nop0 op1 tand VDD VSS AND
+Xand2 tand nop2 is_and VDD VSS AND
+* is_xor = ~op0 & ~op1 & op2
+Xxor1 nop0 nop1 txor VDD VSS AND
+Xxor2 txor op2 is_xor VDD VSS AND
+Xnb b b_inv VDD VSS INVERTER
+Xmb b b_inv is_sub b_alu VDD VSS MUX2
+Xmc cin VDD is_sub cin_alu VDD VSS MUX2
+Xadd a b_alu cin_alu yadd cout VDD VSS ADDER
+Xand a b yand VDD VSS AND
+Xor a b yor VDD VSS OR
+Xxor a b yxor VDD VSS XOR
+Xm1 yadd yand is_and ym1 VDD VSS MUX2
+Xm2 ym1 yxor is_xor y VDD VSS MUX2
+CLy y 0 5p
+CLc cout 0 5p
+.control
+set filetype=ascii
+* ADD 1+0+0
+op
+print v(y) v(cout)
+* SUB 1-0
+alter Vop0 = 3.3
+op
+print v(y) v(cout)
+* AND 1&1
+alter Vop0 = 0
+alter Vop1 = 3.3
+alter Vb = 3.3
+op
+print v(y) v(cout)
+* XOR 1^1
+alter Vop1 = 0
+alter Vop2 = 3.3
+op
+print v(y) v(cout)
+.endc
+.end
