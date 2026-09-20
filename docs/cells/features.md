@@ -22,12 +22,12 @@ Existing `.asc` files are the start of the library; they are not a locked catalo
 |----|---------|--------|-----------|
 | CELL-004 | ~~CMOS inverter: logic 0 in → 1 out; 1 in → 0 out~~ | done | m1 |
 | CELL-005 | ~~2-input NAND~~ | done | m1 |
-| CELL-006 | ~~2-input NOR~~ | implemented | m2 |
-| CELL-007 | ~~2-input AND~~ | implemented | m2 |
-| CELL-008 | ~~2-input OR~~ | implemented | m2 |
-| CELL-009 | ~~2-input XOR~~ | implemented | m2 |
-| CELL-010 | ~~Transmission gate (or analog mux used as one)~~ | implemented | m2 |
-| CELL-011 | ~~2:1 logic mux~~ | implemented | m2 |
+| CELL-006 | ~~2-input NOR~~ | done | m2 |
+| CELL-007 | ~~2-input AND~~ | done | m2 |
+| CELL-008 | ~~2-input OR~~ | done | m2 |
+| CELL-009 | ~~2-input XOR~~ | done | m2 |
+| CELL-010 | ~~Transmission gate (or analog mux used as one)~~ | done | m2 |
+| CELL-011 | ~~2:1 logic mux~~ | done | m2 |
 | CELL-012 | 1-bit full adder: `sum`, `cout` | open | |
 
 ## Sequential
