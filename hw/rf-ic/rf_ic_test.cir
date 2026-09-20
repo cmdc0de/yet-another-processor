@@ -1,0 +1,120 @@
+YAP IC GPR bank r16-r31 1-bit LAT=2 PHYSICAL-CPU-012
+.include ../../lt-spice/yap_cells.lib
+* Behavioral IC bit: sample/hold, not MOSFET storage
+.subckt ICREG d we q vdd gnd
+S1 d n we 0 icwe
+Cq n 0 10p
+Rq n 0 1T
+Xinv n nb vdd gnd INVERTER
+Xbuf nb q vdd gnd INVERTER
+.model icwe SW(vt=1.65 ron=10 roff=1T)
+.ends ICREG
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Vd d 0 PWL(0 3.3 80u 3.3 82u 0 250u 0)
+Vwe16 we16 0 PWL(0 3.3 80u 3.3 82u 0 250u 0)
+Vwe17 we17 0 PWL(0 0 82u 0 84u 3.3 160u 3.3 162u 0 250u 0)
+Vwe18 we18 0 DC 0
+Vwe19 we19 0 DC 0
+Vwe20 we20 0 DC 0
+Vwe21 we21 0 DC 0
+Vwe22 we22 0 DC 0
+Vwe23 we23 0 DC 0
+Vwe24 we24 0 DC 0
+Vwe25 we25 0 DC 0
+Vwe26 we26 0 DC 0
+Vwe27 we27 0 DC 0
+Vwe28 we28 0 DC 0
+Vwe29 we29 0 DC 0
+Vwe30 we30 0 DC 0
+Vwe31 we31 0 DC 0
+Vra16 ra16 0 DC 3.3
+Vrb16 rb16 0 DC 0
+Vra17 ra17 0 DC 0
+Vrb17 rb17 0 DC 3.3
+Vra18 ra18 0 DC 0
+Vrb18 rb18 0 DC 0
+Vra19 ra19 0 DC 0
+Vrb19 rb19 0 DC 0
+Vra20 ra20 0 DC 0
+Vrb20 rb20 0 DC 0
+Vra21 ra21 0 DC 0
+Vrb21 rb21 0 DC 0
+Vra22 ra22 0 DC 0
+Vrb22 rb22 0 DC 0
+Vra23 ra23 0 DC 0
+Vrb23 rb23 0 DC 0
+Vra24 ra24 0 DC 0
+Vrb24 rb24 0 DC 0
+Vra25 ra25 0 DC 0
+Vrb25 rb25 0 DC 0
+Vra26 ra26 0 DC 0
+Vrb26 rb26 0 DC 0
+Vra27 ra27 0 DC 0
+Vrb27 rb27 0 DC 0
+Vra28 ra28 0 DC 0
+Vrb28 rb28 0 DC 0
+Vra29 ra29 0 DC 0
+Vrb29 rb29 0 DC 0
+Vra30 ra30 0 DC 0
+Vrb30 rb30 0 DC 0
+Vra31 ra31 0 DC 0
+Vrb31 rb31 0 DC 0
+Xr16 d we16 q16 VDD VSS ICREG
+Xr17 d we17 q17 VDD VSS ICREG
+Xr18 d we18 q18 VDD VSS ICREG
+Xr19 d we19 q19 VDD VSS ICREG
+Xr20 d we20 q20 VDD VSS ICREG
+Xr21 d we21 q21 VDD VSS ICREG
+Xr22 d we22 q22 VDD VSS ICREG
+Xr23 d we23 q23 VDD VSS ICREG
+Xr24 d we24 q24 VDD VSS ICREG
+Xr25 d we25 q25 VDD VSS ICREG
+Xr26 d we26 q26 VDD VSS ICREG
+Xr27 d we27 q27 VDD VSS ICREG
+Xr28 d we28 q28 VDD VSS ICREG
+Xr29 d we29 q29 VDD VSS ICREG
+Xr30 d we30 q30 VDD VSS ICREG
+Xr31 d we31 q31 VDD VSS ICREG
+Xma16 VSS q16 ra16 na16 VDD VSS MUX2
+Xmb16 VSS q16 rb16 nb16 VDD VSS MUX2
+Xma17 na16 q17 ra17 na17 VDD VSS MUX2
+Xmb17 nb16 q17 rb17 nb17 VDD VSS MUX2
+Xma18 na17 q18 ra18 na18 VDD VSS MUX2
+Xmb18 nb17 q18 rb18 nb18 VDD VSS MUX2
+Xma19 na18 q19 ra19 na19 VDD VSS MUX2
+Xmb19 nb18 q19 rb19 nb19 VDD VSS MUX2
+Xma20 na19 q20 ra20 na20 VDD VSS MUX2
+Xmb20 nb19 q20 rb20 nb20 VDD VSS MUX2
+Xma21 na20 q21 ra21 na21 VDD VSS MUX2
+Xmb21 nb20 q21 rb21 nb21 VDD VSS MUX2
+Xma22 na21 q22 ra22 na22 VDD VSS MUX2
+Xmb22 nb21 q22 rb22 nb22 VDD VSS MUX2
+Xma23 na22 q23 ra23 na23 VDD VSS MUX2
+Xmb23 nb22 q23 rb23 nb23 VDD VSS MUX2
+Xma24 na23 q24 ra24 na24 VDD VSS MUX2
+Xmb24 nb23 q24 rb24 nb24 VDD VSS MUX2
+Xma25 na24 q25 ra25 na25 VDD VSS MUX2
+Xmb25 nb24 q25 rb25 nb25 VDD VSS MUX2
+Xma26 na25 q26 ra26 na26 VDD VSS MUX2
+Xmb26 nb25 q26 rb26 nb26 VDD VSS MUX2
+Xma27 na26 q27 ra27 na27 VDD VSS MUX2
+Xmb27 nb26 q27 rb27 nb27 VDD VSS MUX2
+Xma28 na27 q28 ra28 na28 VDD VSS MUX2
+Xmb28 nb27 q28 rb28 nb28 VDD VSS MUX2
+Xma29 na28 q29 ra29 na29 VDD VSS MUX2
+Xmb29 nb28 q29 rb29 nb29 VDD VSS MUX2
+Xma30 na29 q30 ra30 na30 VDD VSS MUX2
+Xmb30 nb29 q30 rb30 nb30 VDD VSS MUX2
+Xma31 na30 q31 ra31 qa VDD VSS MUX2
+Xmb31 nb30 q31 rb31 qb VDD VSS MUX2
+CLqa qa 0 5p
+CLqb qb 0 5p
+.tran 1u 250u
+.control
+set filetype=ascii
+run
+meas tran qameas FIND v(qa) AT=220u
+meas tran qbmeas FIND v(qb) AT=220u
+.endc
+.end
