@@ -32,7 +32,7 @@ v1 is schematic + ngspice of each slice so features are testable before fab. Con
 | PHYSICAL-CPU-008 | ~~32-bit adder: 32 copies of the adder bit, ripple `cin`/`cout`~~ | done | m3 |
 | PHYSICAL-CPU-009 | ~~32-bit MOSFET register: 32 latches, one write-enable~~ | done | m4 |
 | PHYSICAL-CPU-010 | ~~Wired constants: `r0`=0, `r1`=1, `r2`=all-ones (no latches)~~ | done | m5 |
-| PHYSICAL-CPU-011 | ~~MOSFET GPR bank `r3`–`r15`, two read ports, one write, `LAT=1`~~ | implemented | m6 |
+| PHYSICAL-CPU-011 | ~~MOSFET GPR bank `r3`–`r15`, two read ports, one write, `LAT=1`~~ | done | m6 |
 | PHYSICAL-CPU-012 | IC GPR bank `r16`–`r31`, two read ports, one write, `LAT=2` | open | |
 
 ## Control and host port
