@@ -1,0 +1,41 @@
+ADDER test CELL-012 CELL-017
+.include yap_cells.lib
+VDD vdd 0 DC 3.3
+Va a 0 DC 0
+Vb b 0 DC 0
+Vc cin 0 DC 0
+X1 a b cin sum cout vdd 0 ADDER
+CLs sum 0 5p
+CLc cout 0 5p
+.control
+set filetype=ascii
+* abc = 000 001 010 011 100 101 110 111
+op
+print v(sum) v(cout)
+alter Vc = 3.3
+op
+print v(sum) v(cout)
+alter Vb = 3.3
+alter Vc = 0
+op
+print v(sum) v(cout)
+alter Vc = 3.3
+op
+print v(sum) v(cout)
+alter Va = 3.3
+alter Vb = 0
+alter Vc = 0
+op
+print v(sum) v(cout)
+alter Vc = 3.3
+op
+print v(sum) v(cout)
+alter Vb = 3.3
+alter Vc = 0
+op
+print v(sum) v(cout)
+alter Vc = 3.3
+op
+print v(sum) v(cout)
+.endc
+.end

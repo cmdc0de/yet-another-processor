@@ -1,0 +1,18 @@
+LATCH test CELL-013 CELL-016
+.include yap_cells.lib
+VDD vdd 0 DC 3.3
+Ven en 0 PWL(0 3.3 100u 3.3 102u 0 200u 0 202u 3.3 250u 3.3 252u 0 400u 0)
+Vd d 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+X1 d en q vdd 0 LATCH
+CL q 0 5p
+.tran 1u 400u
+.control
+set filetype=ascii
+run
+meas tran qfollow0 FIND v(q) AT=40u
+meas tran qfollow1 FIND v(q) AT=90u
+meas tran qhold1 FIND v(q) AT=180u
+meas tran qfollow0b FIND v(q) AT=240u
+meas tran qhold0 FIND v(q) AT=330u
+.endc
+.end

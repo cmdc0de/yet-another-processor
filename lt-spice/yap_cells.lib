@@ -56,3 +56,21 @@ Xinv s sb vdd gnd INVERTER
 X0 a y sb vdd gnd TG
 X1 b y s vdd gnd TG
 .ends MUX2
+
+* EN=1 transparent (Q follows D); EN=0 inverter loop holds.
+.subckt LATCH d en q vdd gnd
+Xinv_en en enb vdd gnd INVERTER
+Xin d n1 en vdd gnd TG
+Xi1 n1 qb vdd gnd INVERTER
+Xi2 qb q vdd gnd INVERTER
+Xfb q n1 enb vdd gnd TG
+.ends LATCH
+
+* sum = a xor b xor cin; cout = (a and b) or ((a xor b) and cin)
+.subckt ADDER a b cin sum cout vdd gnd
+Xp a b p vdd gnd XOR
+Xs p cin sum vdd gnd XOR
+Xab a b w1 vdd gnd AND
+Xpc p cin w2 vdd gnd AND
+Xco w1 w2 cout vdd gnd OR
+.ends ADDER
