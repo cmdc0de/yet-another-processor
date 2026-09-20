@@ -37,14 +37,14 @@ HDL language and simulator (Icarus, Verilator, …) are `design.md` after this c
 | FPGA-CPU-011 | ~~`j`/`jal`/`jr`/`jalr`/`bcc`; no delay slot~~ | done | m3 |
 | FPGA-CPU-012 | ~~`halt` stops the clocked machine~~ | done | m1 |
 | FPGA-CPU-013 | ~~CSRs, `sys`/`eret`, privilege, TE, IRQ~~ | done | m3 |
-| FPGA-CPU-014 | ~~COP1 `mfc1`/`mtc1`; other COP1 → CAUSE=6~~ | implemented | m4 |
+| FPGA-CPU-014 | ~~COP1 `mfc1`/`mtc1`; other COP1 → CAUSE=6~~ | done | m4 |
 
 ## Parity
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| FPGA-CPU-015 | ~~Existing ISA assembler tests (`compiler.tests.test_m*`) pass on the sim~~ | implemented | m4 |
-| FPGA-CPU-016 | ~~`os/kernel.s` YAP1 reaches halt (exit 0) on the sim, as on `yap-emu`~~ | implemented | m4 |
+| FPGA-CPU-015 | ~~Existing ISA assembler tests (`compiler.tests.test_m*`) pass on the sim~~ | done | m4 |
+| FPGA-CPU-016 | ~~`os/kernel.s` YAP1 reaches halt (exit 0) on the sim, as on `yap-emu`~~ | done | m4 |
 
 ## Later generation (do not pull into m1)
 
