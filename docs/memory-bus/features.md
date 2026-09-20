@@ -10,8 +10,8 @@ Implementation: `hw/bus/` (protocol + schematic/netlist). Tests under `compiler/
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MEMORY-BUS-001 | Bus cycles at CPU clock: command this cycle, data next (`LAT_MEM=1`) | open | |
-| MEMORY-BUS-002 | CPU port maps to the bus: `addr[31:0]`, `size` ∈ {1,2,4}, `re`, `we` | open | |
+| MEMORY-BUS-001 | Bus cycles at CPU clock: command this cycle, data next (`LAT_MEM=1`) | claimed | m1 |
+| MEMORY-BUS-002 | CPU port maps to the bus: `addr[31:0]`, `size` ∈ {1,2,4}, `re`, `we` | claimed | m1 |
 | MEMORY-BUS-003 | Bidirectional data: store drives DQ, load SRAM drives DQ, idle Hi-Z | open | |
 | MEMORY-BUS-004 | Little-endian lanes: size 1/2/4 uses the low 1/2/4 bytes | open | |
 | MEMORY-BUS-005 | SRAM control derived from `re`/`we` (`CE#`/`OE#`/`WE#` or equivalent) | open | |
@@ -20,15 +20,15 @@ Implementation: `hw/bus/` (protocol + schematic/netlist). Tests under `compiler/
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MEMORY-BUS-006 | Sources under `hw/bus/` | open | |
-| MEMORY-BUS-007 | Write-then-read of one aligned word returns the stored value | open | |
-| MEMORY-BUS-008 | Tests fail if the chosen simulator (`ngspice -b` and/or `iverilog`) is missing | open | |
+| MEMORY-BUS-006 | Sources under `hw/bus/` | claimed | m1 |
+| MEMORY-BUS-007 | Write-then-read of one aligned word returns the stored value | claimed | m1 |
+| MEMORY-BUS-008 | Tests fail if the chosen simulator (`ngspice -b` and/or `iverilog`) is missing | claimed | m1 |
 
 ## Rails
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MEMORY-BUS-009 | SRAM and bus VDD are 3.3 V | open | |
+| MEMORY-BUS-009 | SRAM and bus VDD are 3.3 V | claimed | m1 |
 
 ## Later generation (do not pull into m1)
 
