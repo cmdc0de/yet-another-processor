@@ -1,0 +1,153 @@
+YAP CPU memory port LAT_MEM=1 PHYSICAL-CPU-014
+* Behavioral 32-bit word at addr 0. we+clk samples wdata; re drives rdata.
+.subckt MEMBIT d we q vdd gnd
+S1 d q we 0 icwe
+Cq q 0 1n
+Rq q 0 1T
+.model icwe SW(vt=1.65 vh=0.4 ron=1 roff=1T)
+.ends MEMBIT
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Vclk clk 0 PWL(0 0 50u 0 52u 3.3 80u 3.3 82u 0 150u 0)
+Vwe we 0 PWL(0 3.3 80u 3.3 82u 0 150u 0)
+Vre re 0 PWL(0 0 90u 0 92u 3.3 150u 3.3)
+Vsz0 sz0 0 DC 0
+Vsz1 sz1 0 DC 3.3
+Vw0 wdata0 0 DC 3.3
+Vw1 wdata1 0 DC 0
+Vw2 wdata2 0 DC 0
+Vw3 wdata3 0 DC 0
+Vw4 wdata4 0 DC 0
+Vw5 wdata5 0 DC 0
+Vw6 wdata6 0 DC 0
+Vw7 wdata7 0 DC 0
+Vw8 wdata8 0 DC 0
+Vw9 wdata9 0 DC 0
+Vw10 wdata10 0 DC 0
+Vw11 wdata11 0 DC 0
+Vw12 wdata12 0 DC 0
+Vw13 wdata13 0 DC 0
+Vw14 wdata14 0 DC 0
+Vw15 wdata15 0 DC 0
+Vw16 wdata16 0 DC 0
+Vw17 wdata17 0 DC 0
+Vw18 wdata18 0 DC 0
+Vw19 wdata19 0 DC 0
+Vw20 wdata20 0 DC 0
+Vw21 wdata21 0 DC 0
+Vw22 wdata22 0 DC 0
+Vw23 wdata23 0 DC 0
+Vw24 wdata24 0 DC 0
+Vw25 wdata25 0 DC 0
+Vw26 wdata26 0 DC 0
+Vw27 wdata27 0 DC 0
+Vw28 wdata28 0 DC 0
+Vw29 wdata29 0 DC 0
+Vw30 wdata30 0 DC 0
+Vw31 wdata31 0 DC 0
+Va0 addr0 0 DC 0
+Va1 addr1 0 DC 0
+Va2 addr2 0 DC 0
+Va3 addr3 0 DC 0
+Va4 addr4 0 DC 0
+Va5 addr5 0 DC 0
+Va6 addr6 0 DC 0
+Va7 addr7 0 DC 0
+Va8 addr8 0 DC 0
+Va9 addr9 0 DC 0
+Va10 addr10 0 DC 0
+Va11 addr11 0 DC 0
+Va12 addr12 0 DC 0
+Va13 addr13 0 DC 0
+Va14 addr14 0 DC 0
+Va15 addr15 0 DC 0
+Va16 addr16 0 DC 0
+Va17 addr17 0 DC 0
+Va18 addr18 0 DC 0
+Va19 addr19 0 DC 0
+Va20 addr20 0 DC 0
+Va21 addr21 0 DC 0
+Va22 addr22 0 DC 0
+Va23 addr23 0 DC 0
+Va24 addr24 0 DC 0
+Va25 addr25 0 DC 0
+Va26 addr26 0 DC 0
+Va27 addr27 0 DC 0
+Va28 addr28 0 DC 0
+Va29 addr29 0 DC 0
+Va30 addr30 0 DC 0
+Va31 addr31 0 DC 0
+Bweclk weclk 0 V={(v(we)>1.65) && (v(clk)>1.65) ? 3.3 : 0}
+Xm0 wdata0 weclk m0 VDD VSS MEMBIT
+Br0 rdata0 0 V={v(re)>1.65 ? v(m0) : 0}
+Xm1 wdata1 weclk m1 VDD VSS MEMBIT
+Br1 rdata1 0 V={v(re)>1.65 ? v(m1) : 0}
+Xm2 wdata2 weclk m2 VDD VSS MEMBIT
+Br2 rdata2 0 V={v(re)>1.65 ? v(m2) : 0}
+Xm3 wdata3 weclk m3 VDD VSS MEMBIT
+Br3 rdata3 0 V={v(re)>1.65 ? v(m3) : 0}
+Xm4 wdata4 weclk m4 VDD VSS MEMBIT
+Br4 rdata4 0 V={v(re)>1.65 ? v(m4) : 0}
+Xm5 wdata5 weclk m5 VDD VSS MEMBIT
+Br5 rdata5 0 V={v(re)>1.65 ? v(m5) : 0}
+Xm6 wdata6 weclk m6 VDD VSS MEMBIT
+Br6 rdata6 0 V={v(re)>1.65 ? v(m6) : 0}
+Xm7 wdata7 weclk m7 VDD VSS MEMBIT
+Br7 rdata7 0 V={v(re)>1.65 ? v(m7) : 0}
+Xm8 wdata8 weclk m8 VDD VSS MEMBIT
+Br8 rdata8 0 V={v(re)>1.65 ? v(m8) : 0}
+Xm9 wdata9 weclk m9 VDD VSS MEMBIT
+Br9 rdata9 0 V={v(re)>1.65 ? v(m9) : 0}
+Xm10 wdata10 weclk m10 VDD VSS MEMBIT
+Br10 rdata10 0 V={v(re)>1.65 ? v(m10) : 0}
+Xm11 wdata11 weclk m11 VDD VSS MEMBIT
+Br11 rdata11 0 V={v(re)>1.65 ? v(m11) : 0}
+Xm12 wdata12 weclk m12 VDD VSS MEMBIT
+Br12 rdata12 0 V={v(re)>1.65 ? v(m12) : 0}
+Xm13 wdata13 weclk m13 VDD VSS MEMBIT
+Br13 rdata13 0 V={v(re)>1.65 ? v(m13) : 0}
+Xm14 wdata14 weclk m14 VDD VSS MEMBIT
+Br14 rdata14 0 V={v(re)>1.65 ? v(m14) : 0}
+Xm15 wdata15 weclk m15 VDD VSS MEMBIT
+Br15 rdata15 0 V={v(re)>1.65 ? v(m15) : 0}
+Xm16 wdata16 weclk m16 VDD VSS MEMBIT
+Br16 rdata16 0 V={v(re)>1.65 ? v(m16) : 0}
+Xm17 wdata17 weclk m17 VDD VSS MEMBIT
+Br17 rdata17 0 V={v(re)>1.65 ? v(m17) : 0}
+Xm18 wdata18 weclk m18 VDD VSS MEMBIT
+Br18 rdata18 0 V={v(re)>1.65 ? v(m18) : 0}
+Xm19 wdata19 weclk m19 VDD VSS MEMBIT
+Br19 rdata19 0 V={v(re)>1.65 ? v(m19) : 0}
+Xm20 wdata20 weclk m20 VDD VSS MEMBIT
+Br20 rdata20 0 V={v(re)>1.65 ? v(m20) : 0}
+Xm21 wdata21 weclk m21 VDD VSS MEMBIT
+Br21 rdata21 0 V={v(re)>1.65 ? v(m21) : 0}
+Xm22 wdata22 weclk m22 VDD VSS MEMBIT
+Br22 rdata22 0 V={v(re)>1.65 ? v(m22) : 0}
+Xm23 wdata23 weclk m23 VDD VSS MEMBIT
+Br23 rdata23 0 V={v(re)>1.65 ? v(m23) : 0}
+Xm24 wdata24 weclk m24 VDD VSS MEMBIT
+Br24 rdata24 0 V={v(re)>1.65 ? v(m24) : 0}
+Xm25 wdata25 weclk m25 VDD VSS MEMBIT
+Br25 rdata25 0 V={v(re)>1.65 ? v(m25) : 0}
+Xm26 wdata26 weclk m26 VDD VSS MEMBIT
+Br26 rdata26 0 V={v(re)>1.65 ? v(m26) : 0}
+Xm27 wdata27 weclk m27 VDD VSS MEMBIT
+Br27 rdata27 0 V={v(re)>1.65 ? v(m27) : 0}
+Xm28 wdata28 weclk m28 VDD VSS MEMBIT
+Br28 rdata28 0 V={v(re)>1.65 ? v(m28) : 0}
+Xm29 wdata29 weclk m29 VDD VSS MEMBIT
+Br29 rdata29 0 V={v(re)>1.65 ? v(m29) : 0}
+Xm30 wdata30 weclk m30 VDD VSS MEMBIT
+Br30 rdata30 0 V={v(re)>1.65 ? v(m30) : 0}
+Xm31 wdata31 weclk m31 VDD VSS MEMBIT
+Br31 rdata31 0 V={v(re)>1.65 ? v(m31) : 0}
+.ic v(m0)=0 v(m1)=0
+.tran 1u 150u uic
+.control
+set filetype=ascii
+run
+meas tran r0 FIND v(rdata0) AT=120u
+meas tran r1 FIND v(rdata1) AT=120u
+.endc
+.end
