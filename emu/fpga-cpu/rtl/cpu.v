@@ -41,6 +41,7 @@ module yap_cpu (
     localparam CAUSE_IRQ       = 8'd1;
     localparam CAUSE_PROT      = 8'd2;
     localparam CAUSE_SYS       = 8'd3;
+    localparam CAUSE_COP       = 8'd6;
     localparam CAUSE_PRIV      = 8'd7;
     localparam CAUSE_ALIGN     = 8'd8;
     localparam CSR_STATUS      = 5'd0;
@@ -66,6 +67,7 @@ module yap_cpu (
     reg [1:0]  mem_sz_r;
     reg [31:0] mosfet [0:12];
     reg [31:0] ic [0:15];
+    reg [31:0] fregs [0:31];
 
     wire [63:0] cw = ucode[upc];
     wire [2:0]  seq      = cw[2:0];
@@ -103,6 +105,9 @@ module yap_cpu (
     wire [15:0] ir_imm = ir[15:0];
     wire [3:0]  ir_cond = ir[25:22];
     wire        jal_op = (ir_op == 6'd3);
+    wire        cop1_op = (ir_op == 6'h11);
+    wire        mfc1_op = cop1_op && (ir_rs == 5'd0);
+    wire        mtc1_op = cop1_op && (ir_rs == 5'd4);
     wire [4:0]  wdst   = jal_op ? 5'd3 : ir_rd;
 
     function [1:0] bank_lat;
@@ -159,6 +164,13 @@ module yap_cpu (
                     dispatch = 8'h90;
                 else
                     dispatch = U_ILLEGAL;
+            end else if (dop == 6'h11) begin
+                if (drs == 5'd0)
+                    dispatch = 8'h94;
+                else if (drs == 5'd4)
+                    dispatch = 8'h98;
+                else
+                    dispatch = 8'ha4;
             end else begin
                 case (dop)
                     6'h08: dispatch = 8'h4c;
@@ -283,6 +295,10 @@ module yap_cpu (
     end
     wire [31:0] csr_use = (executing && re_csr) ? csr_rd : 32'd0;
 
+    reg [31:0] f_rd;
+    always @(*)
+        f_rd = fregs[ir_rt];
+
     wire [31:0] sextimm = {{16{ir_imm[15]}}, ir_imm};
     wire [31:0] zextimm = {16'd0, ir_imm};
     wire [31:0] pc4     = pc + 32'd4;
@@ -366,6 +382,8 @@ module yap_cpu (
             default: aluout = a_mux;
         endcase
     end
+
+    wire [31:0] wb_val = mfc1_op ? f_rd : aluout;
 
     wire add_c = ({1'b0, a_mux} + {1'b0, b_mux}) >> 32;
     wire add_v = (a_mux[31] == b_mux[31]) && (aluout[31] != a_mux[31]);
@@ -482,6 +500,8 @@ module yap_cpu (
             mosfet[i] = 32'd0;
         for (i = 0; i < 16; i = i + 1)
             ic[i] = 32'd0;
+        for (i = 0; i < 32; i = i + 1)
+            fregs[i] = 32'd0;
     end
 
     always @(posedge clk) begin
@@ -514,6 +534,8 @@ module yap_cpu (
                 mosfet[i] <= 32'd0;
             for (i = 0; i < 16; i = i + 1)
                 ic[i] <= 32'd0;
+            for (i = 0; i < 32; i = i + 1)
+                fregs[i] <= 32'd0;
         end else if (halted) begin
         end else begin
             cycles <= cycles + 32'd1;
@@ -565,9 +587,9 @@ module yap_cpu (
                     do_trap(CAUSE_ALIGN);
                 else if ((cw_re || cw_we) && !p && !in_win)
                     do_trap(CAUSE_PROT);
-                else if (we_csr && !p)
+                else if (we_csr && !p && !mtc1_op)
                     do_trap(CAUSE_PRIV);
-                else if (we_csr && (csr_sel == CSR_STATUS) && aluout[2])
+                else if (we_csr && !mtc1_op && (csr_sel == CSR_STATUS) && aluout[2])
                     do_trap(CAUSE_PRIV);
                 else begin
                     if (re_a) begin
@@ -630,15 +652,17 @@ module yap_cpu (
                     end
                     if (we_rf && wdst > 5'd2) begin
                         if (latw == 2'd0)
-                            write_gpr(wdst, aluout);
+                            write_gpr(wdst, wb_val);
                         else begin
                             w_idx <= wdst;
-                            w_val <= aluout;
+                            w_val <= wb_val;
                             w_wait <= latw;
                         end
                     end
                     if (we_csr) begin
-                        case (csr_sel)
+                        if (mtc1_op)
+                            fregs[ir_rt] <= A;
+                        else case (csr_sel)
                             CSR_STATUS: begin
                                 ie <= aluout[0];
                                 p <= aluout[1];
