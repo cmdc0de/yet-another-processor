@@ -5,7 +5,7 @@ WINDOW 0 0 -40 Bottom 2
 WINDOW 3 0 40 Top 2
 SYMATTR Prefix X
 SYMATTR Value INVERTER
-SYMATTR ModelFile ltspice_cmdc0de.lib
+SYMATTR ModelFile yap_cells.lib
 SYMATTR SpiceModel INVERTER
 PIN -64 -16 LEFT 8
 PINATTR PinName IN

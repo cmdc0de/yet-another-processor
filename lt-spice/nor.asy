@@ -5,7 +5,8 @@ WINDOW 0 0 -56 Bottom 2
 WINDOW 3 0 56 Top 2
 SYMATTR Prefix X
 SYMATTR Value NOR
-SYMATTR ModelFile ltspice_cmdc0de.lib
+SYMATTR ModelFile yap_cells.lib
+SYMATTR SpiceModel NOR
 PIN -48 -16 LEFT 8
 PINATTR PinName a
 PINATTR SpiceOrder 1

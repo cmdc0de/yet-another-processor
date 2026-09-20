@@ -1,0 +1,30 @@
+Version 4
+SymbolType BLOCK
+RECTANGLE Normal -64 -88 64 88
+WINDOW 0 0 -88 Bottom 2
+WINDOW 3 0 88 Top 2
+SYMATTR Prefix X
+SYMATTR Value ADDER
+SYMATTR ModelFile yap_cells.lib
+SYMATTR SpiceModel ADDER
+PIN -64 -64 LEFT 8
+PINATTR PinName a
+PINATTR SpiceOrder 1
+PIN -64 -32 LEFT 8
+PINATTR PinName b
+PINATTR SpiceOrder 2
+PIN -64 0 LEFT 8
+PINATTR PinName cin
+PINATTR SpiceOrder 3
+PIN 64 -64 RIGHT 8
+PINATTR PinName sum
+PINATTR SpiceOrder 4
+PIN 64 -32 RIGHT 8
+PINATTR PinName cout
+PINATTR SpiceOrder 5
+PIN 64 0 RIGHT 8
+PINATTR PinName VDD
+PINATTR SpiceOrder 6
+PIN 64 32 RIGHT 8
+PINATTR PinName GND
+PINATTR SpiceOrder 7

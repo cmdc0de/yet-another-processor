@@ -14,7 +14,7 @@ Existing `.asc` files are the start of the library; they are not a locked catalo
 |----|---------|--------|-----------|
 | CELL-001 | ~~Cell tests use 3.3 V VDD and 0 V VSS~~ | done | m1 |
 | CELL-002 | ~~N-channel and P-channel MOSFET models in the library (SOT-23 parts named in design.md)~~ | done | m1 |
-| CELL-003 | Symbols so a test schematic instantiates a cell, not only a flattened netlist | claimed | m4 |
+| CELL-003 | ~~Symbols so a test schematic instantiates a cell, not only a flattened netlist~~ | implemented | m4 |
 
 ## Combinational
 
