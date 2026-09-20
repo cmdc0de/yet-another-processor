@@ -1,0 +1,93 @@
+YAP MOSFET GPR bank r3-r15 1-bit LAT=1 PHYSICAL-CPU-011
+.include ../../lt-spice/yap_cells.lib
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Vd d 0 PWL(0 3.3 80u 3.3 82u 0 250u 0)
+Vwe3 we3 0 PWL(0 3.3 80u 3.3 82u 0 250u 0)
+Vwe4 we4 0 PWL(0 0 82u 0 84u 3.3 160u 3.3 162u 0 250u 0)
+Vwe5 we5 0 DC 0
+Vwe6 we6 0 DC 0
+Vwe7 we7 0 DC 0
+Vwe8 we8 0 DC 0
+Vwe9 we9 0 DC 0
+Vwe10 we10 0 DC 0
+Vwe11 we11 0 DC 0
+Vwe12 we12 0 DC 0
+Vwe13 we13 0 DC 0
+Vwe14 we14 0 DC 0
+Vwe15 we15 0 DC 0
+Vra3 ra3 0 DC 3.3
+Vrb3 rb3 0 DC 0
+Vra4 ra4 0 DC 0
+Vrb4 rb4 0 DC 3.3
+Vra5 ra5 0 DC 0
+Vrb5 rb5 0 DC 0
+Vra6 ra6 0 DC 0
+Vrb6 rb6 0 DC 0
+Vra7 ra7 0 DC 0
+Vrb7 rb7 0 DC 0
+Vra8 ra8 0 DC 0
+Vrb8 rb8 0 DC 0
+Vra9 ra9 0 DC 0
+Vrb9 rb9 0 DC 0
+Vra10 ra10 0 DC 0
+Vrb10 rb10 0 DC 0
+Vra11 ra11 0 DC 0
+Vrb11 rb11 0 DC 0
+Vra12 ra12 0 DC 0
+Vrb12 rb12 0 DC 0
+Vra13 ra13 0 DC 0
+Vrb13 rb13 0 DC 0
+Vra14 ra14 0 DC 0
+Vrb14 rb14 0 DC 0
+Vra15 ra15 0 DC 0
+Vrb15 rb15 0 DC 0
+Xr3 d we3 q3 VDD VSS LATCH
+Xr4 d we4 q4 VDD VSS LATCH
+Xr5 d we5 q5 VDD VSS LATCH
+Xr6 d we6 q6 VDD VSS LATCH
+Xr7 d we7 q7 VDD VSS LATCH
+Xr8 d we8 q8 VDD VSS LATCH
+Xr9 d we9 q9 VDD VSS LATCH
+Xr10 d we10 q10 VDD VSS LATCH
+Xr11 d we11 q11 VDD VSS LATCH
+Xr12 d we12 q12 VDD VSS LATCH
+Xr13 d we13 q13 VDD VSS LATCH
+Xr14 d we14 q14 VDD VSS LATCH
+Xr15 d we15 q15 VDD VSS LATCH
+Xma3 VSS q3 ra3 na3 VDD VSS MUX2
+Xmb3 VSS q3 rb3 nb3 VDD VSS MUX2
+Xma4 na3 q4 ra4 na4 VDD VSS MUX2
+Xmb4 nb3 q4 rb4 nb4 VDD VSS MUX2
+Xma5 na4 q5 ra5 na5 VDD VSS MUX2
+Xmb5 nb4 q5 rb5 nb5 VDD VSS MUX2
+Xma6 na5 q6 ra6 na6 VDD VSS MUX2
+Xmb6 nb5 q6 rb6 nb6 VDD VSS MUX2
+Xma7 na6 q7 ra7 na7 VDD VSS MUX2
+Xmb7 nb6 q7 rb7 nb7 VDD VSS MUX2
+Xma8 na7 q8 ra8 na8 VDD VSS MUX2
+Xmb8 nb7 q8 rb8 nb8 VDD VSS MUX2
+Xma9 na8 q9 ra9 na9 VDD VSS MUX2
+Xmb9 nb8 q9 rb9 nb9 VDD VSS MUX2
+Xma10 na9 q10 ra10 na10 VDD VSS MUX2
+Xmb10 nb9 q10 rb10 nb10 VDD VSS MUX2
+Xma11 na10 q11 ra11 na11 VDD VSS MUX2
+Xmb11 nb10 q11 rb11 nb11 VDD VSS MUX2
+Xma12 na11 q12 ra12 na12 VDD VSS MUX2
+Xmb12 nb11 q12 rb12 nb12 VDD VSS MUX2
+Xma13 na12 q13 ra13 na13 VDD VSS MUX2
+Xmb13 nb12 q13 rb13 nb13 VDD VSS MUX2
+Xma14 na13 q14 ra14 na14 VDD VSS MUX2
+Xmb14 nb13 q14 rb14 nb14 VDD VSS MUX2
+Xma15 na14 q15 ra15 qa VDD VSS MUX2
+Xmb15 nb14 q15 rb15 qb VDD VSS MUX2
+CLqa qa 0 5p
+CLqb qb 0 5p
+.tran 1u 250u
+.control
+set filetype=ascii
+run
+meas tran qameas FIND v(qa) AT=220u
+meas tran qbmeas FIND v(qb) AT=220u
+.endc
+.end
