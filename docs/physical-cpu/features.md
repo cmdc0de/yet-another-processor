@@ -21,9 +21,9 @@ v1 is schematic + ngspice of each slice so features are testable before fab. Con
 | PHYSICAL-CPU-002 | ~~1-bit static latch schematic (CELL latch: EN high = load)~~ | done | m1 |
 | PHYSICAL-CPU-003 | ~~Latch ports: D, EN, Q, VDD, VSS~~ | done | m1 |
 | PHYSICAL-CPU-004 | ~~Latch netlist in ngspice: EN=1 Q follows D; EN=0 Q holds~~ | done | m1 |
-| PHYSICAL-CPU-005 | 1-bit FLAGS latch schematic (Z/N/C/V bit; WE from control) | open | |
-| PHYSICAL-CPU-006 | 1-bit full adder schematic: `a`, `b`, `cin`, `sum`, `cout` | open | |
-| PHYSICAL-CPU-007 | Adder netlist matches CELL-012 truth table at VOL/VOH | open | |
+| PHYSICAL-CPU-005 | 1-bit FLAGS latch schematic (Z/N/C/V bit; WE from control) | claimed | m2 |
+| PHYSICAL-CPU-006 | 1-bit full adder schematic: `a`, `b`, `cin`, `sum`, `cout` | claimed | m2 |
+| PHYSICAL-CPU-007 | Adder netlist matches CELL-012 truth table at VOL/VOH | claimed | m2 |
 
 ## Datapath width
 
