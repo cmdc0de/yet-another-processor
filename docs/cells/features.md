@@ -28,22 +28,22 @@ Existing `.asc` files are the start of the library; they are not a locked catalo
 | CELL-009 | ~~2-input XOR~~ | done | m2 |
 | CELL-010 | ~~Transmission gate (or analog mux used as one)~~ | done | m2 |
 | CELL-011 | ~~2:1 logic mux~~ | done | m2 |
-| CELL-012 | ~~1-bit full adder: `sum`, `cout`~~ | implemented | m3 |
+| CELL-012 | ~~1-bit full adder: `sum`, `cout`~~ | done | m3 |
 
 ## Sequential
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| CELL-013 | ~~1-bit static latch: holds while gated; takes a new bit when open~~ | implemented | m3 |
+| CELL-013 | ~~1-bit static latch: holds while gated; takes a new bit when open~~ | done | m3 |
 
 ## Characterization and harness
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
 | CELL-014 | ~~Combinational outputs sit within named VOH/VOL of the rails (values in design.md)~~ | done | m1 |
-| CELL-015 | ~~Each cell in this catalog has a test schematic under `lt-spice/`~~ | implemented | m3 |
-| CELL-016 | ~~Latch hold/load is shown in simulation (not only a static DC point)~~ | implemented | m3 |
-| CELL-017 | ~~Adder checks include 0+0+cin0 and 1+1+cin1~~ | implemented | m3 |
+| CELL-015 | ~~Each cell in this catalog has a test schematic under `lt-spice/`~~ | done | m3 |
+| CELL-016 | ~~Latch hold/load is shown in simulation (not only a static DC point)~~ | done | m3 |
+| CELL-017 | ~~Adder checks include 0+0+cin0 and 1+1+cin1~~ | done | m3 |
 | CELL-018 | ~~Tests run from the repo (script or documented batch) without a GUI~~ | done | m1 |
 
 ## Later generation (do not pull into m1)
