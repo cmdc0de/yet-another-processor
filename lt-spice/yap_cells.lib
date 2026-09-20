@@ -18,3 +18,41 @@ M2 y b vdd vdd IRLML6401
 M3 y a mid mid IRLML6246
 M4 mid b gnd gnd IRLML6246
 .ends NAND
+
+.subckt NOR a b y vdd gnd
+M1 y a mid mid IRLML6401
+M2 mid b vdd vdd IRLML6401
+M3 y a gnd gnd IRLML6246
+M4 y b gnd gnd IRLML6246
+.ends NOR
+
+.subckt AND a b y vdd gnd
+Xn a b n vdd gnd NAND
+Xi n y vdd gnd INVERTER
+.ends AND
+
+.subckt OR a b y vdd gnd
+Xn a b n vdd gnd NOR
+Xi n y vdd gnd INVERTER
+.ends OR
+
+.subckt XOR a b y vdd gnd
+Xo a b o vdd gnd OR
+Xn a b n vdd gnd NAND
+Xa o n y vdd gnd AND
+.ends XOR
+
+* Complementary TG, EN high = on. Back-to-back FETs so body diodes cancel.
+.subckt TG in out en vdd gnd
+Xinv en enb vdd gnd INVERTER
+MN1 midn en in in IRLML6246
+MN2 midn en out out IRLML6246
+MP1 midp enb in in IRLML6401
+MP2 midp enb out out IRLML6401
+.ends TG
+
+.subckt MUX2 a b s y vdd gnd
+Xinv s sb vdd gnd INVERTER
+X0 a y sb vdd gnd TG
+X1 b y s vdd gnd TG
+.ends MUX2

@@ -1,0 +1,49 @@
+MUX2 test CELL-011
+.include yap_cells.lib
+VDD vdd 0 DC 3.3
+Va a 0 DC 0
+Vb b 0 DC 0
+Vs s 0 DC 0
+X1 a b s y vdd 0 MUX2
+CL y 0 5p
+.control
+set filetype=ascii
+op
+print v(y)
+alter Va = 0
+alter Vb = 3.3
+alter Vs = 0
+op
+print v(y)
+alter Va = 3.3
+alter Vb = 0
+alter Vs = 0
+op
+print v(y)
+alter Va = 3.3
+alter Vb = 3.3
+alter Vs = 0
+op
+print v(y)
+alter Va = 0
+alter Vb = 0
+alter Vs = 3.3
+op
+print v(y)
+alter Va = 0
+alter Vb = 3.3
+alter Vs = 3.3
+op
+print v(y)
+alter Va = 3.3
+alter Vb = 0
+alter Vs = 3.3
+op
+print v(y)
+alter Va = 3.3
+alter Vb = 3.3
+alter Vs = 3.3
+op
+print v(y)
+.endc
+.end

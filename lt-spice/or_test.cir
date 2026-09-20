@@ -1,0 +1,25 @@
+OR test CELL-008
+.include yap_cells.lib
+VDD vdd 0 DC 3.3
+Va a 0 DC 0
+Vb b 0 DC 0
+X1 a b y vdd 0 OR
+CL y 0 5p
+.control
+set filetype=ascii
+op
+print v(y)
+alter Va = 0
+alter Vb = 3.3
+op
+print v(y)
+alter Va = 3.3
+alter Vb = 0
+op
+print v(y)
+alter Va = 3.3
+alter Vb = 3.3
+op
+print v(y)
+.endc
+.end
