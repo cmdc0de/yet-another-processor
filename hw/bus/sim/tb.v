@@ -10,6 +10,12 @@ module tb;
     reg         re;
     reg         we;
 
+    wire [31:0] DQ;
+    wire        ce_n;
+    wire        oe_n;
+    wire        we_n;
+    wire [3:0]  be;
+
     yap_bus dut (
         .clk(clk),
         .rst(rst),
@@ -18,7 +24,12 @@ module tb;
         .rdata(rdata),
         .size(size),
         .re(re),
-        .we(we)
+        .we(we),
+        .DQ(DQ),
+        .ce_n(ce_n),
+        .oe_n(oe_n),
+        .we_n(we_n),
+        .be(be)
     );
 
     initial clk = 1'b0;

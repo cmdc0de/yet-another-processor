@@ -12,9 +12,9 @@ Implementation: `hw/bus/` (protocol + schematic/netlist). Tests under `compiler/
 |----|---------|--------|-----------|
 | MEMORY-BUS-001 | ~~Bus cycles at CPU clock: command this cycle, data next (`LAT_MEM=1`)~~ | done | m1 |
 | MEMORY-BUS-002 | ~~CPU port maps to the bus: `addr[31:0]`, `size` ∈ {1,2,4}, `re`, `we`~~ | done | m1 |
-| MEMORY-BUS-003 | Bidirectional data: store drives DQ, load SRAM drives DQ, idle Hi-Z | claimed | m2 |
-| MEMORY-BUS-004 | Little-endian lanes: size 1/2/4 uses the low 1/2/4 bytes | claimed | m2 |
-| MEMORY-BUS-005 | SRAM control derived from `re`/`we` (`CE#`/`OE#`/`WE#` or equivalent) | claimed | m2 |
+| MEMORY-BUS-003 | ~~Bidirectional data: store drives DQ, load SRAM drives DQ, idle Hi-Z~~ | implemented | m2 |
+| MEMORY-BUS-004 | ~~Little-endian lanes: size 1/2/4 uses the low 1/2/4 bytes~~ | implemented | m2 |
+| MEMORY-BUS-005 | ~~SRAM control derived from `re`/`we` (`CE#`/`OE#`/`WE#` or equivalent)~~ | implemented | m2 |
 
 ## Tree and sim
 
