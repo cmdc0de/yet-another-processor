@@ -1,0 +1,203 @@
+YAP 32-bit MOSFET register PHYSICAL-CPU-009
+.include ../../lt-spice/yap_cells.lib
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Vwe WE 0 PWL(0 3.3 100u 3.3 102u 0 200u 0 202u 3.3 250u 3.3 252u 0 400u 0)
+Vd0 d0 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd1 d1 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd2 d2 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd3 d3 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd4 d4 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd5 d5 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd6 d6 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd7 d7 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd8 d8 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd9 d9 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd10 d10 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd11 d11 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd12 d12 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd13 d13 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd14 d14 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd15 d15 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd16 d16 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd17 d17 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd18 d18 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd19 d19 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd20 d20 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd21 d21 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd22 d22 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd23 d23 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd24 d24 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd25 d25 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd26 d26 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd27 d27 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd28 d28 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd29 d29 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd30 d30 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+Vd31 d31 0 PWL(0 0 50u 0 52u 3.3 120u 3.3 122u 0 270u 0 272u 3.3 400u 3.3)
+X0 d0 WE q0 VDD VSS LATCH
+X1 d1 WE q1 VDD VSS LATCH
+X2 d2 WE q2 VDD VSS LATCH
+X3 d3 WE q3 VDD VSS LATCH
+X4 d4 WE q4 VDD VSS LATCH
+X5 d5 WE q5 VDD VSS LATCH
+X6 d6 WE q6 VDD VSS LATCH
+X7 d7 WE q7 VDD VSS LATCH
+X8 d8 WE q8 VDD VSS LATCH
+X9 d9 WE q9 VDD VSS LATCH
+X10 d10 WE q10 VDD VSS LATCH
+X11 d11 WE q11 VDD VSS LATCH
+X12 d12 WE q12 VDD VSS LATCH
+X13 d13 WE q13 VDD VSS LATCH
+X14 d14 WE q14 VDD VSS LATCH
+X15 d15 WE q15 VDD VSS LATCH
+X16 d16 WE q16 VDD VSS LATCH
+X17 d17 WE q17 VDD VSS LATCH
+X18 d18 WE q18 VDD VSS LATCH
+X19 d19 WE q19 VDD VSS LATCH
+X20 d20 WE q20 VDD VSS LATCH
+X21 d21 WE q21 VDD VSS LATCH
+X22 d22 WE q22 VDD VSS LATCH
+X23 d23 WE q23 VDD VSS LATCH
+X24 d24 WE q24 VDD VSS LATCH
+X25 d25 WE q25 VDD VSS LATCH
+X26 d26 WE q26 VDD VSS LATCH
+X27 d27 WE q27 VDD VSS LATCH
+X28 d28 WE q28 VDD VSS LATCH
+X29 d29 WE q29 VDD VSS LATCH
+X30 d30 WE q30 VDD VSS LATCH
+X31 d31 WE q31 VDD VSS LATCH
+CLq0 q0 0 5p
+CLq1 q1 0 5p
+CLq2 q2 0 5p
+CLq3 q3 0 5p
+CLq4 q4 0 5p
+CLq5 q5 0 5p
+CLq6 q6 0 5p
+CLq7 q7 0 5p
+CLq8 q8 0 5p
+CLq9 q9 0 5p
+CLq10 q10 0 5p
+CLq11 q11 0 5p
+CLq12 q12 0 5p
+CLq13 q13 0 5p
+CLq14 q14 0 5p
+CLq15 q15 0 5p
+CLq16 q16 0 5p
+CLq17 q17 0 5p
+CLq18 q18 0 5p
+CLq19 q19 0 5p
+CLq20 q20 0 5p
+CLq21 q21 0 5p
+CLq22 q22 0 5p
+CLq23 q23 0 5p
+CLq24 q24 0 5p
+CLq25 q25 0 5p
+CLq26 q26 0 5p
+CLq27 q27 0 5p
+CLq28 q28 0 5p
+CLq29 q29 0 5p
+CLq30 q30 0 5p
+CLq31 q31 0 5p
+.tran 1u 400u
+.control
+set filetype=ascii
+run
+meas tran q0follow0 FIND v(q0) AT=40u
+meas tran q0follow1 FIND v(q0) AT=90u
+meas tran q0hold1 FIND v(q0) AT=180u
+meas tran q1follow0 FIND v(q1) AT=40u
+meas tran q1follow1 FIND v(q1) AT=90u
+meas tran q1hold1 FIND v(q1) AT=180u
+meas tran q2follow0 FIND v(q2) AT=40u
+meas tran q2follow1 FIND v(q2) AT=90u
+meas tran q2hold1 FIND v(q2) AT=180u
+meas tran q3follow0 FIND v(q3) AT=40u
+meas tran q3follow1 FIND v(q3) AT=90u
+meas tran q3hold1 FIND v(q3) AT=180u
+meas tran q4follow0 FIND v(q4) AT=40u
+meas tran q4follow1 FIND v(q4) AT=90u
+meas tran q4hold1 FIND v(q4) AT=180u
+meas tran q5follow0 FIND v(q5) AT=40u
+meas tran q5follow1 FIND v(q5) AT=90u
+meas tran q5hold1 FIND v(q5) AT=180u
+meas tran q6follow0 FIND v(q6) AT=40u
+meas tran q6follow1 FIND v(q6) AT=90u
+meas tran q6hold1 FIND v(q6) AT=180u
+meas tran q7follow0 FIND v(q7) AT=40u
+meas tran q7follow1 FIND v(q7) AT=90u
+meas tran q7hold1 FIND v(q7) AT=180u
+meas tran q8follow0 FIND v(q8) AT=40u
+meas tran q8follow1 FIND v(q8) AT=90u
+meas tran q8hold1 FIND v(q8) AT=180u
+meas tran q9follow0 FIND v(q9) AT=40u
+meas tran q9follow1 FIND v(q9) AT=90u
+meas tran q9hold1 FIND v(q9) AT=180u
+meas tran q10follow0 FIND v(q10) AT=40u
+meas tran q10follow1 FIND v(q10) AT=90u
+meas tran q10hold1 FIND v(q10) AT=180u
+meas tran q11follow0 FIND v(q11) AT=40u
+meas tran q11follow1 FIND v(q11) AT=90u
+meas tran q11hold1 FIND v(q11) AT=180u
+meas tran q12follow0 FIND v(q12) AT=40u
+meas tran q12follow1 FIND v(q12) AT=90u
+meas tran q12hold1 FIND v(q12) AT=180u
+meas tran q13follow0 FIND v(q13) AT=40u
+meas tran q13follow1 FIND v(q13) AT=90u
+meas tran q13hold1 FIND v(q13) AT=180u
+meas tran q14follow0 FIND v(q14) AT=40u
+meas tran q14follow1 FIND v(q14) AT=90u
+meas tran q14hold1 FIND v(q14) AT=180u
+meas tran q15follow0 FIND v(q15) AT=40u
+meas tran q15follow1 FIND v(q15) AT=90u
+meas tran q15hold1 FIND v(q15) AT=180u
+meas tran q16follow0 FIND v(q16) AT=40u
+meas tran q16follow1 FIND v(q16) AT=90u
+meas tran q16hold1 FIND v(q16) AT=180u
+meas tran q17follow0 FIND v(q17) AT=40u
+meas tran q17follow1 FIND v(q17) AT=90u
+meas tran q17hold1 FIND v(q17) AT=180u
+meas tran q18follow0 FIND v(q18) AT=40u
+meas tran q18follow1 FIND v(q18) AT=90u
+meas tran q18hold1 FIND v(q18) AT=180u
+meas tran q19follow0 FIND v(q19) AT=40u
+meas tran q19follow1 FIND v(q19) AT=90u
+meas tran q19hold1 FIND v(q19) AT=180u
+meas tran q20follow0 FIND v(q20) AT=40u
+meas tran q20follow1 FIND v(q20) AT=90u
+meas tran q20hold1 FIND v(q20) AT=180u
+meas tran q21follow0 FIND v(q21) AT=40u
+meas tran q21follow1 FIND v(q21) AT=90u
+meas tran q21hold1 FIND v(q21) AT=180u
+meas tran q22follow0 FIND v(q22) AT=40u
+meas tran q22follow1 FIND v(q22) AT=90u
+meas tran q22hold1 FIND v(q22) AT=180u
+meas tran q23follow0 FIND v(q23) AT=40u
+meas tran q23follow1 FIND v(q23) AT=90u
+meas tran q23hold1 FIND v(q23) AT=180u
+meas tran q24follow0 FIND v(q24) AT=40u
+meas tran q24follow1 FIND v(q24) AT=90u
+meas tran q24hold1 FIND v(q24) AT=180u
+meas tran q25follow0 FIND v(q25) AT=40u
+meas tran q25follow1 FIND v(q25) AT=90u
+meas tran q25hold1 FIND v(q25) AT=180u
+meas tran q26follow0 FIND v(q26) AT=40u
+meas tran q26follow1 FIND v(q26) AT=90u
+meas tran q26hold1 FIND v(q26) AT=180u
+meas tran q27follow0 FIND v(q27) AT=40u
+meas tran q27follow1 FIND v(q27) AT=90u
+meas tran q27hold1 FIND v(q27) AT=180u
+meas tran q28follow0 FIND v(q28) AT=40u
+meas tran q28follow1 FIND v(q28) AT=90u
+meas tran q28hold1 FIND v(q28) AT=180u
+meas tran q29follow0 FIND v(q29) AT=40u
+meas tran q29follow1 FIND v(q29) AT=90u
+meas tran q29hold1 FIND v(q29) AT=180u
+meas tran q30follow0 FIND v(q30) AT=40u
+meas tran q30follow1 FIND v(q30) AT=90u
+meas tran q30hold1 FIND v(q30) AT=180u
+meas tran q31follow0 FIND v(q31) AT=40u
+meas tran q31follow1 FIND v(q31) AT=90u
+meas tran q31hold1 FIND v(q31) AT=180u
+.endc
+.end
