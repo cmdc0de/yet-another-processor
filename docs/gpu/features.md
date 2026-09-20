@@ -10,17 +10,17 @@ Implementation: `gpu/`. Tests under `compiler/tests/`. v1 is **simulation** on L
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| GPU-001 | ~~HDL sources under `gpu/`~~ | implemented | m1 |
-| GPU-002 | ~~Simulation builds and runs on Linux (dev host)~~ | implemented | m1 |
-| GPU-003 | ~~Tests fail if the chosen simulator is missing~~ | implemented | m1 |
+| GPU-001 | ~~HDL sources under `gpu/`~~ | done | m1 |
+| GPU-002 | ~~Simulation builds and runs on Linux (dev host)~~ | done | m1 |
+| GPU-003 | ~~Tests fail if the chosen simulator is missing~~ | done | m1 |
 
 ## Backbuffer
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| GPU-004 | ~~One backbuffer in GPU memory (not CPU SRAM scanout)~~ | implemented | m1 |
-| GPU-005 | ~~Documented pixel format and at least one named resolution (`design.md`)~~ | implemented | m1 |
-| GPU-006 | ~~Test dump of the backbuffer (raw or PPM) matches a known fill~~ | implemented | m1 |
+| GPU-004 | ~~One backbuffer in GPU memory (not CPU SRAM scanout)~~ | done | m1 |
+| GPU-005 | ~~Documented pixel format and at least one named resolution (`design.md`)~~ | done | m1 |
+| GPU-006 | ~~Test dump of the backbuffer (raw or PPM) matches a known fill~~ | done | m1 |
 
 ## Host blit
 
