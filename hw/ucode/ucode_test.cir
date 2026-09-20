@@ -1,0 +1,149 @@
+YAP microcode ROM 256x64 and uPC PHYSICAL-CPU-013
+* Behavioral IC ROM + 8-bit uPC. seq=NEXT (0) increments. Not MOSFET storage.
+.subckt UPCBIT d we q vdd gnd
+S1 d q we 0 icwe
+Cq q 0 10p
+Rq q 0 1T
+.model icwe SW(vt=1.65 vh=0.4 ron=1 roff=1T)
+.ends UPCBIT
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Vclk clk 0 PWL(0 0 50u 0 52u 3.3 80u 3.3 82u 0 150u 0)
+Bclkn clkn 0 V={v(clk)>1.65 ? 0 : 3.3}
+Xm0 next0 clkn m0 VDD VSS UPCBIT
+Cm0 m0 0 1n
+Xs0 m0 clk upc0 VDD VSS UPCBIT
+Xm1 next1 clkn m1 VDD VSS UPCBIT
+Cm1 m1 0 1n
+Xs1 m1 clk upc1 VDD VSS UPCBIT
+Xm2 next2 clkn m2 VDD VSS UPCBIT
+Cm2 m2 0 1n
+Xs2 m2 clk upc2 VDD VSS UPCBIT
+Xm3 next3 clkn m3 VDD VSS UPCBIT
+Cm3 m3 0 1n
+Xs3 m3 clk upc3 VDD VSS UPCBIT
+Xm4 next4 clkn m4 VDD VSS UPCBIT
+Cm4 m4 0 1n
+Xs4 m4 clk upc4 VDD VSS UPCBIT
+Xm5 next5 clkn m5 VDD VSS UPCBIT
+Cm5 m5 0 1n
+Xs5 m5 clk upc5 VDD VSS UPCBIT
+Xm6 next6 clkn m6 VDD VSS UPCBIT
+Cm6 m6 0 1n
+Xs6 m6 clk upc6 VDD VSS UPCBIT
+Xm7 next7 clkn m7 VDD VSS UPCBIT
+Cm7 m7 0 1n
+Xs7 m7 clk upc7 VDD VSS UPCBIT
+Bisnxt isnxt 0 V={u(1.65-v(cw0))*u(1.65-v(cw1))*u(1.65-v(cw2))*3.3}
+Bcin0 cin0 0 V=v(isnxt)
+Bnext0 next0 0 V={(v(upc0)>1.65) ? ((v(cin0)>1.65) ? 0 : 3.3) : ((v(cin0)>1.65) ? 3.3 : 0)}
+Bcin1 cin1 0 V={((v(upc0)>1.65) && (v(cin0)>1.65)) ? 3.3 : 0}
+Bnext1 next1 0 V={(v(upc1)>1.65) ? ((v(cin1)>1.65) ? 0 : 3.3) : ((v(cin1)>1.65) ? 3.3 : 0)}
+Bcin2 cin2 0 V={((v(upc1)>1.65) && (v(cin1)>1.65)) ? 3.3 : 0}
+Bnext2 next2 0 V={(v(upc2)>1.65) ? ((v(cin2)>1.65) ? 0 : 3.3) : ((v(cin2)>1.65) ? 3.3 : 0)}
+Bcin3 cin3 0 V={((v(upc2)>1.65) && (v(cin2)>1.65)) ? 3.3 : 0}
+Bnext3 next3 0 V={(v(upc3)>1.65) ? ((v(cin3)>1.65) ? 0 : 3.3) : ((v(cin3)>1.65) ? 3.3 : 0)}
+Bcin4 cin4 0 V={((v(upc3)>1.65) && (v(cin3)>1.65)) ? 3.3 : 0}
+Bnext4 next4 0 V={(v(upc4)>1.65) ? ((v(cin4)>1.65) ? 0 : 3.3) : ((v(cin4)>1.65) ? 3.3 : 0)}
+Bcin5 cin5 0 V={((v(upc4)>1.65) && (v(cin4)>1.65)) ? 3.3 : 0}
+Bnext5 next5 0 V={(v(upc5)>1.65) ? ((v(cin5)>1.65) ? 0 : 3.3) : ((v(cin5)>1.65) ? 3.3 : 0)}
+Bcin6 cin6 0 V={((v(upc5)>1.65) && (v(cin5)>1.65)) ? 3.3 : 0}
+Bnext6 next6 0 V={(v(upc6)>1.65) ? ((v(cin6)>1.65) ? 0 : 3.3) : ((v(cin6)>1.65) ? 3.3 : 0)}
+Bcin7 cin7 0 V={((v(upc6)>1.65) && (v(cin6)>1.65)) ? 3.3 : 0}
+Bnext7 next7 0 V={(v(upc7)>1.65) ? ((v(cin7)>1.65) ? 0 : 3.3) : ((v(cin7)>1.65) ? 3.3 : 0)}
+Bcw0 cw0 0 V={v(upc0)>1.65 ? 3.3 : 0}
+Bcw1 cw1 0 V={v(upc0)>1.65 ? 3.3 : 0}
+Bcw2 cw2 0 V=0
+Bcw3 cw3 0 V=0
+Bcw4 cw4 0 V=0
+Bcw5 cw5 0 V=0
+Bcw6 cw6 0 V=0
+Bcw7 cw7 0 V=0
+Bcw8 cw8 0 V=0
+Bcw9 cw9 0 V=0
+Bcw10 cw10 0 V=0
+Bcw11 cw11 0 V=0
+Bcw12 cw12 0 V=0
+Bcw13 cw13 0 V=0
+Bcw14 cw14 0 V=0
+Bcw15 cw15 0 V=0
+Bcw16 cw16 0 V=0
+Bcw17 cw17 0 V=0
+Bcw18 cw18 0 V=0
+Bcw19 cw19 0 V=0
+Bcw20 cw20 0 V=0
+Bcw21 cw21 0 V=0
+Bcw22 cw22 0 V=0
+Bcw23 cw23 0 V=0
+Bcw24 cw24 0 V=0
+Bcw25 cw25 0 V=0
+Bcw26 cw26 0 V=0
+Bcw27 cw27 0 V=0
+Bcw28 cw28 0 V=0
+Bcw29 cw29 0 V=0
+Bcw30 cw30 0 V=0
+Bcw31 cw31 0 V=0
+Bcw32 cw32 0 V=0
+Bcw33 cw33 0 V=0
+Bcw34 cw34 0 V=0
+Bcw35 cw35 0 V=0
+Bcw36 cw36 0 V=0
+Bcw37 cw37 0 V=0
+Bcw38 cw38 0 V=0
+Bcw39 cw39 0 V=0
+Bcw40 cw40 0 V=0
+Bcw41 cw41 0 V=0
+Bcw42 cw42 0 V=0
+Bcw43 cw43 0 V=0
+Bcw44 cw44 0 V=0
+Bcw45 cw45 0 V=0
+Bcw46 cw46 0 V=0
+Bcw47 cw47 0 V=0
+Bcw48 cw48 0 V=0
+Bcw49 cw49 0 V=0
+Bcw50 cw50 0 V=0
+Bcw51 cw51 0 V=0
+Bcw52 cw52 0 V=0
+Bcw53 cw53 0 V=0
+Bcw54 cw54 0 V=0
+Bcw55 cw55 0 V=0
+Bcw56 cw56 0 V=0
+Bcw57 cw57 0 V=0
+Bcw58 cw58 0 V=0
+Bcw59 cw59 0 V=0
+Bcw60 cw60 0 V=0
+Bcw61 cw61 0 V=0
+Bcw62 cw62 0 V=0
+Bcw63 cw63 0 V=0
+Rseq0 seq0 cw0 1m
+Rseq1 seq1 cw1 1m
+Rseq2 seq2 cw2 1m
+.ic v(upc0)=0 v(upc1)=0 v(upc2)=0 v(upc3)=0 v(upc4)=0 v(upc5)=0 v(upc6)=0 v(upc7)=0
+.tran 1u 150u uic
+.control
+set filetype=ascii
+run
+meas tran upc0r FIND v(upc0) AT=20u
+meas tran upc1r FIND v(upc1) AT=20u
+meas tran cw0r FIND v(cw0) AT=20u
+meas tran cw1r FIND v(cw1) AT=20u
+meas tran cw2r FIND v(cw2) AT=20u
+meas tran upc0c FIND v(upc0) AT=120u
+meas tran upc1c FIND v(upc1) AT=120u
+meas tran cw0c FIND v(cw0) AT=120u
+meas tran cw1c FIND v(cw1) AT=120u
+meas tran cw2c FIND v(cw2) AT=120u
+meas tran upc2r FIND v(upc2) AT=20u
+meas tran upc2c FIND v(upc2) AT=120u
+meas tran upc3r FIND v(upc3) AT=20u
+meas tran upc3c FIND v(upc3) AT=120u
+meas tran upc4r FIND v(upc4) AT=20u
+meas tran upc4c FIND v(upc4) AT=120u
+meas tran upc5r FIND v(upc5) AT=20u
+meas tran upc5c FIND v(upc5) AT=120u
+meas tran upc6r FIND v(upc6) AT=20u
+meas tran upc6c FIND v(upc6) AT=120u
+meas tran upc7r FIND v(upc7) AT=20u
+meas tran upc7c FIND v(upc7) AT=120u
+.endc
+.end
