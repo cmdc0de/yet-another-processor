@@ -12,16 +12,16 @@ Existing `.asc` files are the start of the library; they are not a locked catalo
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| CELL-001 | Cell tests use 3.3 V VDD and 0 V VSS | claimed | m1 |
-| CELL-002 | N-channel and P-channel MOSFET models in the library (SOT-23 parts named in design.md) | claimed | m1 |
+| CELL-001 | ~~Cell tests use 3.3 V VDD and 0 V VSS~~ | implemented | m1 |
+| CELL-002 | ~~N-channel and P-channel MOSFET models in the library (SOT-23 parts named in design.md)~~ | implemented | m1 |
 | CELL-003 | Symbols so a test schematic instantiates a cell, not only a flattened netlist | open | |
 
 ## Combinational
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| CELL-004 | CMOS inverter: logic 0 in → 1 out; 1 in → 0 out | claimed | m1 |
-| CELL-005 | 2-input NAND | claimed | m1 |
+| CELL-004 | ~~CMOS inverter: logic 0 in → 1 out; 1 in → 0 out~~ | implemented | m1 |
+| CELL-005 | ~~2-input NAND~~ | implemented | m1 |
 | CELL-006 | 2-input NOR | open | |
 | CELL-007 | 2-input AND | open | |
 | CELL-008 | 2-input OR | open | |
@@ -40,11 +40,11 @@ Existing `.asc` files are the start of the library; they are not a locked catalo
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| CELL-014 | Combinational outputs sit within named VOH/VOL of the rails (values in design.md) | claimed | m1 |
+| CELL-014 | ~~Combinational outputs sit within named VOH/VOL of the rails (values in design.md)~~ | implemented | m1 |
 | CELL-015 | Each cell in this catalog has a test schematic under `lt-spice/` | open | |
 | CELL-016 | Latch hold/load is shown in simulation (not only a static DC point) | open | |
 | CELL-017 | Adder checks include 0+0+cin0 and 1+1+cin1 | open | |
-| CELL-018 | Tests run from the repo (script or documented batch) without a GUI | claimed | m1 |
+| CELL-018 | ~~Tests run from the repo (script or documented batch) without a GUI~~ | implemented | m1 |
 
 ## Later generation (do not pull into m1)
 

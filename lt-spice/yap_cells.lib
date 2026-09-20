@@ -1,0 +1,20 @@
+* YAP MOSFET cell library (v1). ngspice. Parts: docs/cells/design.md
+
+.model IRLML6246 VDMOS(Rg=3 Vto=0.9 Rd=15m Rs=15m Rb=20m Kp=25
++ Lambda=0.05 Cgdmax=150p Cgdmin=15p Cgs=200p Cjo=50p Is=1e-12 N=1.2 BV=20)
+
+.model IRLML6401 VDMOS(pchan Rg=6 Vto=-1 Rd=15m Rs=27m Rb=36m Kp=20
++ Lambda=0.05 Cgdmax=400p Cgdmin=31p Cgs=629p Cjo=120p Is=1e-12 N=1.5 BV=12)
+
+* Discrete SOT-23: bulk tied to source.
+.subckt INVERTER in out vdd gnd
+M1 out in vdd vdd IRLML6401
+M2 out in gnd gnd IRLML6246
+.ends INVERTER
+
+.subckt NAND a b y vdd gnd
+M1 y a vdd vdd IRLML6401
+M2 y b vdd vdd IRLML6401
+M3 y a mid mid IRLML6246
+M4 mid b gnd gnd IRLML6246
+.ends NAND

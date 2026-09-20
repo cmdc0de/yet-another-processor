@@ -1,0 +1,15 @@
+Inverter test CELL-004 CELL-014
+.include yap_cells.lib
+VDD vdd 0 DC 3.3
+Vin in 0 DC 0
+X1 in out vdd 0 INVERTER
+CL out 0 5p
+.control
+set filetype=ascii
+op
+print v(out)
+alter Vin = 3.3
+op
+print v(out)
+.endc
+.end
