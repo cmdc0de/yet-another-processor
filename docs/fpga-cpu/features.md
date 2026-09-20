@@ -25,14 +25,14 @@ HDL language and simulator (Icarus, Verilator, …) are `design.md` after this c
 |----|---------|--------|-----------|
 | FPGA-CPU-005 | ~~One clock executes one 64-bit control word (`docs/cpu/design.md`)~~ | done | m1 |
 | FPGA-CPU-006 | ~~Microcode ROM: 256 × 64, same field layout as `compiler.yap_cpu`~~ | done | m1 |
-| FPGA-CPU-007 | ~~Split RF: wired `r0`–`r2`, MOSFET `r3`–`r15` (`LAT=1`), IC `r16`–`r31` (`LAT=2`)~~ | implemented | m2 |
-| FPGA-CPU-008 | ~~After halt (and after each retired insn in tests), architectural state matches `yap_cpu`~~ | implemented | m2 |
+| FPGA-CPU-007 | ~~Split RF: wired `r0`–`r2`, MOSFET `r3`–`r15` (`LAT=1`), IC `r16`–`r31` (`LAT=2`)~~ | done | m2 |
+| FPGA-CPU-008 | ~~After halt (and after each retired insn in tests), architectural state matches `yap_cpu`~~ | done | m2 |
 
 ## Execute
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| FPGA-CPU-009 | ~~Integer ALU, shifts, MUL/DIV, immediates, ADR~~ | implemented | m2 |
+| FPGA-CPU-009 | ~~Integer ALU, shifts, MUL/DIV, immediates, ADR~~ | done | m2 |
 | FPGA-CPU-010 | Load/store word/half/byte, LE; window and align traps | open | |
 | FPGA-CPU-011 | `j`/`jal`/`jr`/`jalr`/`bcc`; no delay slot | open | |
 | FPGA-CPU-012 | ~~`halt` stops the clocked machine~~ | done | m1 |
