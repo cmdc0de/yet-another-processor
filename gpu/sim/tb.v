@@ -12,7 +12,10 @@ module tb;
 
     yap_gpu dut (
         .clk(clk),
-        .rst(rst)
+        .rst(rst),
+        .we(1'b0),
+        .addr(8'h00),
+        .wdata(32'h0)
     );
 
     initial clk = 1'b0;
