@@ -1,0 +1,107 @@
+YAP wired constants PHYSICAL-CPU-010
+VDD VDD 0 DC 3.3
+VVSS VSS 0 DC 0
+Vr0_0 r0_0 VSS DC 0
+Vr0_1 r0_1 VSS DC 0
+Vr0_2 r0_2 VSS DC 0
+Vr0_3 r0_3 VSS DC 0
+Vr0_4 r0_4 VSS DC 0
+Vr0_5 r0_5 VSS DC 0
+Vr0_6 r0_6 VSS DC 0
+Vr0_7 r0_7 VSS DC 0
+Vr0_8 r0_8 VSS DC 0
+Vr0_9 r0_9 VSS DC 0
+Vr0_10 r0_10 VSS DC 0
+Vr0_11 r0_11 VSS DC 0
+Vr0_12 r0_12 VSS DC 0
+Vr0_13 r0_13 VSS DC 0
+Vr0_14 r0_14 VSS DC 0
+Vr0_15 r0_15 VSS DC 0
+Vr0_16 r0_16 VSS DC 0
+Vr0_17 r0_17 VSS DC 0
+Vr0_18 r0_18 VSS DC 0
+Vr0_19 r0_19 VSS DC 0
+Vr0_20 r0_20 VSS DC 0
+Vr0_21 r0_21 VSS DC 0
+Vr0_22 r0_22 VSS DC 0
+Vr0_23 r0_23 VSS DC 0
+Vr0_24 r0_24 VSS DC 0
+Vr0_25 r0_25 VSS DC 0
+Vr0_26 r0_26 VSS DC 0
+Vr0_27 r0_27 VSS DC 0
+Vr0_28 r0_28 VSS DC 0
+Vr0_29 r0_29 VSS DC 0
+Vr0_30 r0_30 VSS DC 0
+Vr0_31 r0_31 VSS DC 0
+Vr1_0 r1_0 VDD DC 0
+Vr1_1 r1_1 VSS DC 0
+Vr1_2 r1_2 VSS DC 0
+Vr1_3 r1_3 VSS DC 0
+Vr1_4 r1_4 VSS DC 0
+Vr1_5 r1_5 VSS DC 0
+Vr1_6 r1_6 VSS DC 0
+Vr1_7 r1_7 VSS DC 0
+Vr1_8 r1_8 VSS DC 0
+Vr1_9 r1_9 VSS DC 0
+Vr1_10 r1_10 VSS DC 0
+Vr1_11 r1_11 VSS DC 0
+Vr1_12 r1_12 VSS DC 0
+Vr1_13 r1_13 VSS DC 0
+Vr1_14 r1_14 VSS DC 0
+Vr1_15 r1_15 VSS DC 0
+Vr1_16 r1_16 VSS DC 0
+Vr1_17 r1_17 VSS DC 0
+Vr1_18 r1_18 VSS DC 0
+Vr1_19 r1_19 VSS DC 0
+Vr1_20 r1_20 VSS DC 0
+Vr1_21 r1_21 VSS DC 0
+Vr1_22 r1_22 VSS DC 0
+Vr1_23 r1_23 VSS DC 0
+Vr1_24 r1_24 VSS DC 0
+Vr1_25 r1_25 VSS DC 0
+Vr1_26 r1_26 VSS DC 0
+Vr1_27 r1_27 VSS DC 0
+Vr1_28 r1_28 VSS DC 0
+Vr1_29 r1_29 VSS DC 0
+Vr1_30 r1_30 VSS DC 0
+Vr1_31 r1_31 VSS DC 0
+Vr2_0 r2_0 VDD DC 0
+Vr2_1 r2_1 VDD DC 0
+Vr2_2 r2_2 VDD DC 0
+Vr2_3 r2_3 VDD DC 0
+Vr2_4 r2_4 VDD DC 0
+Vr2_5 r2_5 VDD DC 0
+Vr2_6 r2_6 VDD DC 0
+Vr2_7 r2_7 VDD DC 0
+Vr2_8 r2_8 VDD DC 0
+Vr2_9 r2_9 VDD DC 0
+Vr2_10 r2_10 VDD DC 0
+Vr2_11 r2_11 VDD DC 0
+Vr2_12 r2_12 VDD DC 0
+Vr2_13 r2_13 VDD DC 0
+Vr2_14 r2_14 VDD DC 0
+Vr2_15 r2_15 VDD DC 0
+Vr2_16 r2_16 VDD DC 0
+Vr2_17 r2_17 VDD DC 0
+Vr2_18 r2_18 VDD DC 0
+Vr2_19 r2_19 VDD DC 0
+Vr2_20 r2_20 VDD DC 0
+Vr2_21 r2_21 VDD DC 0
+Vr2_22 r2_22 VDD DC 0
+Vr2_23 r2_23 VDD DC 0
+Vr2_24 r2_24 VDD DC 0
+Vr2_25 r2_25 VDD DC 0
+Vr2_26 r2_26 VDD DC 0
+Vr2_27 r2_27 VDD DC 0
+Vr2_28 r2_28 VDD DC 0
+Vr2_29 r2_29 VDD DC 0
+Vr2_30 r2_30 VDD DC 0
+Vr2_31 r2_31 VDD DC 0
+.control
+set filetype=ascii
+op
+print v(r0_0) v(r0_1) v(r0_2) v(r0_3) v(r0_4) v(r0_5) v(r0_6) v(r0_7) v(r0_8) v(r0_9) v(r0_10) v(r0_11) v(r0_12) v(r0_13) v(r0_14) v(r0_15) v(r0_16) v(r0_17) v(r0_18) v(r0_19) v(r0_20) v(r0_21) v(r0_22) v(r0_23) v(r0_24) v(r0_25) v(r0_26) v(r0_27) v(r0_28) v(r0_29) v(r0_30) v(r0_31)
+print v(r1_0) v(r1_1) v(r1_2) v(r1_3) v(r1_4) v(r1_5) v(r1_6) v(r1_7) v(r1_8) v(r1_9) v(r1_10) v(r1_11) v(r1_12) v(r1_13) v(r1_14) v(r1_15) v(r1_16) v(r1_17) v(r1_18) v(r1_19) v(r1_20) v(r1_21) v(r1_22) v(r1_23) v(r1_24) v(r1_25) v(r1_26) v(r1_27) v(r1_28) v(r1_29) v(r1_30) v(r1_31)
+print v(r2_0) v(r2_1) v(r2_2) v(r2_3) v(r2_4) v(r2_5) v(r2_6) v(r2_7) v(r2_8) v(r2_9) v(r2_10) v(r2_11) v(r2_12) v(r2_13) v(r2_14) v(r2_15) v(r2_16) v(r2_17) v(r2_18) v(r2_19) v(r2_20) v(r2_21) v(r2_22) v(r2_23) v(r2_24) v(r2_25) v(r2_26) v(r2_27) v(r2_28) v(r2_29) v(r2_30) v(r2_31)
+.endc
+.end
