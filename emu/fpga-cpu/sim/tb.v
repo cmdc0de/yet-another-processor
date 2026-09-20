@@ -27,6 +27,7 @@ module tb;
     wire [31:0] epc;
     wire [31:0] ubase;
     wire [31:0] ulimit;
+    wire [1023:0] gprs;
 
     reg [31:0] sram [0:16383];
 
@@ -52,7 +53,8 @@ module tb;
         .cause_o(cause_o),
         .epc(epc),
         .ubase(ubase),
-        .ulimit(ulimit)
+        .ulimit(ulimit),
+        .gprs(gprs)
     );
 
     initial clk = 1'b0;
@@ -104,11 +106,8 @@ module tb;
         $display("epc %08x", epc);
         $display("ubase %08x", ubase);
         $display("ulimit %08x", ulimit);
-        $display("r0 00000000");
-        $display("r1 00000001");
-        $display("r2 ffffffff");
-        for (i = 3; i < 32; i = i + 1)
-            $display("r%0d 00000000", i);
+        for (i = 0; i < 32; i = i + 1)
+            $display("r%0d %08x", i, gprs[32*i +: 32]);
         $finish;
     end
 endmodule
