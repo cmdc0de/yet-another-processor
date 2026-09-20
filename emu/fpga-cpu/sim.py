@@ -38,7 +38,18 @@ def write_sram_hex(path: Path, payload: bytes, load: int) -> None:
     path.write_text("".join(f"{w:08x}\n" for w in words), encoding="utf-8")
 
 
-def run_sim(image_path: Path, max_cycles: int = DEFAULT_MAX, work: Path | None = None) -> subprocess.CompletedProcess:
+def run_sim(
+    image_path: Path,
+    max_cycles: int = DEFAULT_MAX,
+    work: Path | None = None,
+    *,
+    entry: int | None = None,
+    p: int = 1,
+    ie: int = 0,
+    ubase: int = 0,
+    ulimit: int = 0x10000,
+    irq: int = 0,
+) -> subprocess.CompletedProcess:
     data = Path(image_path).read_bytes()
     image = unpack(data)
     tmp_ctx = tempfile.TemporaryDirectory(dir=str(work) if work else None)
@@ -53,13 +64,19 @@ def run_sim(image_path: Path, max_cycles: int = DEFAULT_MAX, work: Path | None =
         c = subprocess.run(compile_cmd, cwd=ROOT, capture_output=True, text=True)
         if c.returncode != 0:
             raise RuntimeError(c.stderr or c.stdout or "iverilog failed")
+        pc = image.entry if entry is None else entry
         run_cmd = [
             "vvp",
             str(simv),
             f"+UCODE={ucode}",
             f"+SRAM={sram}",
             f"+MAXCYCLES={max_cycles}",
-            f"+ENTRY={image.entry:x}",
+            f"+ENTRY={pc:x}",
+            f"+P={int(p)}",
+            f"+IE={int(ie)}",
+            f"+UBASE={ubase:x}",
+            f"+ULIMIT={ulimit:x}",
+            f"+IRQ={int(irq)}",
         ]
         return subprocess.run(run_cmd, cwd=ROOT, capture_output=True, text=True)
     finally:

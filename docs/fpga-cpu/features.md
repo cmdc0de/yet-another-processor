@@ -33,10 +33,10 @@ HDL language and simulator (Icarus, Verilator, …) are `design.md` after this c
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
 | FPGA-CPU-009 | ~~Integer ALU, shifts, MUL/DIV, immediates, ADR~~ | done | m2 |
-| FPGA-CPU-010 | Load/store word/half/byte, LE; window and align traps | claimed | m3 |
-| FPGA-CPU-011 | `j`/`jal`/`jr`/`jalr`/`bcc`; no delay slot | claimed | m3 |
+| FPGA-CPU-010 | ~~Load/store word/half/byte, LE; window and align traps~~ | implemented | m3 |
+| FPGA-CPU-011 | ~~`j`/`jal`/`jr`/`jalr`/`bcc`; no delay slot~~ | implemented | m3 |
 | FPGA-CPU-012 | ~~`halt` stops the clocked machine~~ | done | m1 |
-| FPGA-CPU-013 | CSRs, `sys`/`eret`, privilege, TE, IRQ | claimed | m3 |
+| FPGA-CPU-013 | ~~CSRs, `sys`/`eret`, privilege, TE, IRQ~~ | implemented | m3 |
 | FPGA-CPU-014 | COP1 `mfc1`/`mtc1`; other COP1 → CAUSE=6 | open | |
 
 ## Parity
