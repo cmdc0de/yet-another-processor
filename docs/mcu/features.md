@@ -12,17 +12,17 @@ v1 is **poll** status/data. ISA-040 already exists; the bridge sourcing `irq` is
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MCU-001 | Sources under `hw/mcu/` | open | |
-| MCU-002 | Simulation builds and runs on Linux (dev host) | open | |
-| MCU-003 | Tests fail if the chosen simulator is missing | open | |
+| MCU-001 | Sources under `hw/mcu/` | claimed | m1 |
+| MCU-002 | Simulation builds and runs on Linux (dev host) | claimed | m1 |
+| MCU-003 | Tests fail if the chosen simulator is missing | claimed | m1 |
 
 ## CPU port
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MCU-004 | CPU-visible port so software can talk to the bridge | open | |
-| MCU-005 | Documented command/status map (`design.md`) | open | |
-| MCU-006 | After reset, the port shows idle: no pending input, not busy | open | |
+| MCU-004 | CPU-visible port so software can talk to the bridge | claimed | m1 |
+| MCU-005 | Documented command/status map (`design.md`) | claimed | m1 |
+| MCU-006 | After reset, the port shows idle: no pending input, not busy | claimed | m1 |
 
 ## Keyboard
 
@@ -47,7 +47,7 @@ v1 is **poll** status/data. ISA-040 already exists; the bridge sourcing `irq` is
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MCU-011 | MCU I/O VDD is 3.3 V (same as the bus) | open | |
+| MCU-011 | MCU I/O VDD is 3.3 V (same as the bus) | claimed | m1 |
 
 ## Later generation (do not pull into m1)
 
