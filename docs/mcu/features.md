@@ -28,20 +28,20 @@ v1 is **poll** status/data. ISA-040 already exists; the bridge sourcing `irq` is
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MCU-007 | Software can read a host-injected key event | open | |
+| MCU-007 | Software can read a host-injected key event | claimed | m2 |
 
 ## Serial
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MCU-008 | Software write of one serial byte appears on the sim host | open | |
-| MCU-009 | Software can read a host-injected serial byte | open | |
+| MCU-008 | Software write of one serial byte appears on the sim host | claimed | m2 |
+| MCU-009 | Software can read a host-injected serial byte | claimed | m2 |
 
 ## Storage
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| MCU-010 | Write then read of one storage block returns the stored bytes | open | |
+| MCU-010 | Write then read of one storage block returns the stored bytes | claimed | m2 |
 
 ## Rails
 
