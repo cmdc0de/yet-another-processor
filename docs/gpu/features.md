@@ -26,8 +26,8 @@ Implementation: `gpu/`. Tests under `compiler/tests/`. v1 is **simulation** on L
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| GPU-007 | ~~CPU-visible port so software can write the backbuffer~~ | implemented | m2 |
-| GPU-008 | ~~Fill or blit a rectangle of pixels into the backbuffer~~ | implemented | m2 |
+| GPU-007 | ~~CPU-visible port so software can write the backbuffer~~ | done | m2 |
+| GPU-008 | ~~Fill or blit a rectangle of pixels into the backbuffer~~ | done | m2 |
 
 ## Later generation (do not pull into m1)
 
