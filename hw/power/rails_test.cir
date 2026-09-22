@@ -1,0 +1,14 @@
+Power rails VIN 5.0 V, REG33 to VDD, VSS 0
+* CPU core, SRAM/bus, and MCU I/O use VDD (not VIN)
+.include reg33.subckt
+* VIN is 5.0 V system input; VSS is 0 (SPICE node 0)
+VIN vin 0 DC 5.0
+Xreg vin vdd 0 REG33
+Rload vdd 0 1k
+.control
+set filetype=ascii
+op
+print v(vdd)
+print v(vin)
+.endc
+.end

@@ -10,23 +10,23 @@ Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation**
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-001 | Sources under `hw/power/` | claimed | m1 |
-| POWER-002 | Simulation builds and runs on Linux (dev host) | claimed | m1 |
-| POWER-003 | Tests fail if the chosen simulator is missing | claimed | m1 |
+| POWER-001 | ~~Sources under `hw/power/`~~ | implemented | m1 |
+| POWER-002 | ~~Simulation builds and runs on Linux (dev host)~~ | implemented | m1 |
+| POWER-003 | ~~Tests fail if the chosen simulator is missing~~ | implemented | m1 |
 
 ## Rails
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-004 | Named 5 V system input and 0 V VSS | claimed | m1 |
-| POWER-005 | Regulator from that 5 V input to a named 3.3 V VDD | claimed | m1 |
-| POWER-006 | With 5 V in, simulated VDD is 3.3 V within the named tolerance (`design.md`) | claimed | m1 |
+| POWER-004 | ~~Named 5 V system input and 0 V VSS~~ | implemented | m1 |
+| POWER-005 | ~~Regulator from that 5 V input to a named 3.3 V VDD~~ | implemented | m1 |
+| POWER-006 | ~~With 5 V in, simulated VDD is 3.3 V within the named tolerance (`design.md`)~~ | implemented | m1 |
 
 ## Domain
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-007 | CPU core, SRAM/bus, and MCU I/O use the 3.3 V rail (not the 5 V input) | claimed | m1 |
+| POWER-007 | ~~CPU core, SRAM/bus, and MCU I/O use the 3.3 V rail (not the 5 V input)~~ | implemented | m1 |
 
 ## Later generation (do not pull into m1)
 

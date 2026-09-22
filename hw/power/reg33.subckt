@@ -1,0 +1,5 @@
+* REG33: behavioral 5 V VIN to 3.3 V VDD. Not a vendor part.
+* Pins: VIN, VDD, VSS
+.subckt REG33 VIN VDD VSS
+B1 VDD VSS V = min(3.3, V(VIN,VSS))
+.ends REG33
