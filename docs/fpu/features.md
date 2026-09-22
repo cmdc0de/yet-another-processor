@@ -10,16 +10,16 @@ Implementation: `fpu/`. Tests under `compiler/tests/`. v1 is **simulation** on L
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| FPU-001 | Sources under `fpu/` | open | |
-| FPU-002 | Simulation builds and runs on Linux (dev host) | open | |
-| FPU-003 | Tests fail if the chosen simulator is missing | open | |
+| FPU-001 | Sources under `fpu/` | claimed | m1 |
+| FPU-002 | Simulation builds and runs on Linux (dev host) | claimed | m1 |
+| FPU-003 | Tests fail if the chosen simulator is missing | claimed | m1 |
 
 ## Format and file
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| FPU-004 | Documented float format (`design.md`) | open | |
-| FPU-005 | Arithmetic uses the existing 32 COP1 registers `f0`–`f31` | open | |
+| FPU-004 | Documented float format (`design.md`) | claimed | m1 |
+| FPU-005 | Arithmetic uses the existing 32 COP1 registers `f0`–`f31` | claimed | m1 |
 
 ## Arithmetic
 
