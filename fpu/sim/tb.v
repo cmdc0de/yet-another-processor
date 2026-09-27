@@ -6,7 +6,12 @@ module tb;
 
     yap_fpu dut (
         .clk(clk),
-        .rst(rst)
+        .rst(rst),
+        .we(1'b0),
+        .fd(5'd0),
+        .fs(5'd0),
+        .ft(5'd0),
+        .funct(6'd0)
     );
 
     initial clk = 1'b0;

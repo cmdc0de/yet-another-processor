@@ -25,10 +25,10 @@ Implementation: `fpu/`. Tests under `compiler/tests/`. v1 is **simulation** on L
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| FPU-006 | Add two floats, write `fd` | claimed | m2 |
-| FPU-007 | Subtract two floats, write `fd` | claimed | m2 |
-| FPU-008 | Multiply two floats, write `fd` | claimed | m2 |
-| FPU-009 | Divide two floats, write `fd` (div-by-zero defined in `design.md`) | claimed | m2 |
+| FPU-006 | ~~Add two floats, write `fd`~~ | implemented | m2 |
+| FPU-007 | ~~Subtract two floats, write `fd`~~ | implemented | m2 |
+| FPU-008 | ~~Multiply two floats, write `fd`~~ | implemented | m2 |
+| FPU-009 | ~~Divide two floats, write `fd` (div-by-zero defined in `design.md`)~~ | implemented | m2 |
 
 ## Software
 
