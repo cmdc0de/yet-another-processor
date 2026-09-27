@@ -50,9 +50,20 @@ Named LDO. `REG33` remains the sim pin names (VIN, VDD, VSS).
 |-----|------|-----|
 | 1 | VOUT | VDD |
 | 2, 3, 4 | NC | no connect |
-| 5 | EN | VIN (always on) |
+| 5 | EN | VIN (always on in m2); driven in m3 |
 | 6, 7 | GND | VSS |
 | 8 | VIN | VIN |
+
+## Enable (m3)
+
+AP2112M-3.3TRG1 **EN** is active-high. No PGOOD pin. CPU / bus / MCU 3.3 V is this **VDD**.
+
+| EN vs VSS | VDD |
+|-----------|-----|
+| **≥ 1.5 V** (e.g. tied to VIN=5.0 V as in m2) | 3.20–3.40 V |
+| **0 V** (off) | **≤ 0.3 V** after settling |
+
+m2 rail test stays EN=VIN. m3 adds a netlist that drives EN.
 
 ## CAD
 
@@ -77,4 +88,4 @@ Python unittest under `compiler/tests/` runs `ngspice -b` and reads printed `v(v
 
 ## Out of this document
 
-Fab vendor / gerber order, USB 5 V, PGOOD sequencing (this IC has no PGOOD), current budget, thermal, bench measurement, CELL-019 5 V I/O cells.
+Fab vendor / gerber order, USB 5 V, FPGA/MCU board PGOOD handshake (this IC has no PGOOD), current budget, thermal, bench measurement, CELL-019 5 V I/O cells.

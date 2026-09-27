@@ -34,10 +34,15 @@ Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation**
 |----|---------|--------|-----------|
 | POWER-008 | ~~Named regulator IC on a fabricated PCB~~ | done | m2 |
 
+## Enable
+
+| ID | Feature | Status | Milestone |
+|----|---------|--------|-----------|
+| POWER-010 | Enable / PGOOD sequence to FPGA and MCU | claimed | m3 |
+
 ## Later generation (do not pull into m1)
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
 | POWER-009 | 5 V I/O or USB with level shifters | open | later-generation |
-| POWER-010 | Enable / PGOOD sequence to FPGA and MCU | open | later-generation |
 | POWER-011 | Measured (bench) rails vs simulation | open | later-generation |
