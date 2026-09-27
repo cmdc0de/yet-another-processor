@@ -34,8 +34,8 @@ Implementation: `fpu/`. Tests under `compiler/tests/`. v1 is **simulation** on L
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| FPU-010 | Assembler encodes the documented COP1 arithmetic ops | open | |
-| FPU-011 | Kernel trap path saves and restores `f0`–`f31` | open | |
+| FPU-010 | Assembler encodes the documented COP1 arithmetic ops | claimed | m3 |
+| FPU-011 | Kernel trap path saves and restores `f0`–`f31` | claimed | m3 |
 
 ## Later generation (do not pull into m1)
 
