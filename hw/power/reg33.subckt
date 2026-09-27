@@ -1,5 +1,10 @@
-* REG33: behavioral 5 V VIN to 3.3 V VDD. Not a vendor part.
-* Pins: VIN, VDD, VSS
+* REG33 wraps AP2112M-3.3TRG1 (SOIC-8). Pins VIN, VDD, VSS; EN tied to VIN.
+* AP2112M-3.3TRG1: VOUT=3.3 V, EN active-high, no PGOOD.
+.subckt AP2112M_3V3 VIN VOUT EN GND
+* Behavioral LDO: 3.3 V when EN high; else 0. Window 3.20–3.40 V.
+B1 VOUT GND V = min(3.3, V(VIN,GND)) * (V(EN,GND) > 1.5)
+.ends AP2112M_3V3
+
 .subckt REG33 VIN VDD VSS
-B1 VDD VSS V = min(3.3, V(VIN,VSS))
+Xap VIN VDD VIN VSS AP2112M_3V3
 .ends REG33
