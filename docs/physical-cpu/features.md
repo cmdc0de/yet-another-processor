@@ -47,7 +47,7 @@ v1 is schematic + ngspice of each slice so features are testable before fab. Con
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| PHYSICAL-CPU-016 | ~~Fabricate/order a named latch or adder PCB~~ | implemented | m11 |
+| PHYSICAL-CPU-016 | ~~Fabricate/order a named latch or adder PCB~~ | done | m11 |
 | PHYSICAL-CPU-017 | Assemble SOT-23 and bring up on the bench | open | later-generation |
 | PHYSICAL-CPU-018 | Same YAP1 as FPGA-CPU reaches halt on the physical machine | open | later-generation |
 | PHYSICAL-CPU-019 | Caches | open | later-generation |
