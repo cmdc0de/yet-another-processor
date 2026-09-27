@@ -1,0 +1,9 @@
+* LVLSH: behavioral 5 V (HV / IO5) ↔ 3.3 V (LV / IO33) shifter.
+* Pins HV, LV, VSS. Not a vendor IC. Not USB PHY. Not CELL-019.
+* Series R lets an ideal source on one pin override; the other pin follows.
+.subckt LVLSH HV LV VSS
+Bhv hvi VSS V = V(LV, VSS) * 5.0 / 3.3
+Blv lvi VSS V = V(HV, VSS) * 3.3 / 5.0
+Rhv HV hvi 10
+Rlv LV lvi 10
+.ends LVLSH

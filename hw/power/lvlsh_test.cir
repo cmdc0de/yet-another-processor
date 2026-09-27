@@ -1,0 +1,21 @@
+5 V I/O level shifter. Nets IO5 (HV) and IO33 (LV).
+* CPU core, SRAM/bus, and MCU I/O stay on VDD; IO5 is 5 V I/O beside VIN.
+.include lvlsh.subckt
+
+* HV=5.0 → LV ~3.3
+Vhv IO5 0 DC 5.0
+Xdn IO5 IO33 0 LVLSH
+Rdn IO33 0 1k
+
+* LV=3.3 → HV ~5.0
+Vlv IO33_UP 0 DC 3.3
+Xup IO5_UP IO33_UP 0 LVLSH
+Rup IO5_UP 0 1k
+
+.control
+set filetype=ascii
+op
+print v(io33)
+print v(io5_up)
+.endc
+.end

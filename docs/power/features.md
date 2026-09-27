@@ -44,7 +44,7 @@ Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation**
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-009 | 5 V I/O or USB with level shifters | claimed | m4 |
+| POWER-009 | ~~5 V I/O or USB with level shifters~~ | implemented | m4 |
 
 ## Later generation (do not pull into m1)
 
