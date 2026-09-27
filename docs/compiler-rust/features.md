@@ -10,31 +10,31 @@ Implementation: `compiler/rust/`. Tests under `compiler/tests/` and/or that crat
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-001 | Sources under `compiler/rust/` | open | |
-| COMPILER-RUST-002 | Build and tests run on Linux (dev host) | open | |
-| COMPILER-RUST-003 | Tests fail if `cargo` / `rustc` is missing | open | |
+| COMPILER-RUST-001 | Sources under `compiler/rust/` | claimed | m1 |
+| COMPILER-RUST-002 | Build and tests run on Linux (dev host) | claimed | m1 |
+| COMPILER-RUST-003 | Tests fail if `cargo` / `rustc` is missing | claimed | m1 |
 
 ## Image and CLI
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-004 | CLI: input path and `-o` YAP1 output | open | |
-| COMPILER-RUST-005 | Emits a valid YAP1 (same 16-byte header as the Python assembler) | open | |
+| COMPILER-RUST-004 | CLI: input path and `-o` YAP1 output | claimed | m1 |
+| COMPILER-RUST-005 | Emits a valid YAP1 (same 16-byte header as the Python assembler) | claimed | m1 |
 
 ## Language
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-006 | Documented source language (`design.md`) | open | |
+| COMPILER-RUST-006 | Documented source language (`design.md`) | claimed | m1 |
 | COMPILER-RUST-007 | Integer literals and add/sub in that language | open | |
-| COMPILER-RUST-008 | One entry function compiled to reset `PC=0` (or documented entry) | open | |
+| COMPILER-RUST-008 | One entry function compiled to reset `PC=0` (or documented entry) | claimed | m1 |
 | COMPILER-RUST-009 | Call/return using the ISA ABI (`sp`, `ra`, args) | open | |
 
 ## Run
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-010 | A compiled program reaches `halt` on `yap-emu` (exit 0) | open | |
+| COMPILER-RUST-010 | A compiled program reaches `halt` on `yap-emu` (exit 0) | claimed | m1 |
 
 ## Later generation (do not pull into m1)
 
