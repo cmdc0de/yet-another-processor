@@ -37,6 +37,11 @@ COP0_MFC0 = 0
 COP0_MTC0 = 4
 COP1_MFC1 = 0
 COP1_MTC1 = 4
+COP1_FMT_S = 16
+COP1_ADD_S = 0
+COP1_SUB_S = 1
+COP1_MUL_S = 2
+COP1_DIV_S = 3
 
 
 def parse_csr(name: str) -> int:

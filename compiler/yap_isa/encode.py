@@ -2,7 +2,18 @@
 
 import re
 
-from compiler.yap_isa.csrs import COP0_MFC0, COP0_MTC0, COP1_MFC1, COP1_MTC1, parse_csr
+from compiler.yap_isa.csrs import (
+    COP0_MFC0,
+    COP0_MTC0,
+    COP1_ADD_S,
+    COP1_DIV_S,
+    COP1_FMT_S,
+    COP1_MFC1,
+    COP1_MTC1,
+    COP1_MUL_S,
+    COP1_SUB_S,
+    parse_csr,
+)
 from compiler.yap_isa.regs import parse_freg, parse_reg
 
 MASK_ADDR = 0xFFFFFFFF
@@ -183,6 +194,17 @@ def assemble(text: str, pc: int = 0) -> int:
         if len(parts) != 1:
             raise ValueError("eret takes no operands")
         return pack_r(0, 0, 0, 0, FUNCT["eret"])
+    cop1_arith = {
+        "add.s": COP1_ADD_S,
+        "sub.s": COP1_SUB_S,
+        "mul.s": COP1_MUL_S,
+        "div.s": COP1_DIV_S,
+    }
+    if op in cop1_arith:
+        if len(parts) != 4:
+            raise ValueError(f"{op} fd, fs, ft")
+        fd, fs, ft = parse_freg(parts[1]), parse_freg(parts[2]), parse_freg(parts[3])
+        return pack_r(fd, COP1_FMT_S, fs, ft, cop1_arith[op], opcode=OPCODE["cop1"])
     if op == "mfc1":
         if len(parts) != 3:
             raise ValueError("mfc1 rd, fs")
