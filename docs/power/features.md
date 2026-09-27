@@ -32,7 +32,7 @@ Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation**
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-008 | ~~Named regulator IC on a fabricated PCB~~ | implemented | m2 |
+| POWER-008 | ~~Named regulator IC on a fabricated PCB~~ | done | m2 |
 
 ## Later generation (do not pull into m1)
 
