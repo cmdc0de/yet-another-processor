@@ -4,7 +4,7 @@ Prefix: `POWER`
 
 Board input is 5 V. A regulator drops the CPU core to 3.3 V. Bus and MCU I/O already froze 3.3 V; this sequence is the rails that feed them. Not MOSFET cells. Not Memory + bus protocol. Not MCU. Not 5 V I/O cells (`CELL-019`).
 
-Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation** on Linux. Named regulator on a PCB is later-generation. VIN/VDD numbers, tolerance, CAD, and regulator model are `design.md` after this catalog.
+Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation** on Linux. Named LDO is m2 (`AP2112M-3.3TRG1`). VIN/VDD numbers, tolerance, CAD, and regulator model are `design.md`.
 
 ## Tree and sim
 
@@ -28,11 +28,16 @@ Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation**
 |----|---------|--------|-----------|
 | POWER-007 | ~~CPU core, SRAM/bus, and MCU I/O use the 3.3 V rail (not the 5 V input)~~ | done | m1 |
 
+## Named regulator
+
+| ID | Feature | Status | Milestone |
+|----|---------|--------|-----------|
+| POWER-008 | Named regulator IC on a fabricated PCB | claimed | m2 |
+
 ## Later generation (do not pull into m1)
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-008 | Named regulator IC on a fabricated PCB | open | later-generation |
 | POWER-009 | 5 V I/O or USB with level shifters | open | later-generation |
 | POWER-010 | Enable / PGOOD sequence to FPGA and MCU | open | later-generation |
 | POWER-011 | Measured (bench) rails vs simulation | open | later-generation |

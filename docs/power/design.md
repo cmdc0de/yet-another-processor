@@ -1,10 +1,10 @@
-# Power design (v1)
+# Power design (v1 + m2)
 
-5 V in, 3.3 V CPU core through a regulator. Same **VDD** / **VSS** names as cells, bus, and MCU. Not MOSFET cells. Not a named regulator IC. Not 5 V I/O.
+5 V in, 3.3 V CPU core through a regulator. Same **VDD** / **VSS** names as cells, bus, and MCU. Not MOSFET cells. Not 5 V I/O.
 
 ## Rails
 
-| Knob | v1 |
+| Knob | v1 / m2 |
 |------|----|
 | VIN | **5.0 V** system input (net **VIN**) |
 | VDD | **3.3 V** CPU core (net **VDD**) |
@@ -25,26 +25,43 @@ These sit on **VDD**, not VIN:
 
 v1 has no 5 V I/O net. Level shifters are POWER-009 (later).
 
-## Regulator
+## Regulator (v1)
 
-Behavioral subckt **`REG33`**. Not a vendor part (POWER-008 later).
+Behavioral subckt **`REG33`**. Pins VIN, VDD, VSS. Always on. m2 keeps these pin names; the implementation is the named IC below.
 
-| Pin | Net |
-|-----|-----|
-| VIN | 5 V input |
-| VDD | 3.3 V output |
-| VSS | return |
+## Regulator (m2)
 
-Always on. No enable, no PGOOD (POWER-010 later). When the test source puts 5.0 V on VIN, VDD is inside the window above.
+Named LDO. `REG33` remains the sim pin names (VIN, VDD, VSS).
+
+| Knob | m2 |
+|------|----|
+| Part | **AP2112M-3.3TRG1** (Diodes / BCD AP2112-3.3) |
+| Package | **SOIC-8** (3.90 mm) |
+| VOUT | fixed **3.3 V**, ±1.5% (still inside 3.20–3.40 V) |
+| IOUT | 600 mA min |
+| VIN max | 6 V (test still **5.0 V**) |
+| Enable | **EN active-high**; tied to VIN (always on, same as v1) |
+| PGOOD | **none** on this part |
+| CIN / COUT | **1.0 µF** ceramic each (X5R/X7R), VIN–VSS and VDD–VSS |
+
+### SOIC-8 pins (top view)
+
+| Pin | Name | Net |
+|-----|------|-----|
+| 1 | VOUT | VDD |
+| 2, 3, 4 | NC | no connect |
+| 5 | EN | VIN (always on) |
+| 6, 7 | GND | VSS |
+| 8 | VIN | VIN |
 
 ## CAD
 
-| Knob | v1 |
-|------|----|
-| Simulator | **ngspice** batch (`ngspice -b`) |
-| Host | Linux, no GUI |
-| Netlist | SPICE `.cir` / `.subckt` |
-| KiCad / LTspice GUI | not required for tests |
+| Knob | v1 | m2 |
+|------|----|----|
+| Simulator | **ngspice** batch (`ngspice -b`) | same |
+| Host | Linux, no GUI | same |
+| Netlist | SPICE `.cir` / `.subckt` | same; sources name AP2112M-3.3TRG1 |
+| Schematic | not required | KiCad **6** `.kicad_sch` (text parse, no `kicad-cli`) |
 
 Missing `ngspice` fails tests (not skip).
 
@@ -53,10 +70,11 @@ Missing `ngspice` fails tests (not skip).
 ```
 hw/power/
   *.subckt / .cir     REG33 + rail test
+  *.kicad_sch         LDO schematic (m2)
 ```
 
 Python unittest under `compiler/tests/` runs `ngspice -b` and reads printed `v(vdd)`.
 
 ## Out of this document
 
-Regulator vendor/part, PCB, USB 5 V, enable/PGOOD, current budget, thermal, bench measurement, CELL-019 5 V I/O cells.
+Fab vendor / gerber order, USB 5 V, PGOOD sequencing (this IC has no PGOOD), current budget, thermal, bench measurement, CELL-019 5 V I/O cells.
