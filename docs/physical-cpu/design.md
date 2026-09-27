@@ -1,6 +1,6 @@
-# Physical CPU design (v1 + m11)
+# Physical CPU design (v1 + m11 + m12)
 
-Schematic + ngspice of each slice. Implements `docs/cpu/design.md` using `docs/cells/design.md`. m11 is a KiCad PCB of the 1-bit latch (CAD, not a fab order).
+Schematic + ngspice of each slice. Implements `docs/cpu/design.md` using `docs/cells/design.md`. m11 is a KiCad PCB of the 1-bit latch (CAD, not a fab order). m12 is assemble + bench of that latch; evidence is an in-tree results file.
 
 Not FPGA-CPU. Not Memory + bus protocol. Not 5 V I/O.
 
@@ -33,12 +33,12 @@ The `.cir` is the sim view of that slice (connectors + cell). It must use the sa
 
 ```
 hw/
-  latch/     1-bit latch slice (m1 schematic + spice; m11 `.kicad_pcb`)
+  latch/     1-bit latch slice (m1 schematic + spice; m11 `.kicad_pcb`; m12 BOM + bench.txt)
   adder/     1-bit adder
   ...
 ```
 
-Each slice: `*.kicad_sch` plus `*_test.cir` (or equivalent) for ngspice. m11 adds `hw/latch/*.kicad_pcb`.
+Each slice: `*.kicad_sch` plus `*_test.cir` (or equivalent) for ngspice. m11 adds `hw/latch/*.kicad_pcb`. m12 adds BOM text and `hw/latch/bench.txt`.
 
 ## Latch slice ports (PHYSICAL-CPU-003)
 
@@ -68,10 +68,24 @@ Named board is the **1-bit latch**. v1 schematic stays the CELL `LATCH` block. T
 
 No black-box LATCH package on the PCB. No gerber plot. No fab vendor.
 
+## Bench (m12)
+
+Assemble the m11 latch. Unittest reads a file, not a live DMM.
+
+| Knob | m12 |
+|------|-----|
+| Board | m11 **1-bit latch** (`hw/latch/latch.kicad_pcb`) |
+| Assemble | IRLML6246 / IRLML6401 SOT-23 (`MICRO3_SOT23_INF`), 5-pin 2.54 mm header **VDD, VSS, D, EN, Q** |
+| Rails | VDD **3.3 V**, VSS **0** |
+| Check | same as PHYSICAL-CPU-004: EN=1 Q follows D; EN=0 Q holds |
+| VOL / VOH | **≤ 0.3 V / ≥ 3.0 V** |
+| Evidence | `hw/latch/bench.txt` (ascii `name = value`, same names as m1 meas: `qfollow0`, `qfollow1`, `qhold1`, `qhold0`) |
+| BOM | text under `hw/latch/` naming IRLML6246, IRLML6401, and the 2.54 mm header |
+
 ## Adder slice ports (PHYSICAL-CPU-006)
 
 `a`, `b`, `cin`, `sum`, `cout`, VDD, VSS. Spice truth table = CELL-012.
 
 ## Out of this document
 
-Gerbers, fab vendor, assemble/bench (PHYSICAL-CPU-017), adder PCB, MCU/FPGA host adapter, SRAM tristate timing, 32-bit connector, IC GPR part number.
+Gerbers, fab vendor, adder PCB, full-machine YAP1 (PHYSICAL-CPU-018), caches, pipelined control, MCU/FPGA host adapter, SRAM tristate timing, 32-bit connector, IC GPR part number.
