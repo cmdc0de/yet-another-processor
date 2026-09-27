@@ -26,9 +26,9 @@ Implementation: `compiler/rust/`. Tests under `compiler/tests/` and/or that crat
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
 | COMPILER-RUST-006 | ~~Documented source language (`design.md`)~~ | done | m1 |
-| COMPILER-RUST-007 | Integer literals and add/sub in that language | open | |
+| COMPILER-RUST-007 | Integer literals and add/sub in that language | claimed | m2 |
 | COMPILER-RUST-008 | ~~One entry function compiled to reset `PC=0` (or documented entry)~~ | done | m1 |
-| COMPILER-RUST-009 | Call/return using the ISA ABI (`sp`, `ra`, args) | open | |
+| COMPILER-RUST-009 | Call/return using the ISA ABI (`sp`, `ra`, args) | claimed | m2 |
 
 ## Run
 
