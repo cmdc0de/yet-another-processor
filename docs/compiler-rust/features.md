@@ -10,31 +10,31 @@ Implementation: `compiler/rust/`. Tests under `compiler/tests/` and/or that crat
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-001 | ~~Sources under `compiler/rust/`~~ | implemented | m1 |
-| COMPILER-RUST-002 | ~~Build and tests run on Linux (dev host)~~ | implemented | m1 |
-| COMPILER-RUST-003 | ~~Tests fail if `cargo` / `rustc` is missing~~ | implemented | m1 |
+| COMPILER-RUST-001 | ~~Sources under `compiler/rust/`~~ | done | m1 |
+| COMPILER-RUST-002 | ~~Build and tests run on Linux (dev host)~~ | done | m1 |
+| COMPILER-RUST-003 | ~~Tests fail if `cargo` / `rustc` is missing~~ | done | m1 |
 
 ## Image and CLI
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-004 | ~~CLI: input path and `-o` YAP1 output~~ | implemented | m1 |
-| COMPILER-RUST-005 | ~~Emits a valid YAP1 (same 16-byte header as the Python assembler)~~ | implemented | m1 |
+| COMPILER-RUST-004 | ~~CLI: input path and `-o` YAP1 output~~ | done | m1 |
+| COMPILER-RUST-005 | ~~Emits a valid YAP1 (same 16-byte header as the Python assembler)~~ | done | m1 |
 
 ## Language
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-006 | ~~Documented source language (`design.md`)~~ | implemented | m1 |
+| COMPILER-RUST-006 | ~~Documented source language (`design.md`)~~ | done | m1 |
 | COMPILER-RUST-007 | Integer literals and add/sub in that language | open | |
-| COMPILER-RUST-008 | ~~One entry function compiled to reset `PC=0` (or documented entry)~~ | implemented | m1 |
+| COMPILER-RUST-008 | ~~One entry function compiled to reset `PC=0` (or documented entry)~~ | done | m1 |
 | COMPILER-RUST-009 | Call/return using the ISA ABI (`sp`, `ra`, args) | open | |
 
 ## Run
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| COMPILER-RUST-010 | ~~A compiled program reaches `halt` on `yap-emu` (exit 0)~~ | implemented | m1 |
+| COMPILER-RUST-010 | ~~A compiled program reaches `halt` on `yap-emu` (exit 0)~~ | done | m1 |
 
 ## Later generation (do not pull into m1)
 
