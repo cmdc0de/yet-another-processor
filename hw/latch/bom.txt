@@ -1,0 +1,7 @@
+YAP 1-bit latch BOM (PHYSICAL-CPU-017)
+Board: hw/latch/latch.kicad_pcb
+
+Qty  Part         Package                         Ref / notes
+9    IRLML6246    SOT-23 MICRO3_SOT23_INF         N-FET
+9    IRLML6401    SOT-23 MICRO3_SOT23_INF         P-FET
+1    PinHeader    2.54 mm 1x05                    J1 pins VDD, VSS, D, EN, Q
