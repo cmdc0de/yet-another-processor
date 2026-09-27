@@ -40,9 +40,14 @@ Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation**
 |----|---------|--------|-----------|
 | POWER-010 | ~~Enable / PGOOD sequence to FPGA and MCU~~ | done | m3 |
 
+## 5 V I/O
+
+| ID | Feature | Status | Milestone |
+|----|---------|--------|-----------|
+| POWER-009 | 5 V I/O or USB with level shifters | claimed | m4 |
+
 ## Later generation (do not pull into m1)
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-009 | 5 V I/O or USB with level shifters | open | later-generation |
 | POWER-011 | Measured (bench) rails vs simulation | open | later-generation |

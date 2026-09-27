@@ -65,6 +65,21 @@ AP2112M-3.3TRG1 **EN** is active-high. No PGOOD pin. CPU / bus / MCU 3.3 V is th
 
 m2 rail test stays EN=VIN. m3 adds a netlist that drives EN.
 
+## 5 V I/O (m4)
+
+CPU/bus/MCU stay on **VDD**. A 5 V I/O net sits beside VIN; a behavioral shifter sits at the boundary. Not a vendor shifter (name one later if needed). Not MOSFET 5 V cells (`CELL-019`). Not a USB PHY.
+
+| Knob | m4 |
+|------|----|
+| 5 V I/O net | **IO5** (may be tied to VIN) |
+| 3.3 V I/O net | **IO33** (on VDD) |
+| Shifter | subckt **`LVLSH`** |
+| Pins | `HV` (IO5), `LV` (IO33), `VSS` |
+| HV → LV | HV=5.0 V → LV in 3.20–3.40 V |
+| LV → HV | LV=3.3 V → HV in 4.75–5.25 V |
+
+USB VBUS may be VIN; no D+/D−.
+
 ## CAD
 
 | Knob | v1 | m2 |
@@ -80,7 +95,7 @@ Missing `ngspice` fails tests (not skip).
 
 ```
 hw/power/
-  *.subckt / .cir     REG33 + rail test
+  *.subckt / .cir     REG33, LVLSH, rail/EN/shifter tests
   *.kicad_sch         LDO schematic (m2)
 ```
 
@@ -88,4 +103,4 @@ Python unittest under `compiler/tests/` runs `ngspice -b` and reads printed `v(v
 
 ## Out of this document
 
-Fab vendor / gerber order, USB 5 V, FPGA/MCU board PGOOD handshake (this IC has no PGOOD), current budget, thermal, bench measurement, CELL-019 5 V I/O cells.
+Fab vendor / gerber order, USB D+/D− PHY, FPGA/MCU board PGOOD handshake, current budget, thermal, bench measurement, CELL-019 MOSFET 5 V I/O cells, named level-shifter IC.
