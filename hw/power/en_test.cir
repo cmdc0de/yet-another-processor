@@ -1,0 +1,18 @@
+AP2112M-3.3TRG1 EN on/off. VIN=5.0 V. EN net driven.
+* CPU core, SRAM/bus, and MCU I/O use VDD (not VIN)
+.include reg33.subckt
+VIN vin 0 DC 5.0
+VEN en 0 DC 5.0
+Xap vin vdd en 0 AP2112M_3V3
+CIN vin 0 1u
+COUT vdd 0 1u
+Rload vdd 0 1k
+.control
+set filetype=ascii
+op
+print v(vdd)
+alter VEN = 0
+op
+print v(vdd)
+.endc
+.end

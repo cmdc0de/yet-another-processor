@@ -38,7 +38,7 @@ Implementation: `hw/power/`. Tests under `compiler/tests/`. v1 is **simulation**
 
 | ID | Feature | Status | Milestone |
 |----|---------|--------|-----------|
-| POWER-010 | Enable / PGOOD sequence to FPGA and MCU | claimed | m3 |
+| POWER-010 | ~~Enable / PGOOD sequence to FPGA and MCU~~ | implemented | m3 |
 
 ## Later generation (do not pull into m1)
 
