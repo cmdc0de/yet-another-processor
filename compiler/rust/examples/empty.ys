@@ -1,0 +1,3 @@
+// COMPILER-RUST m1: empty entry.
+fn main() {
+}

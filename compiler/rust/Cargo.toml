@@ -1,0 +1,10 @@
+[package]
+name = "yap-compiler"
+version = "0.1.0"
+edition = "2021"
+description = "YAP high-level language to YAP1"
+publish = false
+
+[[bin]]
+name = "yap-compiler"
+path = "src/main.rs"
