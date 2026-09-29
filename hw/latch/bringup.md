@@ -1,6 +1,6 @@
 # Latch bring-up (PHYSICAL-CPU-017)
 
-Assemble `hw/latch/latch.kicad_pcb` from `bom.txt`. Header pin order **VDD, VSS, D, EN, Q** (2.54 mm).
+Assemble `hw/latch/latch.kicad_pcb` from `bom.txt` and `assembly.md` (which MOSFET, which pin, which net). Header pin order **VDD, VSS, D, EN, Q** (2.54 mm).
 
 Rails: VDD = 3.3 V, VSS = 0. Measure Q vs VSS. Same follow/hold as PHYSICAL-CPU-004.
 
